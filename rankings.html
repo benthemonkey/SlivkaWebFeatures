@@ -1,0 +1,98 @@
+<html>
+<head>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
+	<link rel="stylesheet" href="css/bootstrap.min.css" />
+	<link rel="stylesheet" href="DataTables/media/css/jquery.dataTables.css" />
+	<link rel="stylesheet" href="DataTables/media/css/demo_table.css" />
+	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+	<script src="DataTables/media/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+	<script type="text/javascript">
+	$(document).ready(function(){
+		$.getJSON("ajax/getRankings.php",function(data){
+			rankings = data.females;
+
+			for(var i=0; i<rankings.length; i++){
+				s = "<tr"+(rankings[i].abstains=="1"?' class="red"':(rankings[i].above_cutoff=="1"?' class="green"':""))+"><td>"+rankings[i].full_name+"</td><td>"+rankings[i].spring_point_total+"</td><td>"+rankings[i].fall_point_total+"</td><td>"+rankings[i].winter_point_total+"</td><td>"+rankings[i].total+"</td><td>"+rankings[i].multiplier+"</td><td>"+rankings[i].total_with_multiplier+"</td></tr>";
+				$(s).appendTo('#table-females');
+			}
+
+			rankings = data.males;
+
+			for(var i=0; i<rankings.length; i++){
+				s = "<tr"+(rankings[i].abstains=="1"?' class="red"':(rankings[i].above_cutoff=="1"?' class="green"':""))+"><td>"+rankings[i].full_name+"</td><td>"+rankings[i].spring_point_total+"</td><td>"+rankings[i].fall_point_total+"</td><td>"+rankings[i].winter_point_total+"</td><td>"+rankings[i].total+"</td><td>"+rankings[i].multiplier+"</td><td>"+rankings[i].total_with_multiplier+"</td></tr>";
+				$(s).appendTo('#table-males');
+			}
+
+			$('.dataTable').dataTable({
+				"aaSorting": [ [6,'desc'] ],
+				"bPaginate" : false
+			});
+
+			$('.red.odd').css("background-color","#FF6666");
+			$('.red.even').css("background-color","#FF9999");
+			$('.green.odd').css("background-color","#66FF66");
+			$('.green.even').css("background-color","#A3FFA3");
+
+			$('#male-count').text($('#table-males').find('.green').length);
+			$('#female-count').text($('#table-females').find('.green').length);
+
+			$('#tabs').tabs();
+		})
+	})
+	</script>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="span2" style="padding: 0px 20px;">Counts: Males - <span id="male-count">0</span><br/>Females - <span id="female-count"></span></div>
+			<p class="span2" style="padding: 20px; background-image: -ms-linear-gradient(top, #66FF66 0%, #A3FFA3 100%); background-image: -moz-linear-gradient(top, #66FF66 0%, #A3FFA3 100%); background-image: -o-linear-gradient(top, #66FF66 0%, #A3FFA3 100%); background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #66FF66), color-stop(1, #A3FFA3)); background-image: -webkit-linear-gradient(top, #66FF66 0%, #A3FFA3 100%); background-image: linear-gradient(to bottom, #66FF66 0%, #A3FFA3 100%);">Above points cut-off, can be pulled.</p>
+			<p class="span3" style="padding: 20px; background-image: -ms-linear-gradient(top, #FF6666 0%, #FF9999 100%); background-image: -moz-linear-gradient(top, #FF6666 0%, #FF9999 100%); background-image: -o-linear-gradient(top, #FF6666 0%, #FF9999 100%); background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #FF6666), color-stop(1, #FF9999)); background-image: -webkit-linear-gradient(top, #FF6666 0%, #FF9999 100%); background-image: linear-gradient(to bottom, #FF6666 0%, #FF9999 100%);">Abstaining from housing selection or below points minimum.</p>
+			<p class="span3" style="padding: 20px; background-image: -ms-linear-gradient(top, #FFFFFF 0%, #E2E4FF 100%); background-image: -moz-linear-gradient(top, #FFFFFF 0%, #E2E4FF 100%); background-image: -o-linear-gradient(top, #FFFFFF 0%, #E2E4FF 100%); background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #FFFFFF), color-stop(1, #E2E4FF)); background-image: -webkit-linear-gradient(top, #FFFFFF 0%, #E2E4FF 100%); background-image: linear-gradient(to bottom, #FFFFFF 0%, #E2E4FF 100%);">Other: Able to move in if spot opens. Cannot be pulled.</p>
+		</div>	
+		<div id="tabs">
+			<ul>
+	            <li><a href="#girls-tab"><span>Girls</span></a></li>
+	            <li><a href="#guys-tab"><span>Guys</span></a></li>
+	        </ul>
+	        <div id="girls-tab">
+	        	<table cellpadding="0" cellspacing="0" border="0" class="display dataTable">
+			        <thead>
+			          <tr>
+			            <th>Name</th>
+			            <th>Spring</th>
+			            <th>Fall</th>
+			            <th>Winter</th>
+			            <th>Total</th>
+			            <th>Mult</th>
+			            <th>TwMult</th>
+			          </tr>
+			        </thead>
+			        <tbody id="table-females">
+			        </tbody>
+			    </table>
+	        </div>
+	        <div id="guys-tab">
+	        	<table cellpadding="0" cellspacing="0" border="0" class="display dataTable">
+			        <thead>
+			          <tr>
+			            <th>Name</th>
+			            <th>Spring</th>
+			            <th>Fall</th>
+			            <th>Winter</th>
+			            <th>Total</th>
+			            <th>Mult</th>
+			            <th>TwMult</th>
+			          </tr>
+			        </thead>
+			        <tbody id="table-males">
+			        </tbody>
+			    </table>
+	        </div>
+		</div>
+		<div class="spacer"></div>
+		<br/>
+		This page uses Allan Jardine's <a href="http://www.datatables.net" target="_blank">Data Tables</a>.
+	</div>	
+</body>
+</html>
