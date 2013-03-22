@@ -18,7 +18,7 @@ jQuery(document).ready(function(){
 	//navigate away warning
 	$(window).bind('beforeunload', function() {return 'Your points form was not submitted.'});
 
-    $.getJSON("ajax/getSlivkans.php",function(data){ //http://slivka.northwestern.edu
+    $.getJSON("ajax/getSlivkans.php",function(data){
         slivkans = data.slivkans
         nicknames = data.nicknames
         fellows = data.fellows;
@@ -47,8 +47,8 @@ function init(){
 	appendNameInputs(10);
 	appendFellowInputs(5);
 	$("#date-val").text($("#date").val());
-	$('#filled-by').autocomplete({source: slivkans.full_name.concat(nicknames.nickname)});
-	$('#bulk-corrections').autocomplete({source: slivkans.full_name.concat(nicknames.nickname)});
+	$('#filled-by').typeahead({source: slivkans.full_name.concat(nicknames.nickname)})
+	$('#bulk-corrections').typeahead({source: slivkans.full_name.concat(nicknames.nickname)});
 }
 
 function appendNameInputs(n){
@@ -66,7 +66,7 @@ function appendNameInputs(n){
 		$(makestring(i+num_inputs)).appendTo('#single-entry-tab');
 	}
 
-	$('.single-entry').autocomplete({source: slivkans.full_name.concat(nicknames.nickname)});
+	$('.single-entry').typeahead({source: slivkans.full_name.concat(nicknames.nickname)});
 
 	$('.single-entry').last().bind('focus',function(){
 		var num_inputs = $('.single-entry').length;
@@ -88,7 +88,7 @@ function appendFellowInputs(n){
 		$(makestring(i+num_inputs)).appendTo('#fellow-entry-tab');
 	}
 
-	$('.fellow-entry').autocomplete({source: fellows});
+	$('.fellow-entry').typeahead({source: fellows});
 
 	$('.fellow-entry').last().bind('focus',function(){
 		var num_inputs = $('.fellow-entry').length;
@@ -168,7 +168,6 @@ function validatePointsForm(){
 
 	return valid;
 }
-
 
 function validateEventName(){
 	var valid = false, event_name = $('#event').val(), event_names = new Array();
@@ -254,9 +253,10 @@ function validateSingleName(ind){
     	$('.single-entry').eq(ind).val(name);
     }
 
+	//clear duplicates
     $('.single-entry').each(function(index){
-    	if($(this).val().length > 0)
-  		nameArray.push($(this).val());
+    	if (nameArray.indexOf($(this).val()) != -1){ $(this).val(''); $('#duplicate-alert').show(); } 
+    	if ($(this).val().length > 0){ nameArray.push($(this).val()) }
   	});
     
     $('.single-entry-error').eq(ind).removeClass("warning")
@@ -280,7 +280,7 @@ function validateSingleName(ind){
 		$('.single-entry-error').eq(ind).removeClass("success").removeClass("error");
 	}
 
-	if(!checkForDuplicates(nameArray)){ valid=false }
+	//if(!checkForDuplicates(nameArray)){ valid=false }
 	if(nameArray.length == 0){ valid=false }
     
     return valid;
@@ -356,14 +356,22 @@ function addBulkNames(){
 }
 
 function sortEntries(){
+	//start by removing duplicates
 	var nameArray = new Array();
+	//this implements a basic bubble sort. Not many names so shouldn't be an issue.
+	var sorted = false;
 
-	$('.single-entry').each(function(index){
-    	if($(this).val().length > 0)
-  		nameArray.push($(this).val());
-  		$(this).val("");
-  		validateSingleName(index);
-  	});
+	while (!sorted){
+		sorted = true;
+		$('.single-entry-error').each(function(index){
+	    	if($(this).val().length > 0)
+	  		nameArray.push($(this).val());
+	  		$(this).val("");
+	  		validateSingleName(index);
+	  	});
+	}
+
+	
 
   	nameArray = nameArray.sort().getUnique();
 
