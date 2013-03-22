@@ -59,8 +59,8 @@ jQuery(document).ready(function() {
         success: function(data){
         var path = "../img/";
         for (entry in data){
-            aDataSet.push([data[entry][0],data[entry][1],data[entry][2],data[entry][3],data[entry][4],data[entry][5],data[entry][6],
-                           '<img class="directoryphoto" src="' + path + data[entry][7] + '.jpg" title="'+data[entry][0]+' '+data[entry][2]+'" style="height: 100px; display: none;" />'])
+            aDataSet.push([data[entry][0],data[entry][1],data[entry][2],data[entry][3],data[entry][4],
+                           '<img class="directoryphoto" src="' + path + data[entry][5] + '.jpg" title="'+data[entry][0]+' '+data[entry][1]+'" style="height: 100px; display: none;" />'])
         }
         }
         })
@@ -75,13 +75,11 @@ jQuery(document).ready(function() {
     
     "aoColumns": [
     { "sTitle": "First Name" },
-    { "sTitle": "Nickname1" },
-    { "sTitle": "Nickname2" },
-                    { "sTitle": "Last Name" },
+    { "sTitle": "Last Name" },
     { "sTitle": "Year" },
     { "sTitle": "Major" },
     { "sTitle": "Suite" },
-                    { "sTitle": "Photo" },
+    { "sTitle": "Photo" },
     
     ],
                 
@@ -100,9 +98,7 @@ jQuery(document).ready(function() {
                     iDisplayStart: 0
     });
     
-    // Hide "nickname" columns
-    oTable.fnSetColumnVis(1, false);
-    oTable.fnSetColumnVis(2, false);
+    // Hide cols
     //oTable.fnSetColumnVis(7, false);
     
     // new FixedHeader( oTable );
