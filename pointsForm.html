@@ -7,7 +7,7 @@
         label{
             margin-top: 10px;
         }
-        .fellow-entry-error{
+        .fellow-entry-control{
             margin-bottom: 0px;
         }
         .validation-error {
@@ -27,7 +27,7 @@
         </style>
     </head>
     <body>
-        <div id="QR-entry" class="modal hide fade" role="dialog">
+        <div id="QR-entry" class="modal hide fade" role="dialog" style="width: auto; left: 75%">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h3>Paste Names from QR Codes</h3>
@@ -50,11 +50,11 @@
                             <div id="date"></div>
 
                             <label for="type">Type:</label>
-                            <div class="btn-group" id="type">
+                            <div class="btn-group" id="type" data-toggle="buttons-radio">
                                 <input type="button" name="p2p" value="p2p"  class="btn type-btn" onclick="toggleType(0)">
                                 <input type="button" name="im" value="im" class="btn type-btn" onclick="toggleType(1)">
                                 <input type="button" name="house mtg" value="house meeting" class="btn type-btn" onclick="toggleType(2)">
-                                <input type="button" name="other" value="other" class="btn type-btn btn-inverse" onclick="toggleType(3)">
+                                <input type="button" name="other" value="other" class="btn type-btn active" onclick="toggleType(3)">
                             </div>
 
                             <div class="control-group" id="event-error">
@@ -97,18 +97,18 @@
                             </div>
                         </div>
                         <div class="span5 pull-right">
-                            <div id="tabs">
-                                <ul class="nav nav-tabs">
-                                    <li><a href="#single-entry-tab"><span>Attendees</span></a></li>
-                                    <li><a href="#fellow-entry-tab"><span>Fellows</span></a></li>
-                                </ul>
+                            <ul class="nav nav-tabs" id="tabs">
+                                <li class="active"><a href="#single-entry-tab" data-toggle="tab"><span>Attendees</span></a></li>
+                                <li><a href="#fellow-entry-tab" data-toggle="tab"><span>Fellows</span></a></li>
+                            </ul>
 
+                            <div class="tab-content">
                                 <div class="validation-error" id="duplicate-error">
                                     <p>Duplicate Names:</p>
                                     <ul id="duplicate-error-names"></ul>
                                 </div>
 
-                                <div id="single-entry-tab" ><!--style="max-height: 420px; overflow: scroll;"-->
+                                <div class="tab-pane active" id="single-entry-tab" ><!--style="max-height: 420px; overflow: scroll;"-->
                                     <!--<div class="btn" style="margin-bottom: 10px" onclick="$('#dialog').dialog('open');"><i class="icon-qrcode"></i> QR</div>-->
                                     <a href="#QR-entry" role="button" class="btn" data-toggle="modal" style="margin-bottom: 10px"><i class="icon-qrcode"></i> QR</a>
                                     <div class="btn" style="margin-bottom: 10px" onclick="sortEntries()"><i class="icon-list" title="Sort"></i><i class="icon-arrow-down"></i></div>
@@ -121,15 +121,11 @@
                                         <small>Duplicate name!</small>
                                     </div>
                                 </div>
-                                <div id="fellow-entry-tab">
+                                <div class="tab-pane" id="fellow-entry-tab">
                                     
                                 </div>
-                                <p style="padding-left: 20px"><small>Additional inputs appear automatically.</small></p>
-
-                                <div id="dialog" title="Paste Names from QR Codes">
-                                    <!--<textarea name="bulk-names" id="bulk-names" rows="12" class="span4" onkeyup="processBulkNames()"></textarea>-->
-                                </div>
                             </div>
+                            <p style="padding-left: 20px"><small>Additional inputs appear automatically.</small></p>
                         </div>
                     </div>
                     <div class="form-actions">

@@ -35,7 +35,8 @@ jQuery(document).ready(function(){
     	}
     })
 
-    $('#tabs').tabs();
+    //$('#tabs').tabs();
+    $('#tabs a:first').tab('show');
     $('#dialog').dialog({
     	autoOpen: false,
     	buttons : [{text: "Add Names", 'class':'btn', click: function(){addBulkNames(); $('#bulk-names').val(""); $(this).dialog( "close" )}}],
@@ -53,8 +54,8 @@ function init(){
 
 function appendNameInputs(n){
 	function makestring(m){
-		return '<div class="control-group input-append single-entry-error">\
-		<input type="text" class="single-entry" name="single-entry" placeholder="Slivkan" onfocus="$(\'.single-entry-error\').eq('+m+').addClass(\'warning\')" onfocusout="validateSingleName('+m+')">\
+		return '<div class="control-group input-append single-entry-control">\
+		<input type="text" class="single-entry" name="single-entry" placeholder="Slivkan" onfocus="$(\'.single-entry-control\').eq('+m+').addClass(\'warning\')" onfocusout="validateSingleName('+m+')">\
 		<div class="btn helper-point" title="Give a Helper Point" onclick="toggleHelperPoint('+m+')"><i class="icon-heart"></i></div>\
 		<div class="btn committee-member disabled" title="Committee Member" onclick="toggleCommitteeMember('+m+')"><i class="icon-user"></i></div>\
 		</div>';
@@ -77,8 +78,8 @@ function appendNameInputs(n){
 
 function appendFellowInputs(n){
 	function makestring(m){
-		return '<div class="control-group fellow-entry-error">\
-		<input type="text" class="fellow-entry" name="fellow-entry" placeholder="Fellow" onfocus="$(\'.fellow-entry-error\').eq('+m+').addClass(\'warning\')" onfocusout="validateFellowName('+m+')">\
+		return '<div class="control-group fellow-entry-control">\
+		<input type="text" class="fellow-entry" name="fellow-entry" placeholder="Fellow" onfocus="$(\'.fellow-entry-control\').eq('+m+').addClass(\'warning\')" onfocusout="validateFellowName('+m+')">\
 		</div>';
 	}
 	
@@ -98,8 +99,6 @@ function appendFellowInputs(n){
 }
 
 function toggleType(ind){
-	$(".type-btn").removeClass("btn-inverse");
-	$(".type-btn").eq(ind).addClass("btn-inverse");
 	type = $(".type-btn").eq(ind).val();
 
 	if(type == "p2p"){
@@ -125,22 +124,18 @@ function toggleType(ind){
 
 function toggleHelperPoint(ind){
 	if(!($('.helper-point').eq(ind).hasClass("disabled"))){
-		$('.helper-point').eq(ind).toggleClass("btn-inverse");
-		$('.helper-point i').eq(ind).toggleClass("icon-white");
-		if($('.committee-member').eq(ind).hasClass("btn-inverse")){
-			$('.committee-member').eq(ind).toggleClass("btn-inverse");
-			$('.committee-member i').eq(ind).toggleClass("icon-white");
+		$('.helper-point').eq(ind).toggleClass("active");
+		if($('.committee-member').eq(ind).hasClass("active")){
+			$('.committee-member').eq(ind).toggleClass("active");
 		}
 	}
 }
 
 function toggleCommitteeMember(ind){
 	if(!($('.committee-member').eq(ind).hasClass("disabled"))){
-		$('.committee-member').eq(ind).toggleClass("btn-inverse");
-		$('.committee-member i').eq(ind).toggleClass("icon-white");
-		if($('.helper-point').eq(ind).hasClass("btn-inverse")){
-			$('.helper-point').eq(ind).toggleClass("btn-inverse");
-			$('.helper-point i').eq(ind).toggleClass("icon-white");
+		$('.committee-member').eq(ind).toggleClass("active");
+		if($('.helper-point').eq(ind).hasClass("active")){
+			$('.helper-point').eq(ind).toggleClass("active");
 		};
 	}
 }
@@ -255,11 +250,11 @@ function validateSingleName(ind){
 
 	//clear duplicates
     $('.single-entry').each(function(index){
-    	if (nameArray.indexOf($(this).val()) != -1){ $(this).val(''); $('#duplicate-alert').show(); } 
+    	if (nameArray.indexOf($(this).val()) != -1){ $(this).val(''); name=''; $('#duplicate-alert').show(); } 
     	if ($(this).val().length > 0){ nameArray.push($(this).val()) }
   	});
     
-    $('.single-entry-error').eq(ind).removeClass("warning")
+    $('.single-entry-control').eq(ind).removeClass("warning")
 
     if (name.length > 0){
     	name_ind = slivkans.full_name.indexOf(name);
@@ -268,19 +263,21 @@ function validateSingleName(ind){
 			if(slivkans.committee[name_ind] == $('#committee').val()){
 				$('.committee-member').eq(ind).removeClass("disabled");
 				$('.helper-point').eq(ind).addClass("disabled");
-				if(!($('.committee-member').eq(ind).hasClass('btn-inverse'))){toggleCommitteeMember(ind);}
+				if(!($('.committee-member').eq(ind).hasClass('active'))){toggleCommitteeMember(ind);}
 			}else{
 				$('.committee-member').eq(ind).addClass("disabled");
 				$('.helper-point').eq(ind).removeClass("disabled");
-				if($('.committee-member').eq(ind).hasClass('btn-inverse')){toggleCommitteeMember(ind);}
+				if($('.committee-member').eq(ind).hasClass('active')){toggleCommitteeMember(ind);}
 			}
 		}else{ valid=false }
-		updateValidity($('.single-entry-error').eq(ind),valid)
+		updateValidity($('.single-entry-control').eq(ind),valid)
 	}else{
-		$('.single-entry-error').eq(ind).removeClass("success").removeClass("error");
+		$('.single-entry-control').eq(ind).removeClass("success").removeClass("error");
+		$('.committee-member').eq(ind).addClass("disabled");
+		$('.helper-point').eq(ind).removeClass("disabled");
+		if($('.committee-member').eq(ind).hasClass('active')){toggleCommitteeMember(ind);}
 	}
 
-	//if(!checkForDuplicates(nameArray)){ valid=false }
 	if(nameArray.length == 0){ valid=false }
     
     return valid;
@@ -294,13 +291,13 @@ function validateFellowName(ind){
   		nameArray.push($(this).val());
   	});
     
-    $('.fellow-entry-error').eq(ind).removeClass("warning")
+    $('.fellow-entry-control').eq(ind).removeClass("warning")
 
     if (name.length > 0){
     	valid = fellows.indexOf(name) != -1;
-		updateValidity($('.fellow-entry-error').eq(ind),valid)
+		updateValidity($('.fellow-entry-control').eq(ind),valid)
 	}else{
-		$('.fellow-entry-error').eq(ind).removeClass("success").removeClass("error");
+		$('.fellow-entry-control').eq(ind).removeClass("success").removeClass("error");
 	}
 
 	if(!checkForDuplicates(nameArray)){ valid=false }
@@ -356,27 +353,50 @@ function addBulkNames(){
 }
 
 function sortEntries(){
-	//start by removing duplicates
 	var nameArray = new Array();
-	//this implements a basic bubble sort. Not many names so shouldn't be an issue.
-	var sorted = false;
 
-	while (!sorted){
-		sorted = true;
-		$('.single-entry-error').each(function(index){
-	    	if($(this).val().length > 0)
-	  		nameArray.push($(this).val());
-	  		$(this).val("");
-	  		validateSingleName(index);
-	  	});
-	}
 
-	
+	//forming name array, but appending values corresponding to the helper/committee buttons:
+	//0 - enabled unpressed, 1 - enabled pressed, 2 - disabled
+	$('.single-entry').each(function(index){
+    	if($(this).val().length > 0){
+    		name = $(this).val();
+    		h = "0"; 
+    		if($('.helper-point').eq(index).hasClass("active")){
+    			h = "1";
+    		}else if($('.helper-point').eq(index).hasClass("disabled")){
+    			h = "2";
+    		}
+
+			c = "0";
+    		if($('.committee-member').eq(index).hasClass("active")){
+    			c = "1";
+    		}else if($('.committee-member').eq(index).hasClass("disabled")){
+    			c = "2";
+    		}
+
+    		nameArray.push($(this).val()+h+c);
+    	}
+  		$(this).val("");
+  		validateSingleName(index);
+  	});
+
+  	//reset buttons
+  	$('.committee-member').removeClass('active').addClass('disabled');
+	$('.helper-point').removeClass('active').removeClass('disabled');
 
   	nameArray = nameArray.sort().getUnique();
 
   	for(var i=0; i<nameArray.length; i++){
-  		$('.single-entry').eq(i).val(nameArray[i])
+  		name = nameArray[i].slice(0,nameArray[i].length-2);
+  		h = nameArray[i].slice(nameArray[i].length-2,nameArray[i].length-1);
+  		c = nameArray[i].slice(nameArray[i].length-1);
+
+  		$('.single-entry').eq(i).val(name);
+  		if(h=="1") $('.helper-point').eq(i).addClass("active");
+  		if(h=="2") $('.helper-point').eq(i).addClass("disabled");
+  		if(c=="1") $('.committee-member').eq(i).addClass("active");
+  		if(c=="2") $('.committee-member').eq(i).addClass("disabled");
   		validateSingleName(i);
   	}
 
@@ -438,10 +458,8 @@ function resetForm(){
 		validateFellowName(index);
 	})
 
-	$('.committee-member').removeClass('btn-inverse');
-	$('.committee-member i').removeClass('icon-white');
-	$('.helper-point').removeClass('btn-inverse');
-	$('.helper-point i').removeClass('icon-white');
+	$('.committee-member').removeClass('active').addClass('disabled');
+	$('.helper-point').removeClass('active').removeClass('disabled');
 
 	$('#event-name-error').fadeOut();
 	$('#description-length-error').fadeOut();
