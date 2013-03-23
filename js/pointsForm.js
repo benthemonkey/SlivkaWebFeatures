@@ -1,5 +1,4 @@
 var slivkans, nicknames, fellows,
-type = "other",
 valid_event_name = false;
 
 Array.prototype.getUnique = function(){
@@ -34,6 +33,9 @@ jQuery(document).ready(function(){
     		validateEventName();
     	}
     })
+
+    //event handlers for type
+    $('.type-btn').click(function(event){toggleType(event);});
 
     //$('#tabs').tabs();
     $('#tabs a:first').tab('show');
@@ -98,27 +100,28 @@ function appendFellowInputs(n){
 	});
 }
 
-function toggleType(ind){
-	type = $(".type-btn").eq(ind).val();
+function toggleType(event){
+	var type = event.target.value;
 
-	if(type == "p2p"){
+	if(type == "P2P"){
 		$("#committee").val("Faculty");
 		$("#event").val("P2P");
-		validateEventName();
-	}else if(type == "im"){
+	}else if(type == "IM"){
 		$("#committee").val("Social");
-	}else if(type == "house meeting"){
-		type="house_meeting";
+		$("#event").val("");
+	}else if(type == "House Meeting"){
 		$("#committee").val("Exec");
 		$("#event").val("House Meeting");
-		validateEventName();
+	}else{
+		$("#event").val("");
 	}
+	validateEventName();
 
-	if(type == "other"){
-		$("#description-error").slideDown();
+	if(type == "Other"){
+		$(".description-control").slideDown();
 	}else{
 		validateCommittee();
-		$("#description-error").slideUp();
+		$(".description-control").slideUp();
 	}
 }
 
@@ -144,7 +147,7 @@ function validatePointsForm(){
 	var valid = true,
 	errors = new Array();
 
-	if (!valid_event_name){valid = false; updateValidity($("#event-error"),valid); errors.push("Name");}
+	if (!valid_event_name){valid = false; updateValidity($(".event-control"),valid); errors.push("Name");}
 	if (!validateCommittee()){valid = false; errors.push("Committee");}
 	if (!validateDescription()){valid = false; errors.push("Description");}
 	if (!validateFilledBy()){valid = false; errors.push("Filled By");}
@@ -167,11 +170,13 @@ function validatePointsForm(){
 function validateEventName(){
 	var valid = false, event_name = $('#event').val(), event_names = new Array();
 
-	if(event_name.length > 5){
+	valid_event_name = false;
+
+	if(event_name.length > 0){
 		event_name += ' '+$("#date").val();
 
 		$.getJSON("ajax/getEvents.php",function(data){
-			$("#event-error").removeClass("warning");
+			$(".event-control").removeClass("warning");
 
 			if(data.event_names.length > 0){
 				event_names = data.event_names;
@@ -188,10 +193,10 @@ function validateEventName(){
 				valid_event_name = true;
 			}
 
-			updateValidity($("#event-error"),valid_event_name);
+			updateValidity($(".event-control"),valid_event_name);
 		})
 	}else{
-		updateValidity($("#event-error"),valid_event_name);
+		updateValidity($(".event-control"),valid_event_name);
 	}
 
 	return valid;
@@ -202,7 +207,7 @@ function validateCommittee(){
 
 	valid = committee != "Select One";
 
-	updateValidity($('#committee-error'),valid);
+	updateValidity($('.committee-control'),valid);
 
 	$('.single-entry').each(function(index){
 		validateSingleName(index);
@@ -213,14 +218,14 @@ function validateCommittee(){
 
 function validateDescription(){
 	var valid = true, description = $("#description").val();
-	if(description.length < 10 && type == "other"){
+	if(description.length < 10 && $('.type-btn.active').val() == "other"){
 		valid = false;
 		$("#description-length-error").fadeIn();
 	}else{
 		$("#description-length-error").fadeOut();
 	}
 
-	updateValidity($("#description-error"),valid);
+	updateValidity($(".description-control"),valid);
 
 	return valid;
 }
@@ -233,15 +238,22 @@ function validateFilledBy(){
     	$('#filled-by').val(name);
     }
 
-	valid = slivkans.full_name.indexOf(name) != -1;
+    $('.filled-by-control').removeClass("warning");
 
-	updateValidity($('#filled-by-error'),valid);
+    if(name.length > 0){
+    	valid = slivkans.full_name.indexOf(name) != -1;
+		updateValidity($('.filled-by-control'),valid);
+    }else{
+    	$('.filled-by-control').removeClass('error');
+    }
+
+	
 
 	return valid;
 }
 
 function validateSingleName(ind){
-    var valid = true, nameArray = [], name = $('.single-entry').eq(ind).val();
+    var valid = true, nameArray = new Array(), name = $('.single-entry').eq(ind).val();
 
     if (nicknames.nickname.indexOf(name) != -1){
     	name = nicknames.aka[nicknames.nickname.indexOf(name)];
@@ -250,7 +262,7 @@ function validateSingleName(ind){
 
 	//clear duplicates
     $('.single-entry').each(function(index){
-    	if (nameArray.indexOf($(this).val()) != -1){ $(this).val(''); name=''; $('#duplicate-alert').show(); } 
+    	if (nameArray.indexOf($(this).val()) != -1){ $(this).val(''); name=''; $('#duplicate-alert').slideDown(); }
     	if ($(this).val().length > 0){ nameArray.push($(this).val()) }
   	});
     
@@ -400,7 +412,7 @@ function sortEntries(){
   		validateSingleName(i);
   	}
 
-  	$('#sort-alert').show();
+  	$('#sort-alert').slideDown();
 }
 
 function checkForDuplicates(arr){
@@ -441,11 +453,11 @@ function updateValidity(element,valid){
 }
 
 function resetForm(){
-	$('#event').val(""); $('#event-error').removeClass("success").removeClass("error");
-	$('#description').val(""); $('#description-error').removeClass("success").removeClass("error");
-	$('#committee').val("Select One"); $('#committee-error').removeClass("success").removeClass("error");
+	$('#event').val(""); $('.event-control').removeClass("success").removeClass("error");
+	$('#description').val(""); $('.description-control').removeClass("success").removeClass("error");
+	$('#committee').val("Select One"); $('.committee-control').removeClass("success").removeClass("error");
 	toggleType(3);
-	$('#filled-by').val(""); $('#filled-by-error').removeClass("success").removeClass("error").removeClass("warning");
+	$('#filled-by').val(""); $('.filled-by-control').removeClass("success").removeClass("error");
 	$('#comments').val("");
 
 	$('.single-entry').each(function(index){
@@ -472,7 +484,7 @@ function submitPointsForm(){
 
 	var data = {
 		date: $('#date').val(),
-		type: type,
+		type: $('.type-btn.active').val().toLowerCase().replace(" ","_"),
 		committee: $('#committee').val(),
 		event_name: $('#event').val(),
 		description: $('#description').val(),
@@ -489,9 +501,9 @@ function submitPointsForm(){
 		if(name.length > 0){
 			name_ind = slivkans.full_name.indexOf(name);
 			data.attendees.push(slivkans.nu_email[name_ind]);
-			if($('.helper-point').eq(index).hasClass("btn-inverse")){
+			if($('.helper-point').eq(index).hasClass("active")){
 				data.helper_points.push(slivkans.nu_email[name_ind]);
-			}else if($('.committee-member').eq(index).hasClass("btn-inverse")){
+			}else if($('.committee-member').eq(index).hasClass("active")){
 				data.committee_members.push(slivkans.nu_email[name_ind]);
 			}
 		}

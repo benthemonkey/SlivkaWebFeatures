@@ -1,8 +1,11 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="en">
     <head>
-        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
-        <link rel="stylesheet" href="css/bootstrap.css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />-->
+        <link rel="stylesheet" href="css/custom-theme/jquery-ui-1.9.2.custom.css" />
+        <link rel="stylesheet" href="css/bootstrap.min.css" />
+        <link rel="stylesheet" href="css/bootstrap-responsive.css" />
         <style type="text/css">
         label{
             margin-top: 10px;
@@ -24,48 +27,44 @@
             -webkit-border-radius: 7px;
             font-size: 10pt;
         }
+
+        #single-entry-tab-buttons{
+            margin-bottom: 10px;
+            display: block;
+        }
         </style>
     </head>
     <body>
-        <div id="QR-entry" class="modal hide fade" role="dialog" style="width: auto; left: 75%">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h3>Paste Names from QR Codes</h3>
-            </div>
-            <div class="modal-body">
-                <textarea name="bulk-names" id="bulk-names" rows="12" class="span5" onkeyup="processBulkNames()"></textarea>
-            </div>
-            <div class="modal-footer">
-                <a href="#" class="btn">Cancel</a>
-                <a href="#" class="btn btn-primary" onclick="addBulkNames()" data-dismiss="modal" >Add Names</a>
-            </div>
-        </div>
         <div class="container">
-            <form autocomplete="off" class="span10 offset1" onsubmit="return validatePointsForm();" >
+            <div class="span8 offset2"
+            <form autocomplete="off" id="formfilters">
                 <fieldset>
+                    <legend>Points Submission Form</legend>
                     <div class="row">
-                        <legend>Points Submission Form</legend>
-                        <div class="span5">
-                            <label for="date">Date: <span id="date-val" class="uneditable-input text-center" style="width: 80px"></span></label>
+                        <div class="span4">
+                            <div class="control-group">
+                                <label for="date">Date:</label>
+                                <div id="date-val" class="uneditable-input text-center span2"></div>
+                            </div>
                             <div id="date"></div>
 
                             <label for="type">Type:</label>
                             <div class="btn-group" id="type" data-toggle="buttons-radio">
-                                <input type="button" name="p2p" value="p2p"  class="btn type-btn" onclick="toggleType(0)">
-                                <input type="button" name="im" value="im" class="btn type-btn" onclick="toggleType(1)">
-                                <input type="button" name="house mtg" value="house meeting" class="btn type-btn" onclick="toggleType(2)">
-                                <input type="button" name="other" value="other" class="btn type-btn active" onclick="toggleType(3)">
+                                <input type="button" name="p2p" value="P2P"  class="btn type-btn">
+                                <input type="button" name="im" value="IM" class="btn type-btn">
+                                <input type="button" name="house meeting" value="House Meeting" class="btn type-btn">
+                                <input type="button" name="other" value="Other" class="btn type-btn active">
                             </div>
 
-                            <div class="control-group" id="event-error">
+                            <div class="control-group event-control">
                                 <label class="control-label" for="event">Event name:</label>
-                                <input type="text" name="event" id="event" class="input" onfocus="$('#event-error').addClass('warning');" onfocusout="validateEventName()">
+                                <input type="text" name="event" id="event" class="input span3" onfocus="$('.event-control').addClass('warning');" onfocusout="validateEventName()">
                                 <span class="help-inline" id="event-name-error" style="display: none">Event Name+Date combination taken</span>
                             </div>
 
-                            <div class="control-group" id="committee-error">
+                            <div class="control-group committee-control">
                                 <label class="control-label">Committee:</label>
-                                <select id="committee" onchange="validateCommittee()">
+                                <select id="committee" class="input span3" onchange="validateCommittee()">
                                     <option>Select One</option>
                                     <option>Exec</option>
                                     <option>Academic</option>
@@ -79,25 +78,25 @@
                                 </select>
                             </div>
 
-                            <div class="control-group" id="description-error">
+                            <div class="control-group description-control">
                                 <label class="control-label" for="description">Description:</label>
-                                <textarea rows="3" name="description" id="description" onfocusout="validateDescription();"></textarea>
-                                <span class="help-inline" id="description-length-error" style="display: none">Be enthusiastic and descriptive!</span>
+                                <textarea rows="3" name="description" id="description" class="input span3" onfocusout="validateDescription();"></textarea>
+                                <span class="help-block" id="description-length-error" style="display: none">Be enthusiastic and descriptive!</span>
                             </div>
 
-                            <div class="control-group" id="filled-by-error">
+                            <div class="control-group filled-by-control">
                                 <label class="control-label" for="filled-by">Points filled out by:</label>
-                                <input type="text" name="filled-by" id="filled-by" class="input" onfocus="$('#filled-by-error').addClass('warning')" onfocusout="validateFilledBy()">
+                                <input type="text" name="filled-by" id="filled-by" class="input span3" onfocus="$('.filled-by-control').addClass('warning')" onfocusout="validateFilledBy()">
                             </div>
 
                             <div class="control-group">
                                 <label class="control-label" for="comments">Comments:</label>
-                                <span class="help-inline">No-shows, issues with form, etc.</span>
-                                <textarea name="comments" id="comments" rows="3"></textarea>
+                                <textarea name="comments" id="comments" class="input span3" rows="3"></textarea>
+                                <span class="help-block">No-shows, issues with form, etc.</span>
                             </div>
                         </div>
-                        <div class="span5 pull-right">
-                            <ul class="nav nav-tabs" id="tabs">
+                        <div class="span4">
+                            <ul class="nav nav-tabs" id="tabs" style="margin-top: 10px;">
                                 <li class="active"><a href="#single-entry-tab" data-toggle="tab"><span>Attendees</span></a></li>
                                 <li><a href="#fellow-entry-tab" data-toggle="tab"><span>Fellows</span></a></li>
                             </ul>
@@ -110,16 +109,19 @@
 
                                 <div class="tab-pane active" id="single-entry-tab" ><!--style="max-height: 420px; overflow: scroll;"-->
                                     <!--<div class="btn" style="margin-bottom: 10px" onclick="$('#dialog').dialog('open');"><i class="icon-qrcode"></i> QR</div>-->
-                                    <a href="#QR-entry" role="button" class="btn" data-toggle="modal" style="margin-bottom: 10px"><i class="icon-qrcode"></i> QR</a>
-                                    <div class="btn" style="margin-bottom: 10px" onclick="sortEntries()"><i class="icon-list" title="Sort"></i><i class="icon-arrow-down"></i></div>
-                                    <div class="alert alert-success" id="sort-alert" style="display:none">
-                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                    <div class="alert alert-success hide" id="sort-alert">
+                                        <button type="button" class="close" onclick="$('#sort-alert').slideUp()">&times;</button>
                                         <small>Sorted names!</small>
                                     </div>
-                                    <div class="alert alert-warning" id="duplicate-alert" style="display:none">
-                                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                    <div class="alert alert-warning hide" id="duplicate-alert">
+                                        <button type="button" class="close" onclick="$('#duplicate-alert').slideUp()">&times;</button>
                                         <small>Duplicate name!</small>
                                     </div>
+                                    <div id="single-entry-tab-buttons">
+                                        <!--<a href="#QR-entry" role="button" class="btn" data-toggle="modal"><i class="icon-qrcode"></i> QR</a>-->
+                                        <div class="btn" role="button" data-toggle="modal" data-target="#QR-entry"><i class="icon-qrcode"></i> QR</div>
+                                        <div class="btn" onclick="sortEntries()"><i class="icon-list" title="Sort"></i><i class="icon-arrow-down"></i></div>
+                                    </div>  
                                 </div>
                                 <div class="tab-pane" id="fellow-entry-tab">
                                     
@@ -129,7 +131,7 @@
                         </div>
                     </div>
                     <div class="form-actions">
-                        <button type="button" class="btn btn-primary" onclick="validatePointsForm()">Submit</button>
+                        <button type="submit" class="btn btn-primary" onclick="validatePointsForm()" >Submit</button>
                         <button type="button" class="btn" onclick="$('#real-reset').fadeToggle()">Reset</button>
                         <button type="button" class="btn btn-danger" id="real-reset" onclick="resetForm()" style="display: none">Really Reset?</button>
                         <div class="help-inline" id="submit-error" style="display: none"></div>
@@ -137,8 +139,21 @@
                 </fieldset>
             </form>
         </div>
+        <div id="QR-entry" class="modal hide fade" role="dialog" style="width: auto;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3>Paste Names from QR Codes</h3>
+            </div>
+            <div class="modal-body">
+                <textarea name="bulk-names" id="bulk-names" rows="12" class="span5" onkeyup="processBulkNames()"></textarea>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+                <a href="#" class="btn btn-primary" onclick="addBulkNames()" data-dismiss="modal" >Add Names</a>
+            </div>
+        </div>
         <script type="text/javascript" src="js/jquery.min.js"></script>
-        <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+        <<script type="text/javascript" src="js/jquery-ui.min.js"></script>
         <script type="text/javascript" src="js/bootstrap.min.js"></script>
         <script type="text/javascript" src="js/pointsForm.js"></script>
     </body>
