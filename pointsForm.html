@@ -1,42 +1,42 @@
 <!DOCTYPE HTML>
 <html lang="en">
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />-->
-        <link rel="stylesheet" href="css/custom-theme/jquery-ui-1.9.2.custom.css" />
-        <link rel="stylesheet" href="css/bootstrap.min.css" />
-        <link rel="stylesheet" href="css/bootstrap-responsive.css" />
-        <style type="text/css">
-        label{
-            margin-top: 10px;
-        }
-        .fellow-entry-control{
-            margin-bottom: 0px;
-        }
-        .validation-error {
-            display: none;
-            background-color: #520063;
-            color: #FFFFFF;
-            width: 160px;
-            padding: 10px;
-            border: 1px solid gray;
-            position: absolute;
-            float: right;
-            right: -190px;
-            -webkit-box-shadow: 3px 3px 3px #999999;
-            -webkit-border-radius: 7px;
-            font-size: 10pt;
-        }
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />-->
+    <link rel="stylesheet" href="css/custom-theme/jquery-ui-1.9.2.custom.css" />
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/bootstrap-responsive.css" />
+    <style type="text/css">
+    label{
+        margin-top: 10px;
+    }
+    .fellow-entry-control{
+        margin-bottom: 0px;
+    }
+    .validation-error {
+        display: none;
+        background-color: #520063;
+        color: #FFFFFF;
+        width: 160px;
+        padding: 10px;
+        border: 1px solid gray;
+        position: absolute;
+        float: right;
+        right: -190px;
+        -webkit-box-shadow: 3px 3px 3px #999999;
+        -webkit-border-radius: 7px;
+        font-size: 10pt;
+    }
 
-        #single-entry-tab-buttons{
-            margin-bottom: 10px;
-            display: block;
-        }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="span8 offset2"
+    #single-entry-tab-buttons{
+        margin-bottom: 10px;
+        display: block;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="span8 offset2">
             <form autocomplete="off" id="formfilters">
                 <fieldset>
                     <legend>Points Submission Form</legend>
@@ -59,7 +59,8 @@
                             <div class="control-group event-control">
                                 <label class="control-label" for="event">Event name:</label>
                                 <input type="text" name="event" id="event" class="input span3" onfocus="$('.event-control').addClass('warning');" onfocusout="validateEventName()">
-                                <span class="help-inline" id="event-name-error" style="display: none">Event Name+Date combination taken</span>
+                                <div class="help-block hide" id="event-name-error">Event name + date combination taken</div>
+                                <div class="help-block hide" id="event-name-length-error">Event name must be longer than 8 characters</div>
                             </div>
 
                             <div class="control-group committee-control">
@@ -81,7 +82,7 @@
                             <div class="control-group description-control">
                                 <label class="control-label" for="description">Description:</label>
                                 <textarea rows="3" name="description" id="description" class="input span3" onfocusout="validateDescription();"></textarea>
-                                <span class="help-block" id="description-length-error" style="display: none">Be enthusiastic and descriptive!</span>
+                                <div class="help-block hide" id="description-length-error">Be enthusiastic and descriptive!</div>
                             </div>
 
                             <div class="control-group filled-by-control">
@@ -91,8 +92,8 @@
 
                             <div class="control-group">
                                 <label class="control-label" for="comments">Comments:</label>
+                                <small class="help-block" style="margin-bottom: 0px">No-shows, issues with form, etc.</small>
                                 <textarea name="comments" id="comments" class="input span3" rows="3"></textarea>
-                                <span class="help-block">No-shows, issues with form, etc.</span>
                             </div>
                         </div>
                         <div class="span4">
@@ -107,8 +108,7 @@
                                     <ul id="duplicate-error-names"></ul>
                                 </div>
 
-                                <div class="tab-pane active" id="single-entry-tab" ><!--style="max-height: 420px; overflow: scroll;"-->
-                                    <!--<div class="btn" style="margin-bottom: 10px" onclick="$('#dialog').dialog('open');"><i class="icon-qrcode"></i> QR</div>-->
+                                <div class="tab-pane active" id="single-entry-tab" >
                                     <div class="alert alert-success hide" id="sort-alert">
                                         <button type="button" class="close" onclick="$('#sort-alert').slideUp()">&times;</button>
                                         <small>Sorted names!</small>
@@ -122,9 +122,15 @@
                                         <div class="btn" role="button" data-toggle="modal" data-target="#QR-entry"><i class="icon-qrcode"></i> QR</div>
                                         <div class="btn" onclick="sortEntries()"><i class="icon-list" title="Sort"></i><i class="icon-arrow-down"></i></div>
                                     </div>  
+                                    <!--<div class="control-group input-prepend input-append single-entry-control">
+                                        <span class="add-on">1</span>
+                                        <input type="text" class="single-entry" name="single-entry" placeholder="Slivkan" onfocus="$(this).parent().addClass('warning')" onfocusout="validateSingleName(1)">
+                                        <div class="btn helper-point" title="Give a Helper Point" onclick="toggleHelperPoint(1)"><i class="icon-heart"></i></div>
+                                        <div class="btn committee-member disabled" title="Committee Member" onclick="toggleCommitteeMember(1)"><i class="icon-user"></i></div>
+                                    </div>-->
                                 </div>
                                 <div class="tab-pane" id="fellow-entry-tab">
-                                    
+
                                 </div>
                             </div>
                             <p style="padding-left: 20px"><small>Additional inputs appear automatically.</small></p>
@@ -139,22 +145,23 @@
                 </fieldset>
             </form>
         </div>
-        <div id="QR-entry" class="modal hide fade" role="dialog" style="width: auto;">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h3>Paste Names from QR Codes</h3>
-            </div>
-            <div class="modal-body">
-                <textarea name="bulk-names" id="bulk-names" rows="12" class="span5" onkeyup="processBulkNames()"></textarea>
-            </div>
-            <div class="modal-footer">
-                <a href="#" class="btn" data-dismiss="modal">Cancel</a>
-                <a href="#" class="btn btn-primary" onclick="addBulkNames()" data-dismiss="modal" >Add Names</a>
-            </div>
+    </div>
+    <div id="QR-entry" class="modal hide fade" role="dialog" style="width: auto;">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3>Paste Names from QR Codes</h3>
         </div>
-        <script type="text/javascript" src="js/jquery.min.js"></script>
-        <<script type="text/javascript" src="js/jquery-ui.min.js"></script>
-        <script type="text/javascript" src="js/bootstrap.min.js"></script>
-        <script type="text/javascript" src="js/pointsForm.js"></script>
-    </body>
+        <div class="modal-body">
+            <textarea name="bulk-names" id="bulk-names" rows="12" class="span5" onkeyup="processBulkNames()"></textarea>
+        </div>
+        <div class="modal-footer">
+            <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+            <a href="#" class="btn btn-primary" onclick="addBulkNames()" data-dismiss="modal" >Add Names</a>
+        </div>
+    </div>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/pointsForm.js"></script>
+</body>
 </html>

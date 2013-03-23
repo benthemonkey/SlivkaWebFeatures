@@ -47,7 +47,7 @@ jQuery(document).ready(function(){
 })
 
 function init(){
-	appendNameInputs(10);
+	appendNameInputs(15);
 	appendFellowInputs(5);
 	$("#date-val").text($("#date").val());
 	$('#filled-by').typeahead({source: slivkans.full_name.concat(nicknames.nickname)})
@@ -172,7 +172,7 @@ function validateEventName(){
 
 	valid_event_name = false;
 
-	if(event_name.length > 0){
+	if(event_name.length > 8 || event_name == "P2P"){
 		event_name += ' '+$("#date").val();
 
 		$.getJSON("ajax/getEvents.php",function(data){
@@ -192,10 +192,11 @@ function validateEventName(){
 			}else{
 				valid_event_name = true;
 			}
-
+			$('#event-name-length-error').fadeOut();
 			updateValidity($(".event-control"),valid_event_name);
 		})
 	}else{
+		$('#event-name-length-error').fadeIn();
 		updateValidity($(".event-control"),valid_event_name);
 	}
 
@@ -218,7 +219,8 @@ function validateCommittee(){
 
 function validateDescription(){
 	var valid = true, description = $("#description").val();
-	if(description.length < 10 && $('.type-btn.active').val() == "other"){
+
+	if(description.length < 10 && $('.type-btn.active').val() == "Other"){
 		valid = false;
 		$("#description-length-error").fadeIn();
 	}else{
