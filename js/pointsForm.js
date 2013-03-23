@@ -1,18 +1,6 @@
 var slivkans, nicknames, fellows,
 valid_event_name = false;
 
-Array.prototype.getUnique = function(){
-   var u = {}, a = [];
-   for(var i = 0, l = this.length; i < l; ++i){
-      if(u.hasOwnProperty(this[i])) {
-         continue;
-      }
-      a.push(this[i]);
-      u[this[i]] = 1;
-   }
-   return a;
-}
-
 jQuery(document).ready(function(){ 
 	//navigate away warning
 	$(window).bind('beforeunload', function() {return 'Your points form was not submitted.'});
@@ -34,8 +22,14 @@ jQuery(document).ready(function(){
     	}
     })
 
-    //event handlers for type
-    $('.type-btn').click(function(event){toggleType(event);});
+    //remove annoying hover class
+    $('.ui-state-hover').removeClass('ui-state-hover');
+
+    //event handler for type
+    $('.type-btn').click(function(event){toggleType(event)});
+
+    //event handler for slivkan-entry
+    $('.slivkan-entry').on('focus',function(event){$(this).parent().addClass("warning")});
 
     //$('#tabs').tabs();
     $('#tabs a:first').tab('show');
@@ -47,34 +41,38 @@ jQuery(document).ready(function(){
 })
 
 function init(){
-	appendNameInputs(15);
+	appendNameInputs(14);
 	appendFellowInputs(5);
 	$("#date-val").text($("#date").val());
-	$('#filled-by').typeahead({source: slivkans.full_name.concat(nicknames.nickname)})
-	$('#bulk-corrections').typeahead({source: slivkans.full_name.concat(nicknames.nickname)});
+	$('#filled-by').typeahead({source: slivkans.full_name.concat(nicknames.nickname)});
 }
 
 function appendNameInputs(n){
-	function makestring(m){
-		return '<div class="control-group input-append single-entry-control">\
-		<input type="text" class="single-entry" name="single-entry" placeholder="Slivkan" onfocus="$(\'.single-entry-control\').eq('+m+').addClass(\'warning\')" onfocusout="validateSingleName('+m+')">\
-		<div class="btn helper-point" title="Give a Helper Point" onclick="toggleHelperPoint('+m+')"><i class="icon-heart"></i></div>\
-		<div class="btn committee-member disabled" title="Committee Member" onclick="toggleCommitteeMember('+m+')"><i class="icon-user"></i></div>\
-		</div>';
-	}
-	
-	num_inputs = $('.single-entry').length;
-
 	for (var i=0; i<n; i++){
-		$(makestring(i+num_inputs)).appendTo('#single-entry-tab');
+		entry = $('.slivkan-entry-control').last();
+		add_on = entry.find('.add-on');
+		slivkan_entry = entry.find('.slivkan-entry');
+		helper = entry.find('.helper-point');
+		committee = entry.find('.committee-point');
+
+		//autocomplete and other events
+		slivkan_entry.typeahead({source: slivkans.full_name.concat(nicknames.nickname)})
+		.on('focus',function(){$(this).parent().addClass("warning")})
+		.on('focusout',function(){validateSlivkanName($(this).parent())});
+
+		//buttons
+		helper.click(function(){toggleHelperPoint($(this).parent())});
+		committee.click(function(){toggleCommitteeMember($(this).parent())});
+		$('.slivkan-entry-control').last().clone().appendTo('#slivkan-entry-tab')
+		.removeClass("warning")
+		.find('.add-on').html(parseInt(add_on.html())+1);
 	}
 
-	$('.single-entry').typeahead({source: slivkans.full_name.concat(nicknames.nickname)});
-
-	$('.single-entry').last().bind('focus',function(){
-		var num_inputs = $('.single-entry').length;
-		$('.single-entry').unbind('focus');
-		if(num_inputs < 100){appendNameInputs(1)};
+	$('.slivkan-entry').last().bind('focus',function(){
+		$(this).parent().addClass("warning");
+		var num_inputs = $('.slivkan-entry').length;
+		$(this).unbind('focus');
+		if(num_inputs < 99){appendNameInputs(1)};
 	});
 }
 
@@ -125,20 +123,20 @@ function toggleType(event){
 	}
 }
 
-function toggleHelperPoint(ind){
-	if(!($('.helper-point').eq(ind).hasClass("disabled"))){
-		$('.helper-point').eq(ind).toggleClass("active");
-		if($('.committee-member').eq(ind).hasClass("active")){
-			$('.committee-member').eq(ind).toggleClass("active");
+function toggleHelperPoint(entry){
+	if(!(entry.find('.helper-point').hasClass("disabled"))){
+		entry.find('.helper-point').toggleClass("active");
+		if(entry.find('.committee-point').hasClass("active")){
+			entry.find('.committee-point').toggleClass("active");
 		}
 	}
 }
 
-function toggleCommitteeMember(ind){
-	if(!($('.committee-member').eq(ind).hasClass("disabled"))){
-		$('.committee-member').eq(ind).toggleClass("active");
-		if($('.helper-point').eq(ind).hasClass("active")){
-			$('.helper-point').eq(ind).toggleClass("active");
+function toggleCommitteeMember(entry){
+	if(!(entry.find('.committee-point').hasClass("disabled"))){
+		entry.find('.committee-point').toggleClass("active");
+		if(entry.find('.helper-point').hasClass("active")){
+			entry.find('.helper-point').toggleClass("active");
 		};
 	}
 }
@@ -154,9 +152,9 @@ function validatePointsForm(){
 
 	var valid_singles = true;
 
-	for (var i=0; i<$('.single-entry').length; i++){
-		if(!validateSingleName(i)){valid_singles = false;}
-	}
+	$('.slivkan-entry-control').each(function(){
+		if(!validateSlivkanName($(this))){valid_singles = false;}
+	});
 
 	if(!valid_singles){valid = false; errors.push("Attendees");}
 
@@ -210,8 +208,8 @@ function validateCommittee(){
 
 	updateValidity($('.committee-control'),valid);
 
-	$('.single-entry').each(function(index){
-		validateSingleName(index);
+	$('.slivkan-entry-control').each(function(){
+		validateSlivkanName($(this));
 	})
 
 	return valid;
@@ -254,44 +252,50 @@ function validateFilledBy(){
 	return valid;
 }
 
-function validateSingleName(ind){
-    var valid = true, nameArray = new Array(), name = $('.single-entry').eq(ind).val();
+function validateSlivkanName(entry){
+    var valid = true, 
+    nameArray = new Array(), 
+    slivkan_entry = entry.find('.slivkan-entry'),
+    helper = entry.find('.helper-point'),
+    committee = entry.find('.committee-point'),
+    name = slivkan_entry.val();
 
     if (nicknames.nickname.indexOf(name) != -1){
     	name = nicknames.aka[nicknames.nickname.indexOf(name)];
-    	$('.single-entry').eq(ind).val(name);
+    	slivkan_entry.val(name);
     }
 
 	//clear duplicates
-    $('.single-entry').each(function(index){
+    $('.slivkan-entry').each(function(index){
     	if (nameArray.indexOf($(this).val()) != -1){ $(this).val(''); name=''; $('#duplicate-alert').slideDown(); }
     	if ($(this).val().length > 0){ nameArray.push($(this).val()) }
   	});
     
-    $('.single-entry-control').eq(ind).removeClass("warning")
+    entry.removeClass("warning")
 
     if (name.length > 0){
     	name_ind = slivkans.full_name.indexOf(name);
 		if(name_ind != -1){
 			valid=true;
 			if(slivkans.committee[name_ind] == $('#committee').val()){
-				$('.committee-member').eq(ind).removeClass("disabled");
-				$('.helper-point').eq(ind).addClass("disabled");
-				if(!($('.committee-member').eq(ind).hasClass('active'))){toggleCommitteeMember(ind);}
+				committee.removeClass("disabled");
+				helper.addClass("disabled");
+				if(!(committee.hasClass('active'))){toggleCommitteeMember(entry);}
 			}else{
-				$('.committee-member').eq(ind).addClass("disabled");
-				$('.helper-point').eq(ind).removeClass("disabled");
-				if($('.committee-member').eq(ind).hasClass('active')){toggleCommitteeMember(ind);}
+				committee.addClass("disabled");
+				helper.removeClass("disabled");
+				if(committee.hasClass('active')){toggleCommitteeMember(entry);}
 			}
 		}else{ valid=false }
-		updateValidity($('.single-entry-control').eq(ind),valid)
+		updateValidity(entry,valid)
 	}else{
-		$('.single-entry-control').eq(ind).removeClass("success").removeClass("error");
-		$('.committee-member').eq(ind).addClass("disabled");
-		$('.helper-point').eq(ind).removeClass("disabled");
-		if($('.committee-member').eq(ind).hasClass('active')){toggleCommitteeMember(ind);}
+		entry.removeClass("success").removeClass("error");
+		committee.addClass("disabled");
+		helper.removeClass("disabled");
+		if(committee.hasClass('active')){toggleCommitteeMember(entry);}
 	}
 
+	//no names = invalid
 	if(nameArray.length == 0){ valid=false }
     
     return valid;
@@ -330,17 +334,16 @@ function processBulkNames(){
 
 function addBulkNames(){
 	var slots = new Array(),
-	num_inputs = $('.single-entry').length,
 	free_slots = 0;
 
-	for(var i=0; i<num_inputs; i++){
-		if($('.single-entry').eq(i).val().length > 0){
+	$('.slivkan-entry').each(function(){
+		if($(this).val().length > 0){
 			slots.push(1);
 		}else{
 			slots.push(0);
 			free_slots++;
 		}
-	}
+	});
 
 	names = $('#bulk-names').val();
 
@@ -361,8 +364,8 @@ function addBulkNames(){
 		name = nameArray.shift();
 		ind = slots.indexOf(0);
 		slots[ind] = 1;
-		$('.single-entry').eq(ind).val(name);
-		validateSingleName(ind);
+		$('.slivkan-entry').eq(ind).val(name);
+		validateSlivkanName($('.slivkan-entry').eq(ind).parent());
 	}
 }
 
@@ -372,7 +375,7 @@ function sortEntries(){
 
 	//forming name array, but appending values corresponding to the helper/committee buttons:
 	//0 - enabled unpressed, 1 - enabled pressed, 2 - disabled
-	$('.single-entry').each(function(index){
+	$('.slivkan-entry').each(function(index){
     	if($(this).val().length > 0){
     		name = $(this).val();
     		h = "0"; 
@@ -383,20 +386,20 @@ function sortEntries(){
     		}
 
 			c = "0";
-    		if($('.committee-member').eq(index).hasClass("active")){
+    		if($('.committee-point').eq(index).hasClass("active")){
     			c = "1";
-    		}else if($('.committee-member').eq(index).hasClass("disabled")){
+    		}else if($('.committee-point').eq(index).hasClass("disabled")){
     			c = "2";
     		}
 
     		nameArray.push($(this).val()+h+c);
     	}
   		$(this).val("");
-  		validateSingleName(index);
+  		validateSlivkanName($(this).parent());
   	});
 
   	//reset buttons
-  	$('.committee-member').removeClass('active').addClass('disabled');
+  	$('.committee-point').removeClass('active').addClass('disabled');
 	$('.helper-point').removeClass('active').removeClass('disabled');
 
   	nameArray = nameArray.sort().getUnique();
@@ -406,44 +409,16 @@ function sortEntries(){
   		h = nameArray[i].slice(nameArray[i].length-2,nameArray[i].length-1);
   		c = nameArray[i].slice(nameArray[i].length-1);
 
-  		$('.single-entry').eq(i).val(name);
-  		if(h=="1") $('.helper-point').eq(i).addClass("active");
-  		if(h=="2") $('.helper-point').eq(i).addClass("disabled");
-  		if(c=="1") $('.committee-member').eq(i).addClass("active");
-  		if(c=="2") $('.committee-member').eq(i).addClass("disabled");
-  		validateSingleName(i);
+  		entry = $('.slivkan-entry-control').eq(i);
+  		entry.find('.slivkan-entry').val(name);
+  		if(h=="1") entry.find('.helper-point').addClass("active");
+  		if(h=="2") entry.find('.helper-point').addClass("disabled");
+  		if(c=="1") entry.find('.committee-point').addClass("active");
+  		if(c=="2") entry.find('.committee-point').addClass("disabled");
+  		validateSlivkanName(entry);
   	}
 
   	$('#sort-alert').slideDown();
-}
-
-function checkForDuplicates(arr){
-	var valid = true, dupes = new Array();
-
-	$("#duplicate-error-names").empty();
-
-	arr = arr.sort();
-
-	for (var i = 0; i < arr.length - 1; i++) {
-	    if (arr[i + 1] == arr[i]) {
-	        dupes.push(arr[i]);
-	        valid = false;
-	    }
-	}
-
-	dupes = dupes.getUnique();
-
-	for (var i=0; i<dupes.length; i++){
-		$("<li></li>").text(dupes[i]).appendTo("#duplicate-error-names");
-	}
-
-	if (valid){
-		$('#duplicate-error').fadeOut();
-	}else{
-		$('#duplicate-error').fadeIn();
-	}
-
-	return valid;
 }
 
 function updateValidity(element,valid){
@@ -458,13 +433,13 @@ function resetForm(){
 	$('#event').val(""); $('.event-control').removeClass("success").removeClass("error");
 	$('#description').val(""); $('.description-control').removeClass("success").removeClass("error");
 	$('#committee').val("Select One"); $('.committee-control').removeClass("success").removeClass("error");
-	toggleType(3);
+	$('.type-btn').last().click();
 	$('#filled-by').val(""); $('.filled-by-control').removeClass("success").removeClass("error");
 	$('#comments').val("");
 
-	$('.single-entry').each(function(index){
+	$('.slivkan-entry').each(function(index){
 		$(this).val("");
-		validateSingleName(index);
+		validateSlivkanName($(this).parent());
 	});
 
 	$('.fellow-entry').each(function(index){
@@ -472,7 +447,7 @@ function resetForm(){
 		validateFellowName(index);
 	})
 
-	$('.committee-member').removeClass('active').addClass('disabled');
+	$('.committee-point').removeClass('active').addClass('disabled');
 	$('.helper-point').removeClass('active').removeClass('disabled');
 
 	$('#event-name-error').fadeOut();
@@ -498,14 +473,14 @@ function submitPointsForm(){
 		fellows: new Array()
 	}
 
-	$('.single-entry').each(function(index){
+	$('.slivkan-entry').each(function(index){
 		var name = $(this).val();
 		if(name.length > 0){
 			name_ind = slivkans.full_name.indexOf(name);
 			data.attendees.push(slivkans.nu_email[name_ind]);
-			if($('.helper-point').eq(index).hasClass("active")){
+			if($(this).parent().find('.helper-point').hasClass("active")){
 				data.helper_points.push(slivkans.nu_email[name_ind]);
-			}else if($('.committee-member').eq(index).hasClass("active")){
+			}else if($(this).parent().find('.committee-point').hasClass("active")){
 				data.committee_members.push(slivkans.nu_email[name_ind]);
 			}
 		}
@@ -516,6 +491,8 @@ function submitPointsForm(){
 			data.fellows.push($(this).val());
 		}
 	})
+
+	console.log(data);
 
 	window.location.href = "/features/ajax/submitPointsForm.php?"+$.param(data);
 }

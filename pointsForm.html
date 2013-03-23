@@ -13,22 +13,8 @@
     .fellow-entry-control{
         margin-bottom: 0px;
     }
-    .validation-error {
-        display: none;
-        background-color: #520063;
-        color: #FFFFFF;
-        width: 160px;
-        padding: 10px;
-        border: 1px solid gray;
-        position: absolute;
-        float: right;
-        right: -190px;
-        -webkit-box-shadow: 3px 3px 3px #999999;
-        -webkit-border-radius: 7px;
-        font-size: 10pt;
-    }
 
-    #single-entry-tab-buttons{
+    #slivkan-entry-tab-buttons{
         margin-bottom: 10px;
         display: block;
     }
@@ -37,7 +23,7 @@
 <body>
     <div class="container">
         <div class="span8 offset2">
-            <form autocomplete="off" id="formfilters">
+            <form autocomplete="off" onsubmit="return false;">
                 <fieldset>
                     <legend>Points Submission Form</legend>
                     <div class="row">
@@ -98,17 +84,12 @@
                         </div>
                         <div class="span4">
                             <ul class="nav nav-tabs" id="tabs" style="margin-top: 10px;">
-                                <li class="active"><a href="#single-entry-tab" data-toggle="tab"><span>Attendees</span></a></li>
+                                <li class="active"><a href="#slivkan-entry-tab" data-toggle="tab"><span>Attendees</span></a></li>
                                 <li><a href="#fellow-entry-tab" data-toggle="tab"><span>Fellows</span></a></li>
                             </ul>
 
                             <div class="tab-content">
-                                <div class="validation-error" id="duplicate-error">
-                                    <p>Duplicate Names:</p>
-                                    <ul id="duplicate-error-names"></ul>
-                                </div>
-
-                                <div class="tab-pane active" id="single-entry-tab" >
+                                <div class="tab-pane active" id="slivkan-entry-tab" >
                                     <div class="alert alert-success hide" id="sort-alert">
                                         <button type="button" class="close" onclick="$('#sort-alert').slideUp()">&times;</button>
                                         <small>Sorted names!</small>
@@ -117,23 +98,23 @@
                                         <button type="button" class="close" onclick="$('#duplicate-alert').slideUp()">&times;</button>
                                         <small>Duplicate name!</small>
                                     </div>
-                                    <div id="single-entry-tab-buttons">
+                                    <div id="slivkan-entry-tab-buttons">
                                         <!--<a href="#QR-entry" role="button" class="btn" data-toggle="modal"><i class="icon-qrcode"></i> QR</a>-->
                                         <div class="btn" role="button" data-toggle="modal" data-target="#QR-entry"><i class="icon-qrcode"></i> QR</div>
                                         <div class="btn" onclick="sortEntries()"><i class="icon-list" title="Sort"></i><i class="icon-arrow-down"></i></div>
                                     </div>  
-                                    <!--<div class="control-group input-prepend input-append single-entry-control">
+                                    <div class="control-group input-prepend input-append slivkan-entry-control" style="margin-left: 1px">
                                         <span class="add-on">1</span>
-                                        <input type="text" class="single-entry" name="single-entry" placeholder="Slivkan" onfocus="$(this).parent().addClass('warning')" onfocusout="validateSingleName(1)">
-                                        <div class="btn helper-point" title="Give a Helper Point" onclick="toggleHelperPoint(1)"><i class="icon-heart"></i></div>
-                                        <div class="btn committee-member disabled" title="Committee Member" onclick="toggleCommitteeMember(1)"><i class="icon-user"></i></div>
-                                    </div>-->
+                                        <input type="text" class="slivkan-entry" name="slivkan-entry" placeholder="Slivkan">
+                                        <div class="btn helper-point" title="Give a Helper Point"><i class="icon-heart"></i></div>
+                                        <div class="btn committee-point disabled" title="Committee Member"><i class="icon-user"></i></div>
+                                    </div>
                                 </div>
                                 <div class="tab-pane" id="fellow-entry-tab">
 
                                 </div>
                             </div>
-                            <p style="padding-left: 20px"><small>Additional inputs appear automatically.</small></p>
+                            <div class="help-block"><small>Additional inputs appear automatically.</small></div>
                         </div>
                     </div>
                     <div class="form-actions">
