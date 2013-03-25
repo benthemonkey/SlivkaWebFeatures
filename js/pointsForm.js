@@ -28,16 +28,7 @@ jQuery(document).ready(function(){
     //event handler for type
     $('.type-btn').click(function(event){toggleType(event)});
 
-    //event handler for slivkan-entry
-    $('.slivkan-entry').on('focus',function(event){$(this).parent().addClass("warning")});
-
-    //$('#tabs').tabs();
     $('#tabs a:first').tab('show');
-    $('#dialog').dialog({
-    	autoOpen: false,
-    	buttons : [{text: "Add Names", 'class':'btn', click: function(){addBulkNames(); $('#bulk-names').val(""); $(this).dialog( "close" )}}],
-    	width: 338
-    });
 })
 
 function init(){
@@ -63,6 +54,8 @@ function appendNameInputs(n){
 		//buttons
 		helper.click(function(){toggleHelperPoint($(this).parent())});
 		committee.click(function(){toggleCommitteeMember($(this).parent())});
+
+
 		$('.slivkan-entry-control').last().clone().appendTo('#slivkan-entry-tab')
 		.removeClass("warning")
 		.find('.add-on').html(parseInt(add_on.html())+1);
@@ -77,23 +70,23 @@ function appendNameInputs(n){
 }
 
 function appendFellowInputs(n){
-	function makestring(m){
-		return '<div class="control-group fellow-entry-control">\
-		<input type="text" class="fellow-entry" name="fellow-entry" placeholder="Fellow" onfocus="$(\'.fellow-entry-control\').eq('+m+').addClass(\'warning\')" onfocusout="validateFellowName('+m+')">\
-		</div>';
-	}
-	
-	num_inputs = $('.fellow-entry').length;
-
 	for (var i=0; i<n; i++){
-		$(makestring(i+num_inputs)).appendTo('#fellow-entry-tab');
-	}
+		entry = $('.fellow-entry-control').last();
+		fellow_entry = entry.find('.fellow-entry');
 
-	$('.fellow-entry').typeahead({source: fellows});
+		//autocomplete and other events
+		fellow_entry.typeahead({source: fellows})
+		.on('focus',function(){$(this).parent().addClass("warning")})
+		.on('focusout',function(){validateFellowName($(this).parent())});
+
+		$('.fellow-entry-control').last().clone().appendTo('#fellow-entry-tab')
+		.removeClass("warning")
+	}
 
 	$('.fellow-entry').last().bind('focus',function(){
+		$(this).parent().addClass("warning");
 		var num_inputs = $('.fellow-entry').length;
-		$('.fellow-entry').unbind('focus');
+		$(this).unbind('focus');
 		if(num_inputs < 20){appendFellowInputs(1)};
 	});
 }
@@ -301,25 +294,27 @@ function validateSlivkanName(entry){
     return valid;
 }
 
-function validateFellowName(ind){
-    var valid = true, nameArray = [], name = $('.fellow-entry').eq(ind).val();
+function validateFellowName(entry){
+    var valid = true, 
+    nameArray = new Array(), 
+    fellow_entry = entry.find('.fellow-entry'),
+    name = fellow_entry.val();
 
+	//clear duplicates
     $('.fellow-entry').each(function(index){
-    	if($(this).val().length > 0)
-  		nameArray.push($(this).val());
+    	if (nameArray.indexOf($(this).val()) != -1){ $(this).val(''); name=''; $('#duplicate-alert').slideDown(); }
+    	if ($(this).val().length > 0){ nameArray.push($(this).val()) }
   	});
     
-    $('.fellow-entry-control').eq(ind).removeClass("warning")
+    entry.removeClass("warning")
 
     if (name.length > 0){
     	valid = fellows.indexOf(name) != -1;
-		updateValidity($('.fellow-entry-control').eq(ind),valid)
+		updateValidity(entry,valid)
 	}else{
-		$('.fellow-entry-control').eq(ind).removeClass("success").removeClass("error");
+		entry.removeClass("success").removeClass("error");
 	}
 
-	if(!checkForDuplicates(nameArray)){ valid=false }
-    
     return valid;
 }
 
@@ -402,7 +397,7 @@ function sortEntries(){
   	$('.committee-point').removeClass('active').addClass('disabled');
 	$('.helper-point').removeClass('active').removeClass('disabled');
 
-  	nameArray = nameArray.sort().getUnique();
+  	nameArray = nameArray.sort();
 
   	for(var i=0; i<nameArray.length; i++){
   		name = nameArray[i].slice(0,nameArray[i].length-2);
@@ -494,5 +489,32 @@ function submitPointsForm(){
 
 	console.log(data);
 
-	window.location.href = "/features/ajax/submitPointsForm.php?"+$.param(data);
+	$('#submit-results').modal({
+		backdrop: "static",
+		keyboard: false,
+		show: true
+	}).on('shown', function(){
+	    $('body').css('overflow', 'hidden');
+	}).on('hidden', function(){
+	    $('body').css('overflow', 'auto');
+	})
+	
+	//$('#submit-results').modal('show');
+	$.getJSON('/ajax/submitPointsForm.php',data,function(data_in){
+		for(obj in data_in.receipt){
+			if($('.results-label').html().length == 0){
+				$('.results-label').html(obj);
+				$('.results').html(data_in.receipt[obj]);
+			}else{
+				row = $('.results-row').last().clone().appendTo('#receipt');
+				row.find('.results-label').html(obj);
+				row.find('.results').html(data_in.receipt[obj]);
+			}
+		}
+		if(data_in.error){
+			$('#results-status').html("Error in Step "+data_in.step).parent().addClass("error");
+		}else{
+			$('#results-status').html("Success!").parent().addClass("success");
+		}
+	})
 }

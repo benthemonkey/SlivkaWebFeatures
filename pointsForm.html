@@ -1,148 +1,197 @@
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />-->
-    <link rel="stylesheet" href="css/custom-theme/jquery-ui-1.9.2.custom.css" />
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
-    <link rel="stylesheet" href="css/bootstrap-responsive.css" />
-    <style type="text/css">
-    label{
-        margin-top: 10px;
-    }
-    .fellow-entry-control{
-        margin-bottom: 0px;
-    }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Points Submission - Slivka RC</title>
+  <!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />-->
+  <link rel="stylesheet" href="css/custom-theme/jquery-ui-1.9.2.custom.css" />
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/bootstrap-responsive.min.css" />
+  <style type="text/css">
+  label{
+    margin-top: 10px;
+  }
+  .no-bottom{
+    margin-bottom: 0px;
+  }
 
-    #slivkan-entry-tab-buttons{
-        margin-bottom: 10px;
-        display: block;
-    }
-    </style>
+  #slivkan-entry-tab-buttons{
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .tight .row-fluid [class*="span"]{
+    margin-top: 0px;
+    margin-bottom: 0px;
+    min-height: 0px;
+  }
+  .tight p{
+    margin-top: 0px;
+    margin-bottom: 0px;
+    min-height: 0px;
+  }
+
+  @media (max-width: 767px) {
+  #submit-results .modal-body {
+    max-height: 250px;
+  }
+}
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="span8 offset2">
-            <form autocomplete="off" onsubmit="return false;">
-                <fieldset>
-                    <legend>Points Submission Form</legend>
-                    <div class="row">
-                        <div class="span4">
-                            <div class="control-group">
-                                <label for="date">Date:</label>
-                                <div id="date-val" class="uneditable-input text-center span2"></div>
-                            </div>
-                            <div id="date"></div>
+  <div class="container-fluid">
+    <div class="span1"></div>
+    <div class="span10">
+      <form autocomplete="off" onsubmit="return false;">
+        <fieldset>
+          <legend>Points Submission Form</legend>
+          <div class="row-fluid">
+            <div class="span6">
+              <div class="control-group">
+                <label for="date">Date:</label>
+                <div id="date-val" class="uneditable-input text-center span2"></div>
+              </div>
+              <div id="date"></div>
 
-                            <label for="type">Type:</label>
-                            <div class="btn-group" id="type" data-toggle="buttons-radio">
-                                <input type="button" name="p2p" value="P2P"  class="btn type-btn">
-                                <input type="button" name="im" value="IM" class="btn type-btn">
-                                <input type="button" name="house meeting" value="House Meeting" class="btn type-btn">
-                                <input type="button" name="other" value="Other" class="btn type-btn active">
-                            </div>
+              <label for="type">Type:</label>
+              <div class="btn-group" id="type" data-toggle="buttons-radio">
+                <input type="button" name="p2p" value="P2P"  class="btn type-btn">
+                <input type="button" name="im" value="IM" class="btn type-btn">
+                <input type="button" name="house meeting" value="House Meeting" class="btn type-btn">
+                <input type="button" name="other" value="Other" class="btn type-btn active">
+              </div>
 
-                            <div class="control-group event-control">
-                                <label class="control-label" for="event">Event name:</label>
-                                <input type="text" name="event" id="event" class="input span3" onfocus="$('.event-control').addClass('warning');" onfocusout="validateEventName()">
-                                <div class="help-block hide" id="event-name-error">Event name + date combination taken</div>
-                                <div class="help-block hide" id="event-name-length-error">Event name must be longer than 8 characters</div>
-                            </div>
+              <div class="control-group event-control">
+                <label class="control-label" for="event">Event name:</label>
+                <input type="text" name="event" id="event" class="input span10" onfocus="$('.event-control').addClass('warning');" onfocusout="validateEventName()">
+                <div class="help-block hide" id="event-name-error">Event name + date combination taken</div>
+                <div class="help-block hide" id="event-name-length-error">Event name must be longer than 8 characters</div>
+              </div>
 
-                            <div class="control-group committee-control">
-                                <label class="control-label">Committee:</label>
-                                <select id="committee" class="input span3" onchange="validateCommittee()">
-                                    <option>Select One</option>
-                                    <option>Exec</option>
-                                    <option>Academic</option>
-                                    <option>Facilities</option>
-                                    <option>Faculty</option>
-                                    <option>Historian</option>
-                                    <option>IT</option>
-                                    <option>Social</option>
-                                    <option>CA</option>
-                                    <option>Other</option>
-                                </select>
-                            </div>
+              <div class="control-group committee-control">
+                <label class="control-label">Committee:</label>
+                <select id="committee" class="input span4" onchange="validateCommittee()">
+                  <option>Select One</option>
+                  <option>Exec</option>
+                  <option>Academic</option>
+                  <option>Facilities</option>
+                  <option>Faculty</option>
+                  <option>Historian</option>
+                  <option>IT</option>
+                  <option>Social</option>
+                  <option>CA</option>
+                  <option>Other</option>
+                </select>
+              </div>
 
-                            <div class="control-group description-control">
-                                <label class="control-label" for="description">Description:</label>
-                                <textarea rows="3" name="description" id="description" class="input span3" onfocusout="validateDescription();"></textarea>
-                                <div class="help-block hide" id="description-length-error">Be enthusiastic and descriptive!</div>
-                            </div>
+              <div class="control-group description-control">
+                <label class="control-label" for="description">Description:</label>
+                <textarea rows="3" name="description" id="description" class="input span10" onfocusout="validateDescription();"></textarea>
+                <div class="help-block hide" id="description-length-error">Be enthusiastic and descriptive!</div>
+              </div>
 
-                            <div class="control-group filled-by-control">
-                                <label class="control-label" for="filled-by">Points filled out by:</label>
-                                <input type="text" name="filled-by" id="filled-by" class="input span3" onfocus="$('.filled-by-control').addClass('warning')" onfocusout="validateFilledBy()">
-                            </div>
+              <div class="control-group filled-by-control">
+                <label class="control-label" for="filled-by">Points filled out by:</label>
+                <input type="text" name="filled-by" id="filled-by" class="input span10" onfocus="$('.filled-by-control').addClass('warning')" onfocusout="validateFilledBy()">
+              </div>
 
-                            <div class="control-group">
-                                <label class="control-label" for="comments">Comments:</label>
-                                <small class="help-block" style="margin-bottom: 0px">No-shows, issues with form, etc.</small>
-                                <textarea name="comments" id="comments" class="input span3" rows="3"></textarea>
-                            </div>
-                        </div>
-                        <div class="span4">
-                            <ul class="nav nav-tabs" id="tabs" style="margin-top: 10px;">
-                                <li class="active"><a href="#slivkan-entry-tab" data-toggle="tab"><span>Attendees</span></a></li>
-                                <li><a href="#fellow-entry-tab" data-toggle="tab"><span>Fellows</span></a></li>
-                            </ul>
+              <div class="control-group">
+                <label class="control-label" for="comments">Comments:</label>
+                <small class="help-block no-bottom">No-shows, issues with form, etc.</small>
+                <textarea name="comments" id="comments" class="input span10" rows="3"></textarea>
+              </div>
+            </div>
+            <div class="span6">
+              <ul class="nav nav-tabs" id="tabs" style="margin-top: 10px;">
+                <li class="active"><a href="#slivkan-entry-tab" data-toggle="tab"><span>Attendees</span></a></li>
+                <li><a href="#fellow-entry-tab" data-toggle="tab"><span>Fellows</span></a></li>
+              </ul>
 
-                            <div class="tab-content">
-                                <div class="tab-pane active" id="slivkan-entry-tab" >
-                                    <div class="alert alert-success hide" id="sort-alert">
-                                        <button type="button" class="close" onclick="$('#sort-alert').slideUp()">&times;</button>
-                                        <small>Sorted names!</small>
-                                    </div>
-                                    <div class="alert alert-warning hide" id="duplicate-alert">
-                                        <button type="button" class="close" onclick="$('#duplicate-alert').slideUp()">&times;</button>
-                                        <small>Duplicate name!</small>
-                                    </div>
-                                    <div id="slivkan-entry-tab-buttons">
-                                        <!--<a href="#QR-entry" role="button" class="btn" data-toggle="modal"><i class="icon-qrcode"></i> QR</a>-->
-                                        <div class="btn" role="button" data-toggle="modal" data-target="#QR-entry"><i class="icon-qrcode"></i> QR</div>
-                                        <div class="btn" onclick="sortEntries()"><i class="icon-list" title="Sort"></i><i class="icon-arrow-down"></i></div>
-                                    </div>  
-                                    <div class="control-group input-prepend input-append slivkan-entry-control" style="margin-left: 1px">
-                                        <span class="add-on">1</span>
-                                        <input type="text" class="slivkan-entry" name="slivkan-entry" placeholder="Slivkan">
-                                        <div class="btn helper-point" title="Give a Helper Point"><i class="icon-heart"></i></div>
-                                        <div class="btn committee-point disabled" title="Committee Member"><i class="icon-user"></i></div>
-                                    </div>
-                                </div>
-                                <div class="tab-pane" id="fellow-entry-tab">
-
-                                </div>
-                            </div>
-                            <div class="help-block"><small>Additional inputs appear automatically.</small></div>
-                        </div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary" onclick="validatePointsForm()" >Submit</button>
-                        <button type="button" class="btn" onclick="$('#real-reset').fadeToggle()">Reset</button>
-                        <button type="button" class="btn btn-danger" id="real-reset" onclick="resetForm()" style="display: none">Really Reset?</button>
-                        <div class="help-inline" id="submit-error" style="display: none"></div>
-                    </div>
-                </fieldset>
-            </form>
-        </div>
+              <div class="tab-content span12">
+                <div class="tab-pane active" id="slivkan-entry-tab" >
+                  <div class="alert alert-success hide" id="sort-alert">
+                    <button type="button" class="close" onclick="$('#sort-alert').slideUp()">&times;</button>
+                    <small>Sorted names!</small>
+                  </div>
+                  <div class="alert alert-warning hide" id="duplicate-alert">
+                    <button type="button" class="close" onclick="$('#duplicate-alert').slideUp()">&times;</button>
+                    <small>Duplicate name!</small>
+                  </div>
+                  <div id="slivkan-entry-tab-buttons">
+                    <div class="btn" role="button" data-toggle="modal" data-target="#QR-entry"><i class="icon-qrcode"></i> QR</div>
+                    <div class="btn" onclick="sortEntries()"><i class="icon-list" title="Sort"></i><i class="icon-arrow-down"></i></div>
+                  </div>  
+                  <div class="control-group input-prepend input-append slivkan-entry-control" style="margin-left: 1px; width: 95%">
+                    <div class="add-on">1</div>
+                    <input type="text" class="slivkan-entry span8" name="slivkan-entry" placeholder="Slivkan">
+                    <div class="btn helper-point" title="Give a Helper Point"><i class="icon-heart"></i></div>
+                    <div class="btn committee-point disabled" title="Committee Member"><i class="icon-user"></i></div>
+                  </div>
+                </div>
+                <div class="tab-pane" id="fellow-entry-tab">
+                  <div class="control-group fellow-entry-control no-bottom">
+                    <input type="text" class="fellow-entry" name="fellow-entry" placeholder="Fellow">
+                  </div>
+                </div>
+              </div>
+              <div class="help-block span12"><small>Additional inputs appear automatically.</small></div>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" onclick="validatePointsForm()" >Submit</button>
+            <button type="button" class="btn" onclick="$('#real-reset').fadeToggle()">Reset</button>
+            <button type="button" class="btn btn-danger hide" id="real-reset" onclick="resetForm()">Really Reset?</button>
+            <div class="help-inline hide" id="submit-error"></div>
+          </div>
+        </fieldset>
+      </form>
     </div>
-    <div id="QR-entry" class="modal hide fade" role="dialog" style="width: auto;">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3>Paste Names from QR Codes</h3>
-        </div>
-        <div class="modal-body">
-            <textarea name="bulk-names" id="bulk-names" rows="12" class="span5" onkeyup="processBulkNames()"></textarea>
-        </div>
-        <div class="modal-footer">
-            <a href="#" class="btn" data-dismiss="modal">Cancel</a>
-            <a href="#" class="btn btn-primary" onclick="addBulkNames()" data-dismiss="modal" >Add Names</a>
-        </div>
+    <!--<div class="span1"></div>-->
+  </div>
+  <div id="QR-entry" class="modal hide fade" role="dialog" style="width: auto;">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h3>Paste Names from QR Codes</h3>
     </div>
-    <script type="text/javascript" src="js/jquery.min.js"></script>
-    <script type="text/javascript" src="js/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="js/pointsForm.js"></script>
+    <div class="modal-body">
+      <textarea name="bulk-names" id="bulk-names" rows="12" class="span5" onkeyup="processBulkNames()"></textarea>
+    </div>
+    <div class="modal-footer">
+      <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+      <a href="#" class="btn btn-primary" onclick="addBulkNames()" data-dismiss="modal" >Add Names</a>
+    </div>
+  </div>
+  <div id="submit-results" class="modal hide fade" role="dialog" >
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <h3>Points Form Submission</h3>
+    </div>
+    <div class="modal-body">
+      <div class="tight" id="receipt2">
+        <h4>Receipt:</h4>
+        <!--<div class="row-fluid results-row"><p class="span4 text-right results-label"></p><p class="span8 results"></p></div>-->
+      </div>
+      <table class="table table-bordered table-condensed" id="receipt">
+        <tbody>
+          <tr>
+            <td>Status</td>
+            <td id="results-status"></td>
+          </tr>
+          <tr class="results-row">
+            <td class="results-label"></td>
+            <td class="results"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer">
+      <span>If an error occurs, email the receipt to Ben Rothman.</span>
+      <a href="http://slivka.northwestern.edu" class="btn btn-primary">View Points</a>
+    </div>
+  </div>
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="js/pointsForm.js"></script>
 </body>
 </html>
