@@ -20,7 +20,7 @@ $current = array();
 $past = array();
 
 while($r = mysql_fetch_assoc($result)){
-        if(strcmp($r['Quarter'],'Spring 2013') == 0){
+        if(strcmp($r['Quarter'],$quarter) == 0){
             $current[] = $r['Name'];
         }else{
             $past[] = $r['Name'];

@@ -143,13 +143,23 @@ function validatePointsForm(){
 	if (!validateDescription()){valid = false; errors.push("Description");}
 	if (!validateFilledBy()){valid = false; errors.push("Filled By");}
 
-	var valid_singles = true;
+	var valid_slivkans = true;
 
 	$('.slivkan-entry-control').each(function(){
-		if(!validateSlivkanName($(this))){valid_singles = false;}
+		if(!validateSlivkanName($(this))){valid_slivkans = false;}
 	});
 
-	if(!valid_singles){valid = false; errors.push("Attendees");}
+	if(!valid_slivkans){valid = false; errors.push("Attendees");}
+
+
+	var valid_fellows = true;
+
+	$('.fellow-entry-control').each(function(){
+		if(!validateFellowName($(this))){valid_fellows = false;}
+	});
+
+	if(!valid_fellows){valid = false; errors.push("Fellows");}
+
 
 	if(valid){submitPointsForm()}else{
 		$("#submit-error").text("Validation errors in: "+errors.join(", ")).fadeIn();
@@ -498,9 +508,9 @@ function submitPointsForm(){
 	}).on('hidden', function(){
 	    $('body').css('overflow', 'auto');
 	})
-	
+
 	//$('#submit-results').modal('show');
-	$.getJSON('/ajax/submitPointsForm.php',data,function(data_in){
+	$.getJSON('./ajax/submitPointsForm.php',data,function(data_in){
 		for(obj in data_in.receipt){
 			if($('.results-label').html().length == 0){
 				$('.results-label').html(obj);

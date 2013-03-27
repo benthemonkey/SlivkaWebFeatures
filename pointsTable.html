@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Points Submission - Slivka RC</title>
+  <!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />-->
+  <link rel="stylesheet" href="css/custom-theme/jquery-ui-1.9.2.custom.css" />
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+  <link rel="stylesheet" href="css/bootstrap-responsive.min.css" />
+  <link rel="stylesheet" href="DataTables/media/css/jquery.dataTables.css" />
+  <style type="text/css">
+  table.dataTable td{
+  	padding: 0px 0px 0px 3px;
+  }
+  body{
+  	font-size: 10px;
+  	line-height: 14px;
+  }
+  </style>
+</head>
+<body>
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="span10">
+				<table id="table"></table>
+			</div>
+			<div class="span2">
+				<table class="table table-condensed" data-spy="affix" data-offset-top="10">
+				</table>
+			</div>
+		</div>
+	</div>
+	
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="DataTables/media/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript">
+  	$(document).ready(function(){
+  		var aDataSet = new Array(),
+  		aoColumns = new Array();
+  		aoColumns.push({sTitle: "Name",sWidth: "200px"});
+
+  		$.getJSON("ajax/getPointsTable.php",function(data){
+  			for(row in data.points_table){
+  				aDataSet.push([row].concat(data.points_table[row]));
+  			}
+  			for(var i=0;i<data.events.length;i++){
+  				aoColumns.push({"sTitle": i+1,sWidth: "1em",bSortable:false});
+  				$('<tr />').appendTo('.table');
+  				$('<td />').css('width','10px').html(i+1).appendTo('.table tr:last');
+
+  				en = data.events[i].event_name;
+  				name = en.substr(0,en.length-10);
+  				date = en.substr(en.length-10);
+
+  				$('<td />').html(en).appendTo('.table tr:last');
+  			}
+
+  			$("#table").dataTable({
+	        "aaData": aDataSet,
+	        "aoColumns": aoColumns,
+	        "bPaginate" : false
+	      });
+  		});
+  	})
+  </script>
+</body>
+</html>

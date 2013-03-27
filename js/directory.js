@@ -2,7 +2,7 @@
 /* Data set - can contain whatever information you want */
 //var aDataSet = new Array();
 
-/* Formating function for row details */
+/* Formating function for row details 
 (function (jQuery) {
     var oTable;
 
@@ -47,23 +47,23 @@
 
         return asResultData;
     } 
-} (jQuery));
+} (jQuery));*/
 
 jQuery(document).ready(function() {
     var aDataSet = new Array();
     jQuery.ajax({
         dataType : "json",
         async : false,
-        url: "ajax/getDirectory.php", //http://slivka.northwestern.edu/directory
+        url: "http://slivka.northwestern.edu/features/ajax/getDirectory.php", //http://slivka.northwestern.edu/directory
         
         success: function(data){
-        var path = "../img/";
-        for (entry in data){
-            aDataSet.push([data[entry][0],data[entry][1],data[entry][2],data[entry][3],data[entry][4],
-                           '<img class="directoryphoto" src="' + path + data[entry][5] + '.jpg" title="'+data[entry][0]+' '+data[entry][1]+'" style="height: 100px; display: none;" />'])
+            var path = "http://slivka.northwestern.edu/features/img/";
+            for (entry in data){
+                aDataSet.push([data[entry][0],data[entry][1],data[entry][2],data[entry][3],data[entry][4],
+                 '<img class="directoryphoto" src="' + path + data[entry][5] + '.jpg" title="'+data[entry][0]+' '+data[entry][1]+'" style="height: 100px; display: none;" />'])
+            }
         }
-        }
-        })
+    })
 
     jQuery('#directory').html( '<table cellpadding="0" cellspacing="0" border="0" class="display" id="example"></table>' );
     
@@ -71,33 +71,33 @@ jQuery(document).ready(function() {
      * Initialse DataTables, with no sorting on the 'details' column
      */
      oTable = jQuery('#example').dataTable( {
-    "aaData": aDataSet,
-    
-    "aoColumns": [
-    { "sTitle": "First Name" },
-    { "sTitle": "Last Name" },
-    { "sTitle": "Year" },
-    { "sTitle": "Major" },
-    { "sTitle": "Suite" },
-    { "sTitle": "Photo" },
-    
-    ],
-                
-            "aoColumnDefs": [ 
-            { "bSortable": false, "aTargets": [ 6 ] },
+        "aaData": aDataSet,
+
+        "aoColumns": [
+        { "sTitle": "First Name" },
+        { "sTitle": "Last Name" },
+        { "sTitle": "Year" },
+        { "sTitle": "Major" },
+        { "sTitle": "Suite" },
+        { "sTitle": "Photo" },
+
+        ],
+
+        "aoColumnDefs": [ 
+        { "bSortable": false, "aTargets": [ 5 ] },
             //{"sWidth": "200px", "aTargets": [1] },
             //{"sWidth": "100px", "aTargets": [1] } 
             ],
-    "aaSorting": [[0, 'asc']],
-    "bPaginate" : false,
-                
-                
-    
-                "aLengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
-                    iDisplayLength: -1,
-                    iDisplayStart: 0
-    });
-    
+            "aaSorting": [[0, 'asc']],
+            "bPaginate" : false,
+
+
+
+            "aLengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+            iDisplayLength: -1,
+            iDisplayStart: 0
+        });
+
     // Hide cols
     //oTable.fnSetColumnVis(7, false);
     
@@ -116,9 +116,7 @@ jQuery(document).ready(function() {
     });
     
     jQuery('td').css('height','auto');
-} );
 
-jQuery(document).ready(function(){
-    $('#directorypass').val(localStorage.directorypass);
-    $('#submitdirectorypass').click();
-})
+    jQuery('#directorypass').val(localStorage.directorypass);
+    jQuery('#submitdirectorypass').click();
+} );
