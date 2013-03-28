@@ -20,6 +20,14 @@
     display: block;
   }
 
+  .input-append, input-prepend{
+    margin-bottom: 0px;
+  }
+
+  .control-group{
+    margin-bottom: 10px;
+  }
+
   .tight .row-fluid [class*="span"]{
     margin-top: 0px;
     margin-bottom: 0px;
@@ -78,6 +86,7 @@
                   <option>Faculty</option>
                   <option>Historian</option>
                   <option>IT</option>
+                  <option>Philanthropy</option>
                   <option>Social</option>
                   <option>CA</option>
                   <option>Other</option>
@@ -124,8 +133,13 @@
                   <div class="control-group input-prepend input-append slivkan-entry-control" style="margin-left: 1px; width: 95%">
                     <div class="add-on">1</div>
                     <input type="text" class="slivkan-entry span8" name="slivkan-entry" placeholder="Slivkan">
-                    <div class="btn helper-point" title="Give a Helper Point"><i class="icon-heart"></i></div>
-                    <div class="btn committee-point disabled" title="Committee Member"><i class="icon-user"></i></div>
+                    <div class="input-append">
+                      <div class="btn committee-point" title="Committee Member" style="display: none"><i class="icon-user"></i></div>
+                    </div>
+                    <div class="input-append">
+                      <div class="btn helper-point" title="Helper Point"><i class="icon-heart"></i></div>
+                    </div>
+                    
                   </div>
                 </div>
                 <div class="tab-pane" id="fellow-entry-tab">

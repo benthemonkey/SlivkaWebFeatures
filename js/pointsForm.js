@@ -9,7 +9,12 @@ jQuery(document).ready(function(){
         slivkans = data.slivkans
         nicknames = data.nicknames
         fellows = data.fellows;
-        init();
+        
+        //initialization
+        appendNameInputs(14);
+		appendFellowInputs(5);
+		$("#date-val").text($("#date").val());
+		$('#filled-by').typeahead({source: slivkans.full_name.concat(nicknames.nickname)});
     })
 
     $("#date").datepicker({
@@ -31,13 +36,6 @@ jQuery(document).ready(function(){
     $('#tabs a:first').tab('show');
 })
 
-function init(){
-	appendNameInputs(14);
-	appendFellowInputs(5);
-	$("#date-val").text($("#date").val());
-	$('#filled-by').typeahead({source: slivkans.full_name.concat(nicknames.nickname)});
-}
-
 function appendNameInputs(n){
 	for (var i=0; i<n; i++){
 		entry = $('.slivkan-entry-control').last();
@@ -52,8 +50,8 @@ function appendNameInputs(n){
 		.on('focusout',function(){validateSlivkanName($(this).parent())});
 
 		//buttons
-		helper.click(function(){toggleHelperPoint($(this).parent())});
-		committee.click(function(){toggleCommitteeMember($(this).parent())});
+		helper.click(function(){$(this).toggleClass("active")});
+		committee.click(function(){$(this).toggleClass("active")});
 
 
 		$('.slivkan-entry-control').last().clone().appendTo('#slivkan-entry-tab')
@@ -113,24 +111,6 @@ function toggleType(event){
 	}else{
 		validateCommittee();
 		$(".description-control").slideUp();
-	}
-}
-
-function toggleHelperPoint(entry){
-	if(!(entry.find('.helper-point').hasClass("disabled"))){
-		entry.find('.helper-point').toggleClass("active");
-		if(entry.find('.committee-point').hasClass("active")){
-			entry.find('.committee-point').toggleClass("active");
-		}
-	}
-}
-
-function toggleCommitteeMember(entry){
-	if(!(entry.find('.committee-point').hasClass("disabled"))){
-		entry.find('.committee-point').toggleClass("active");
-		if(entry.find('.helper-point').hasClass("active")){
-			entry.find('.helper-point').toggleClass("active");
-		};
 	}
 }
 
@@ -250,8 +230,6 @@ function validateFilledBy(){
     	$('.filled-by-control').removeClass('error');
     }
 
-	
-
 	return valid;
 }
 
@@ -281,27 +259,51 @@ function validateSlivkanName(entry){
 		if(name_ind != -1){
 			valid=true;
 			if(slivkans.committee[name_ind] == $('#committee').val()){
-				committee.removeClass("disabled");
-				helper.addClass("disabled");
-				if(!(committee.hasClass('active'))){toggleCommitteeMember(entry);}
+				showCommitteeMember(helper,committee);
+			}else if(slivkans.committee[name_ind] == 'Facilities' || slivkans.committee[name_ind] == 'Exec'){
+				hideButtons(helper,committee);
 			}else{
-				committee.addClass("disabled");
-				helper.removeClass("disabled");
-				if(committee.hasClass('active')){toggleCommitteeMember(entry);}
+				showHelperPoint(helper,committee);
 			}
 		}else{ valid=false }
-		updateValidity(entry,valid)
+		updateValidity(entry,valid);
 	}else{
 		entry.removeClass("success").removeClass("error");
-		committee.addClass("disabled");
-		helper.removeClass("disabled");
-		if(committee.hasClass('active')){toggleCommitteeMember(entry);}
+		committee.removeClass("active");
+		helper.removeClass("active");
+		showHelperPoint(helper,committee);
 	}
 
 	//no names = invalid
 	if(nameArray.length == 0){ valid=false }
     
     return valid;
+}
+
+function showHelperPoint(helper,committee){
+	committee.removeClass('active');
+	if(helper.css('display') == 'none'){
+		committee.hide('slide',function(){
+			helper.show('slide');
+		});
+	}
+}
+
+function showCommitteeMember(helper,committee){
+	helper.removeClass('active');
+	if(committee.css('display') == 'none'){
+		helper.hide('slide',function(){
+			committee.show('slide');
+		});
+	}
+	committee.addClass('active');
+}
+
+function hideButtons(helper,committee){
+	helper.removeClass('active');
+	helper.hide('slide');
+	committee.removeClass('active');
+	committee.hide('slide');
 }
 
 function validateFellowName(entry){
@@ -377,35 +379,29 @@ function addBulkNames(){
 function sortEntries(){
 	var nameArray = new Array();
 
-
 	//forming name array, but appending values corresponding to the helper/committee buttons:
-	//0 - enabled unpressed, 1 - enabled pressed, 2 - disabled
+	//0 - unpressed, 1 - pressed
 	$('.slivkan-entry').each(function(index){
     	if($(this).val().length > 0){
     		name = $(this).val();
     		h = "0"; 
     		if($('.helper-point').eq(index).hasClass("active")){
     			h = "1";
-    		}else if($('.helper-point').eq(index).hasClass("disabled")){
-    			h = "2";
     		}
 
 			c = "0";
     		if($('.committee-point').eq(index).hasClass("active")){
     			c = "1";
-    		}else if($('.committee-point').eq(index).hasClass("disabled")){
-    			c = "2";
     		}
 
     		nameArray.push($(this).val()+h+c);
     	}
   		$(this).val("");
-  		validateSlivkanName($(this).parent());
   	});
 
   	//reset buttons
-  	$('.committee-point').removeClass('active').addClass('disabled');
-	$('.helper-point').removeClass('active').removeClass('disabled');
+  	$('.committee-point').removeClass('active');
+	$('.helper-point').removeClass('active');
 
   	nameArray = nameArray.sort();
 
@@ -416,11 +412,9 @@ function sortEntries(){
 
   		entry = $('.slivkan-entry-control').eq(i);
   		entry.find('.slivkan-entry').val(name);
-  		if(h=="1") entry.find('.helper-point').addClass("active");
-  		if(h=="2") entry.find('.helper-point').addClass("disabled");
-  		if(c=="1") entry.find('.committee-point').addClass("active");
-  		if(c=="2") entry.find('.committee-point').addClass("disabled");
   		validateSlivkanName(entry);
+  		if(h=="1") entry.find('.helper-point').addClass("active");
+  		if(c=="0") entry.find('.committee-point').removeClass("active");
   	}
 
   	$('#sort-alert').slideDown();
@@ -451,9 +445,6 @@ function resetForm(){
 		$(this).val("");
 		validateFellowName(index);
 	})
-
-	$('.committee-point').removeClass('active').addClass('disabled');
-	$('.helper-point').removeClass('active').removeClass('disabled');
 
 	$('#event-name-error').fadeOut();
 	$('#description-length-error').fadeOut();
