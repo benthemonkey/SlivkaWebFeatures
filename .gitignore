@@ -2,5 +2,7 @@
 /img/slivkans/*.jpg
 
 /ajax/datastoreVars.php
+/ajax/DatabasePDO.php
+/ajax/log.txt
 
 **.sql
