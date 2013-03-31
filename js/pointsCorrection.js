@@ -1,10 +1,14 @@
 var slivkans, nicknames;
 
 jQuery(document).ready(function(){ 
+	//nav
+	$('.nav li').eq(2).addClass('active');
+
     $.getJSON("ajax/getSlivkans.php",function(data){
         slivkans = data.slivkans;
         nicknames = data.nicknames;
-        init();
+        
+        $('#filled-by').typeahead({source: slivkans.full_name.concat(nicknames.nickname)});
     })
 
     $.getJSON("ajax/getEvents.php",function(data){
@@ -15,10 +19,6 @@ jQuery(document).ready(function(){
     	}
     })
 })
-
-function init(){
-	$('#filled-by').typeahead({source: slivkans.full_name.concat(nicknames.nickname)});
-}
 
 function validatePointsCorrectionForm(){
 	var valid = true,
@@ -81,8 +81,8 @@ function submitPointsCorrection(){
 	$.getJSON('./ajax/sendPointsCorrection.php',data,function(response){
 		console.log(response);
 		$('#response').html("<p>Response: "+response.message+"</p>");
-		$('<button type="button" class="btn btn-primary">View Points</button>').appendTo('#response');
-		$('<a class="btn" href="pointsCorrectionForm.html">Submit Another Correction</a>').appendTo('#response');
+		$('<a href="table.php" class="btn btn-primary">View Points</a>').appendTo('#response');
+		$('<a class="btn" href="correction.php">Submit Another</a>').appendTo('#response');
 		$('#response').fadeIn();
 	})
 }

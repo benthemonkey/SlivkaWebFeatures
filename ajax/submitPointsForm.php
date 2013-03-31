@@ -18,10 +18,10 @@ $event_name 		= mysql_real_escape_string($_GET['event_name']);
 $description 		= mysql_real_escape_string($_GET['description']);
 $filled_by 			= mysql_real_escape_string($_GET['filled_by']);
 $comments 			= mysql_real_escape_string($_GET['comments']);
-$attendees 			= mysql_real_escape_string($_GET['attendees']);
-$helper_points 		= mysql_real_escape_string($_GET['helper_points']);
-$committee_members 	= mysql_real_escape_string($_GET['committee_members']);
-$fellows 			= mysql_real_escape_string($_GET['fellows']);
+$attendees 			= $_GET['attendees'];
+$helper_points 		= $_GET['helper_points'];
+$committee_members 	= $_GET['committee_members'];
+$fellows 			= $_GET['fellows'];
 
 $attendees_list = implode($attendees,", ");
 $helper_points_list = implode($helper_points,", ");
@@ -42,7 +42,7 @@ if (!mysql_query($sql)){
 $event_name .= " " . $date;
 $num_attendees = count($attendees);
 
-$sql = "INSERT INTO events (event_name, date, filled_by, committee, description, type, attendees) VALUES ('$event_name','$date','$filled_by','$committee','$description','$type','$num_attendees')";
+$sql = "INSERT INTO events (event_name, date, quarter, filled_by, committee, description, type, attendees) VALUES ('$event_name','$date', '$quarter', '$filled_by','$committee','$description','$type','$num_attendees')";
 
 if (!mysql_query($sql)){
 	echo json_encode(array(receipt => $receipt,error => mysql_error(),step => "2"));
@@ -82,6 +82,10 @@ foreach($fellows as $s){
 }
 
 echo json_encode(array(receipt => $receipt));
+
+$f = fopen("log.txt","a");
+fwrite($f, "\n" . implode("; ",$receipt));
+fclose($f);
 
 mysql_close($con);
 ?>

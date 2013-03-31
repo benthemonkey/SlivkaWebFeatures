@@ -48,14 +48,14 @@ if($result['timestamp'] > $today ){
 }
 
 
-$filled_by_email = $result['filled_by'] . "@u.northwestern.edu";
+$filled_by_email = $result['filled_by'];
 
 $key = md5($event_name . $name);
 
-$sql = "INSERT INTO pointscorrection VALUES ('$key','$sender_email','$event_name','$comments','0')";
+$sql = "INSERT INTO pointscorrection (message_key,nu_email,event_name,comments) VALUES ('$key','$sender_email','$event_name','$comments')";
 
 if(!mysql_query($sql)){
-	echo json_encode(array(message => "Error: maybe you are trying to submit the same points correction twice."));
+	echo json_encode(array(message => "Error: Maybe you are trying to submit the same points correction twice."));
 	die();
 }
 
@@ -69,11 +69,11 @@ $html = "<h2>Slivka Points Correction</h2>
 <p style=\"padding: 10; width: 70%\">$name has submitted a points correction for the 
 event, $event_name, for which you took points. Please click one of the following links 
 to respond to this request. Please do so within 2 days of receiving this email.</p>
-<p>$name's comment: $comment</p>
+<p style=\"padding: 10; width: 70%\">$name's comment: $comment</p>
 <ul>
-    <li><a href=\"http://slivka.northwestern.edu/features/ajax/pointsCorrectionReply.php?key=$key&reply=$enc1\">$name was at $event_name</a></li><br/>
-	<li><a href=\"http://slivka.northwestern.edu/features/ajax/pointsCorrectionReply.php?key=$key&reply=$enc2\">$name was NOT at $event_name</a></li><br/>
-	<li><a href=\"http://slivka.northwestern.edu/features/ajax/pointsCorrectionReply.php?key=$key&reply=$enc3\">Not sure</a></li>
+    <li><a href=\"http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php?key=$key&reply=$enc1\">$name was at $event_name</a></li><br/>
+	<li><a href=\"http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php?key=$key&reply=$enc2\">$name was NOT at $event_name</a></li><br/>
+	<li><a href=\"http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php?key=$key&reply=$enc3\">Not sure</a></li>
 </ul>
 
 <p style=\"padding: 10; width: 70%\">If you received this email in error, please contact BenSRothman@gmail.com</p>";
@@ -86,7 +86,7 @@ $text = "Slivka Points Correction (Automated)";
 $subject = "Slivka Points Correction (Automated)";
 $from = array("BenSRothman@gmail.com" =>"Ben Rothman");
 $to = array(
- $filled_by_email  => $name,
+ $filled_by_email . "@u.northwestern.edu" => $filled_by_email,
  'BenSRothman+mailbot@gmail.com' => 'Bens Copy'
 );
 

@@ -1,60 +1,51 @@
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Points Submission - Slivka RC</title>
-  <!--<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />-->
-  <link rel="stylesheet" href="css/custom-theme/jquery-ui-1.9.2.custom.css" />
-  <link rel="stylesheet" href="css/bootstrap.min.css" />
-  <link rel="stylesheet" href="css/bootstrap-responsive.min.css" />
+  <?php include('header.html'); ?>
+  <title>Submission - Slivka Points Center</title>
+  <script type="text/javascript" src="js/pointsSubmission.js"></script>
   <style type="text/css">
-  label{
-    margin-top: 10px;
-  }
-  .no-bottom{
-    margin-bottom: 0px;
-  }
+    label{
+      margin-top: 10px;
+    }
+    .no-bottom{
+      margin-bottom: 0px;
+    }
 
-  #slivkan-entry-tab-buttons{
-    margin-bottom: 10px;
-    display: block;
-  }
+    #slivkan-entry-tab-buttons{
+      margin-bottom: 10px;
+      display: block;
+    }
 
-  .input-append, input-prepend{
-    margin-bottom: 0px;
-  }
+    .input-append, input-prepend{
+      margin-bottom: 0px;
+    }
 
-  .control-group{
-    margin-bottom: 10px;
-  }
+    .control-group{
+      margin-bottom: 10px;
+    }
 
-  .tight .row-fluid [class*="span"]{
-    margin-top: 0px;
-    margin-bottom: 0px;
-    min-height: 0px;
-  }
-  .tight p{
-    margin-top: 0px;
-    margin-bottom: 0px;
-    min-height: 0px;
-  }
-
-  @media (max-width: 767px) {
-  #submit-results .modal-body {
-    max-height: 250px;
-  }
-}
+    .tight .row-fluid [class*="span"]{
+      margin-top: 0px;
+      margin-bottom: 0px;
+      min-height: 0px;
+    }
+    .tight p{
+      margin-top: 0px;
+      margin-bottom: 0px;
+      min-height: 0px;
+    }
   </style>
 </head>
 <body>
   <div class="container-fluid">
-    <div class="span1"></div>
-    <div class="span10">
+    <div class="offset1 span12 content">
+      <?php include('nav.html'); ?>
       <form autocomplete="off" onsubmit="return false;">
         <fieldset>
-          <legend>Points Submission Form</legend>
+          <legend>&nbsp;&nbsp;Points Submission Form</legend>
           <div class="row-fluid">
-            <div class="span6">
+            <div class="span6 col">
               <div class="control-group">
                 <label for="date">Date:</label>
                 <div id="date-val" class="uneditable-input text-center span2"></div>
@@ -73,7 +64,19 @@
                 <label class="control-label" for="event">Event name:</label>
                 <input type="text" name="event" id="event" class="input span10" onfocus="$('.event-control').addClass('warning');" onfocusout="validateEventName()">
                 <div class="help-block hide" id="event-name-error">Event name + date combination taken</div>
-                <div class="help-block hide" id="event-name-length-error">Event name must be longer than 8 characters</div>
+                <div class="help-block hide" id="event-name-length-error">Event name must be between 8 and 40 characters.<br/><span id="event-name-length-error-count"></span></div>
+              </div>
+
+              <div class="control-group im-team-control hide">
+                <label class="control-label" for="im-team">Team:</label>
+                <select id="im-team" class="input span4" onchange="validateIMTeam()">Soccer Softball Ultimate
+                  <option>Co-Rec Soccer</option>
+                  <option>Co-Rec Softball</option>
+                  <option>Co-Rec Ultimate</option>
+                  <option>White Soccer</option>
+                  <option>White Softball</option>
+                  <option>White Ultimate</option>
+                </select>
               </div>
 
               <div class="control-group committee-control">
@@ -110,8 +113,8 @@
                 <textarea name="comments" id="comments" class="input span10" rows="3"></textarea>
               </div>
             </div>
-            <div class="span6">
-              <ul class="nav nav-tabs" id="tabs" style="margin-top: 10px;">
+            <div class="span6 col">
+              <ul class="nav nav-tabs" id="tabs">
                 <li class="active"><a href="#slivkan-entry-tab" data-toggle="tab"><span>Attendees</span></a></li>
                 <li><a href="#fellow-entry-tab" data-toggle="tab"><span>Fellows</span></a></li>
               </ul>
@@ -160,7 +163,6 @@
         </fieldset>
       </form>
     </div>
-    <!--<div class="span1"></div>-->
   </div>
   <div id="QR-entry" class="modal hide fade" role="dialog" style="width: auto;">
     <div class="modal-header">
@@ -177,13 +179,12 @@
   </div>
   <div id="submit-results" class="modal hide fade" role="dialog" >
     <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+      <!--<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>-->
       <h3>Points Form Submission</h3>
     </div>
     <div class="modal-body">
-      <div class="tight" id="receipt2">
+      <div>
         <h4>Receipt:</h4>
-        <!--<div class="row-fluid results-row"><p class="span4 text-right results-label"></p><p class="span8 results"></p></div>-->
       </div>
       <table class="table table-bordered table-condensed" id="receipt">
         <tbody>
@@ -200,12 +201,8 @@
     </div>
     <div class="modal-footer">
       <span>If an error occurs, email the receipt to Ben Rothman.</span>
-      <a href="http://slivka.northwestern.edu" class="btn btn-primary">View Points</a>
+      <a href="table.php" class="btn btn-primary">View Points</a>
     </div>
   </div>
-  <script type="text/javascript" src="js/jquery.min.js"></script>
-  <script type="text/javascript" src="js/jquery-ui.min.js"></script>
-  <script type="text/javascript" src="js/bootstrap.min.js"></script>
-  <script type="text/javascript" src="js/pointsForm.js"></script>
 </body>
 </html>

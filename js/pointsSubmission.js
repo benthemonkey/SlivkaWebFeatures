@@ -1,9 +1,12 @@
-var slivkans, nicknames, fellows,
+var slivkans, nicknames, fellows, type,
 valid_event_name = false;
 
 jQuery(document).ready(function(){ 
 	//navigate away warning
 	$(window).bind('beforeunload', function() {return 'Your points form was not submitted.'});
+
+	//nav
+	$('.nav li').eq(3).addClass('active');
 
     $.getJSON("ajax/getSlivkans.php",function(data){
         slivkans = data.slivkans
@@ -90,14 +93,15 @@ function appendFellowInputs(n){
 }
 
 function toggleType(event){
-	var type = event.target.value;
+	type = event.target.value;
 
 	if(type == "P2P"){
 		$("#committee").val("Faculty");
 		$("#event").val("P2P");
 	}else if(type == "IM"){
 		$("#committee").val("Social");
-		$("#event").val("");
+		$('#event').val($('#im-team').val()+' 1');
+		$('#description').val($('#im-team').val());
 	}else if(type == "House Meeting"){
 		$("#committee").val("Exec");
 		$("#event").val("House Meeting");
@@ -105,11 +109,17 @@ function toggleType(event){
 		$("#event").val("");
 	}
 	validateEventName();
+	validateCommittee();
+
+	if(type == "IM"){
+		$(".im-team-control").slideDown();
+	}else{
+		$(".im-team-control").slideUp();
+	}
 
 	if(type == "Other"){
 		$(".description-control").slideDown();
 	}else{
-		validateCommittee();
 		$(".description-control").slideUp();
 	}
 }
@@ -153,7 +163,7 @@ function validateEventName(){
 
 	valid_event_name = false;
 
-	if(event_name.length > 8 || event_name == "P2P"){
+	if((event_name.length <= 40 && event_name.length >= 8) || event_name == "P2P"){
 		event_name += ' '+$("#date").val();
 
 		$.getJSON("ajax/getEvents.php",function(data){
@@ -163,8 +173,14 @@ function validateEventName(){
 				event_names = data.event_names;
 
 				if(event_names.indexOf(event_name) != -1){
-					valid_event_name = false;
-					$("#event-name-error").fadeIn();
+					if(type == 'IM'){
+						var last = parseInt($('#event').val().slice(-1));
+						$('#event').val($('#event').val().slice(0,-1) + (last+1).toString());
+						validateEventName();
+					}else{
+						valid_event_name = false;
+						$("#event-name-error").fadeIn();
+					}
 				}else{
 					valid_event_name = true;
 					$("#event-name-error").fadeOut();
@@ -177,11 +193,18 @@ function validateEventName(){
 			updateValidity($(".event-control"),valid_event_name);
 		})
 	}else{
+		$('#event-name-length-error-count').html("Currently "+event_name.length+" characters");
 		$('#event-name-length-error').fadeIn();
 		updateValidity($(".event-control"),valid_event_name);
 	}
 
 	return valid;
+}
+
+function validateIMTeam(){
+	$('#event').val($('#im-team').val()+' 1');
+	$('#description').val($('#im-team').val());
+	validateEventName();
 }
 
 function validateCommittee(){
@@ -201,7 +224,7 @@ function validateCommittee(){
 function validateDescription(){
 	var valid = true, description = $("#description").val();
 
-	if(description.length < 10 && $('.type-btn.active').val() == "Other"){
+	if(description.length < 10 && type == "Other"){
 		valid = false;
 		$("#description-length-error").fadeIn();
 	}else{
@@ -258,9 +281,9 @@ function validateSlivkanName(entry){
     	name_ind = slivkans.full_name.indexOf(name);
 		if(name_ind != -1){
 			valid=true;
-			if(slivkans.committee[name_ind] == $('#committee').val()){
+			if(slivkans.committee[name_ind] == $('#committee').val() && type != 'IM'){
 				showCommitteeMember(helper,committee);
-			}else if(slivkans.committee[name_ind] == 'Facilities' || slivkans.committee[name_ind] == 'Exec'){
+			}else if(type == 'IM' || slivkans.committee[name_ind] == 'Facilities' || slivkans.committee[name_ind] == 'Exec'){
 				hideButtons(helper,committee);
 			}else{
 				showHelperPoint(helper,committee);
@@ -271,7 +294,11 @@ function validateSlivkanName(entry){
 		entry.removeClass("success").removeClass("error");
 		committee.removeClass("active");
 		helper.removeClass("active");
-		showHelperPoint(helper,committee);
+		if(type == 'IM'){
+			hideButtons(helper,committee);
+		}else{
+			showHelperPoint(helper,committee);
+		}
 	}
 
 	//no names = invalid
@@ -428,6 +455,10 @@ function updateValidity(element,valid){
     }
 }
 
+function isSlivkan(name){
+	
+}
+
 function resetForm(){
 	$('#event').val(""); $('.event-control').removeClass("success").removeClass("error");
 	$('#description').val(""); $('.description-control').removeClass("success").removeClass("error");
@@ -457,7 +488,7 @@ function submitPointsForm(){
 
 	var data = {
 		date: $('#date').val(),
-		type: $('.type-btn.active').val().toLowerCase().replace(" ","_"),
+		type: type.toLowerCase().replace(" ","_"),
 		committee: $('#committee').val(),
 		event_name: $('#event').val(),
 		description: $('#description').val(),

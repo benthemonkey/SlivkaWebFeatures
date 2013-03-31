@@ -1,6 +1,9 @@
 var slivkans,events;
 
 $(document).ready(function(){
+	//nav
+	$('.nav li').eq(0).addClass('active');
+
 	$.getJSON('ajax/getSlivkans.php',function(data){
 		slivkans = data.slivkans;
 

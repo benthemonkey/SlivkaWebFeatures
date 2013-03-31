@@ -1,0 +1,23 @@
+body{
+  background-image: url('../img/slivka-wallpaper.jpg');
+}
+
+.content{
+  max-width: 1000px; 
+  background-color: #FFFFFF;
+}
+
+.col{
+  padding: 10px;
+}
+
+@media (max-width: 767px){
+	.navbar-inner, body{
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+
+	.modal-body {
+      max-height: 250px;
+    }
+}

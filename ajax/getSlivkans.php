@@ -11,7 +11,9 @@ if(!$con){
 
 mysql_select_db($DB_NAME,$con);
 
-$result = mysql_query("SELECT * FROM directory ORDER BY first_name");
+$sql = "SELECT * FROM directory WHERE qtr_final IS NULL ORDER BY first_name";
+
+$result = mysql_query($sql) or die("Error: " . mysql_error());
 
 $full_name = array();
 $nu_email = array();
@@ -24,7 +26,9 @@ while($row = mysql_fetch_array($result)){
 }
 $slivkans = array("full_name"=>$full_name,"nu_email"=>$nu_email,"committee"=>$committee);
 
-$result = mysql_query("SELECT * FROM nicknames INNER JOIN directory ON nicknames.nu_email=directory.nu_email");
+$sql = "SELECT * FROM nicknames INNER JOIN directory ON nicknames.nu_email=directory.nu_email";
+
+$result = mysql_query($sql) or die("Error: " . mysql_error());
 
 $nickname = array();
 $aka = array();
@@ -35,7 +39,8 @@ while($row = mysql_fetch_array($result)){
 }
 $nicknames = array("nickname"=>$nickname, "aka"=>$aka);
 
-$result = mysql_query("SELECT * FROM fellows WHERE 1");
+$sql = "SELECT * FROM fellows WHERE 1";
+$result = mysql_query($sql) or die("Error: " . mysql_error());
 
 $fellows = array();
 
