@@ -8,6 +8,9 @@
     label{
       margin-top: 10px;
     }
+    .ui-datepicker-div{
+      z-index: 5;
+    }
     .no-bottom{
       margin-bottom: 0px;
     }
@@ -46,11 +49,10 @@
           <legend>&nbsp;&nbsp;Points Submission Form</legend>
           <div class="row-fluid">
             <div class="span6 col">
-              <div class="control-group">
-                <label for="date">Date:</label>
-                <div id="date-val" class="uneditable-input text-center span2"></div>
+              <div class="control-group filled-by-control">
+                <label class="control-label" for="filled-by">Points filled out by:</label>
+                <input type="text" name="filled-by" id="filled-by" class="input span10" onfocus="$('.filled-by-control').addClass('warning')" onfocusout="validateFilledBy()">
               </div>
-              <div id="date"></div>
 
               <label for="type">Type:</label>
               <div class="btn-group" id="type" data-toggle="buttons-radio">
@@ -66,6 +68,14 @@
                 <div class="help-block hide" id="event-name-error">Event name + date combination taken</div>
                 <div class="help-block hide" id="event-name-length-error">Event name must be between 8 and 40 characters.<br/><span id="event-name-length-error-count"></span></div>
               </div>
+
+              <div class="control-group">
+                <label for="date">Date:</label>
+                <!--<div id="date-val" class="uneditable-input text-center span2"></div>-->
+                <input type="text" id="date-val" name="actual-date" style="display: none">
+                <input type="text" id="date" name="date" class="input span4" style="position: relative; z-index: 10;">
+              </div>
+              <!--<div id="date"></div>-->
 
               <div class="control-group im-team-control hide">
                 <label class="control-label" for="im-team">Team:</label>
@@ -102,11 +112,6 @@
                 <div class="help-block hide" id="description-length-error">Be enthusiastic and descriptive!</div>
               </div>
 
-              <div class="control-group filled-by-control">
-                <label class="control-label" for="filled-by">Points filled out by:</label>
-                <input type="text" name="filled-by" id="filled-by" class="input span10" onfocus="$('.filled-by-control').addClass('warning')" onfocusout="validateFilledBy()">
-              </div>
-
               <div class="control-group">
                 <label class="control-label" for="comments">Comments:</label>
                 <small class="help-block no-bottom">No-shows, issues with form, explanation of helper points, etc.</small>
@@ -119,7 +124,7 @@
                 <li><a href="#fellow-entry-tab" data-toggle="tab"><span>Fellows</span></a></li>
               </ul>
 
-              <div class="tab-content span12">
+              <div class="tab-content span11">
                 <div class="tab-pane active" id="slivkan-entry-tab" >
                   <div class="alert alert-success hide" id="sort-alert">
                     <button type="button" class="close" onclick="$('#sort-alert').slideUp()">&times;</button>
@@ -135,12 +140,12 @@
                   </div>  
                   <div class="control-group input-prepend input-append slivkan-entry-control" style="margin-left: 1px; width: 95%">
                     <div class="add-on">1</div>
-                    <input type="text" class="slivkan-entry span8" name="slivkan-entry" placeholder="Slivkan">
+                    <input type="text" class="slivkan-entry span10" name="slivkan-entry" placeholder="Slivkan">
                     <div class="input-append">
                       <div class="btn committee-point" title="Committee Member" style="display: none"><i class="icon-user"></i></div>
                     </div>
                     <div class="input-append">
-                      <div class="btn helper-point" title="Helper Point"><i class="icon-heart"></i></div>
+                      <div class="btn helper-point" title="Helper Point" style="display: none"><i class="icon-thumbs-up"></i></div>
                     </div>
                     
                   </div>
@@ -155,10 +160,10 @@
             </div>
           </div>
           <div class="form-actions">
-            <button type="submit" class="btn btn-primary" onclick="validatePointsForm()" >Submit</button>
-            <button type="button" class="btn" onclick="$('#real-reset').fadeToggle()">Reset</button>
+            <div class="help-block alert alert-error span6 pull-right hide" id="submit-error"></div>
+            <button type="submit" class="btn btn-primary btn-large" onclick="validatePointsForm()" >Validate</button>
+            <button type="button" class="btn btn-large" onclick="$('#real-reset').fadeToggle()">Reset</button>
             <button type="button" class="btn btn-danger hide" id="real-reset" onclick="resetForm()">Really Reset?</button>
-            <div class="help-inline hide" id="submit-error"></div>
           </div>
         </fieldset>
       </form>
@@ -179,7 +184,7 @@
   </div>
   <div id="submit-results" class="modal hide fade" role="dialog" >
     <div class="modal-header">
-      <!--<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>-->
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
       <h3>Points Form Submission</h3>
     </div>
     <div class="modal-body">
@@ -188,9 +193,9 @@
       </div>
       <table class="table table-bordered table-condensed" id="receipt">
         <tbody>
-          <tr>
+          <tr class="warning">
             <td>Status</td>
-            <td id="results-status"></td>
+            <td id="results-status">Unsubmitted</td>
           </tr>
           <tr class="results-row">
             <td class="results-label"></td>
@@ -200,8 +205,14 @@
       </table>
     </div>
     <div class="modal-footer">
-      <span>If an error occurs, email the receipt to Ben Rothman.</span>
-      <a href="table.php" class="btn btn-primary">View Points</a>
+      <div id="unconfirmed">
+        <button type="button" class="btn btn-primary" id="real-submit">Submit</button>
+        <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+      </div>
+      <div id="confirmed" class="hide">
+        <span>If an error occurs, email the receipt to Ben Rothman.</span>
+        <a href="table.php" class="btn btn-primary">View Points</a>
+      </div>
     </div>
   </div>
 </body>

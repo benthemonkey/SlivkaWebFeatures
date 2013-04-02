@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <?php include('header.html'); ?>
-  <meta name="viewport" content="width=2262, user-scalable=yes">
+  <meta name="viewport" content="width=1200, user-scalable=yes">
   <title>Table - Slivka Points Center</title>
   <script type="text/javascript" src="DataTables/media/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript" src="js/pointsTable.js"></script>
@@ -27,13 +27,13 @@
     color: #FFFFFF;
   }
   .header-row{
+    min-width: 1000px;
     font-weight: bold;
     padding-left: 138px; /*193*/
     list-style: none;
     margin-top: 114px;
     padding-top: 0px;
     position: absolute;
-    overflow: visible;
   }
   .header-row li{
     text-align: left;
@@ -60,7 +60,7 @@
   }
   </style>
 </head>
-<body style="min-width: 2262px;">
+<body style="min-width: 1000px;">
 	<div class="container-fluid">
     <div class="offset1 span12 content">
       <?php include('nav.html'); ?>

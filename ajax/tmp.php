@@ -1,7 +1,7 @@
 <?php
-
-$arr = array(50);
-
-var_dump($arr);
+require_once "./PointsCenter.php";
+$points_center = new PointsCenter();
+$tmps = $points_center->getPoints();
+echo json_encode($tmps);
 
 ?>

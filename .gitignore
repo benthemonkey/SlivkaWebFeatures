@@ -4,5 +4,7 @@
 /ajax/datastoreVars.php
 /ajax/DatabasePDO.php
 /ajax/log.txt
+/ajax/pointsCorrectionReply.php
+/ajax/sendPointsCorrection.php
 
 **.sql

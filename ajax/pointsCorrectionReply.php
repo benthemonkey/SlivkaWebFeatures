@@ -24,7 +24,7 @@ $sql = "SELECT * FROM pointscorrection WHERE message_key='$key'";
 $result = mysql_query($sql) OR die("Ahhh! Ben has failed! Tell him what the points correction reply should be. Please paste this too: " . mysql_error());
 $result = mysql_fetch_array($result);
 $nu_email = $result['nu_email'];
-$event_name = $result['event_name'];
+$event_name = mysql_real_escape_string($result['event_name']);
 
 if($result['response'] == "0"){
 	$sql = "UPDATE pointscorrection SET response='$code' WHERE message_key='$key'";

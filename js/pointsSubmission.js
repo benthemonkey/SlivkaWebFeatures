@@ -1,4 +1,4 @@
-var slivkans, nicknames, fellows, type,
+var slivkans, nicknames, fellows, type = "Other",
 valid_event_name = false;
 
 jQuery(document).ready(function(){ 
@@ -16,19 +16,20 @@ jQuery(document).ready(function(){
         //initialization
         appendNameInputs(14);
 		appendFellowInputs(5);
-		$("#date-val").text($("#date").val());
 		$('#filled-by').typeahead({source: slivkans.full_name.concat(nicknames.nickname)});
     })
 
     $("#date").datepicker({
     	minDate: -5,
     	maxDate: 0,
-    	dateFormat: "yy-mm-dd",
+    	dateFormat: "m/d",
+    	altField: "#date-val",
+    	altFormat: "yy-mm-dd",
     	onSelect: function(date){
-    		$("#date-val").text(date);
     		validateEventName();
     	}
     })
+    $("#date").datepicker("setDate", new Date());
 
     //remove annoying hover class
     $('.ui-state-hover').removeClass('ui-state-hover');
@@ -128,10 +129,10 @@ function validatePointsForm(){
 	var valid = true,
 	errors = new Array();
 
+	if (!validateFilledBy()){valid = false; errors.push("Filled By");}
 	if (!valid_event_name){valid = false; updateValidity($(".event-control"),valid); errors.push("Name");}
 	if (!validateCommittee()){valid = false; errors.push("Committee");}
 	if (!validateDescription()){valid = false; errors.push("Description");}
-	if (!validateFilledBy()){valid = false; errors.push("Filled By");}
 
 	var valid_slivkans = true;
 
@@ -164,7 +165,7 @@ function validateEventName(){
 	valid_event_name = false;
 
 	if((event_name.length <= 40 && event_name.length >= 8) || event_name == "P2P"){
-		event_name += ' '+$("#date").val();
+		event_name += ' '+$("#date-val").val();
 
 		$.getJSON("ajax/getEvents.php",function(data){
 			$(".event-control").removeClass("warning");
@@ -292,13 +293,7 @@ function validateSlivkanName(entry){
 		updateValidity(entry,valid);
 	}else{
 		entry.removeClass("success").removeClass("error");
-		committee.removeClass("active");
-		helper.removeClass("active");
-		if(type == 'IM'){
-			hideButtons(helper,committee);
-		}else{
-			showHelperPoint(helper,committee);
-		}
+		hideButtons(helper,committee);
 	}
 
 	//no names = invalid
@@ -487,7 +482,7 @@ function submitPointsForm(){
 	$(window).unbind('beforeunload');
 
 	var data = {
-		date: $('#date').val(),
+		date: $('#date-val').val(),
 		type: type.toLowerCase().replace(" ","_"),
 		committee: $('#committee').val(),
 		event_name: $('#event').val(),
@@ -521,9 +516,26 @@ function submitPointsForm(){
 
 	console.log(data);
 
+	for(obj in data){
+		if(obj == "attendees" || obj == "helper_points" || obj == "committee_members" || obj == "fellows"){
+			val = data[obj].join(", ");
+		}else{
+			val = data[obj];
+		}
+
+		if($('.results-label').html().length == 0){
+			$('.results-label').html(obj);
+			$('.results').html(val);
+		}else{
+			row = $('.results-row').last().clone().appendTo('#receipt');
+			row.find('.results-label').html(obj);
+			row.find('.results').html(val);
+		}
+	}
+
 	$('#submit-results').modal({
-		backdrop: "static",
-		keyboard: false,
+		/*backdrop: "static",
+		keyboard: false,*/
 		show: true
 	}).on('shown', function(){
 	    $('body').css('overflow', 'hidden');
@@ -532,21 +544,17 @@ function submitPointsForm(){
 	})
 
 	//$('#submit-results').modal('show');
-	$.getJSON('./ajax/submitPointsForm.php',data,function(data_in){
-		for(obj in data_in.receipt){
-			if($('.results-label').html().length == 0){
-				$('.results-label').html(obj);
-				$('.results').html(data_in.receipt[obj]);
+	
+	$('#real-submit').click(function(){
+		$.getJSON('./ajax/submitPointsForm.php',data,function(data_in){
+			$('#results-status').parent().removeClass("warning");
+			if(data_in.error){
+				$('#results-status').html("Error in Step "+data_in.step).parent().addClass("error");
 			}else{
-				row = $('.results-row').last().clone().appendTo('#receipt');
-				row.find('.results-label').html(obj);
-				row.find('.results').html(data_in.receipt[obj]);
+				$('#unconfirmed').fadeOut({complete: function(){$('#confirmed').fadeIn();}});
+				
+				$('#results-status').html("Success!").parent().addClass("success");
 			}
-		}
-		if(data_in.error){
-			$('#results-status').html("Error in Step "+data_in.step).parent().addClass("error");
-		}else{
-			$('#results-status').html("Success!").parent().addClass("success");
-		}
+		})
 	})
 }

@@ -8,7 +8,7 @@ body{
 }
 
 .col{
-  padding: 10px;
+  padding: 10px 20px;
 }
 
 @media (max-width: 767px){
@@ -16,6 +16,10 @@ body{
 		padding-left: 10px;
 		padding-right: 10px;
 	}
+
+  .col{
+    padding: 10px 10px;
+  }
 
 	.modal-body {
       max-height: 250px;

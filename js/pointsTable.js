@@ -8,15 +8,18 @@ $(document).ready(function(){
   $('.nav li').eq(1).addClass('active');
 
   var aDataSet = new Array(),
-  events_targets = new Array();
+  events_targets = new Array(),
+  events = new Array();
 
   $.getJSON("ajax/getPointsTable.php",function(data){
+    events = data.events;
+
     for(row in data.points_table){
       aDataSet.push([row].concat(data.points_table[row]));
     }
 
-    for(var i=0;i<data.events.length;i++){
-      en = data.events[i].event_name;
+    for(var i=0;i<events.event_name.length;i++){
+      en = events.event_name[i];
       name = en.substr(0,en.length-11);
       date = en.substr(en.length-5);
 
@@ -26,11 +29,9 @@ $(document).ready(function(){
 
       event_names.push(name);
       event_dates.push(date);
-      event_attendees.push(data.events[i].attendees);
-      event_descriptions.push(data.events[i].description);
     }
 
-    var totals_targets = new Array(), first_totals_target = data.events.length+1;
+    var totals_targets = new Array(), first_totals_target = data.events.event_name.length+1;
     for(var i=0; i<7; i++){
       totals_targets.push(first_totals_target + i);
     }
@@ -52,7 +53,7 @@ $(document).ready(function(){
         trigger: 'hover',
         html: true,
         title: event_names[index],
-        content: "Date: "+event_dates[index]+"<br/>Attendees: "+event_attendees[index]+(event_descriptions[index].length > 0 ? "<br/>Description: "+event_descriptions[index] : ""),
+        content: "Date: "+event_dates[index]+"<br/>Attendees: "+events.attendees[index]+(events.description[index].length > 0 ? "<br/>Description: "+events.description[index] : ""),
         placement: 'left',
         container: '.container-fluid'
       });

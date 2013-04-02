@@ -3,7 +3,7 @@ require_once "./DatabasePDO.php";
 class PointsCenter
 {
     private static $quarter = "Spring 2013";
-    private static $p2p_days = array("Tue","Thu");
+    public static $p2p_days = array("Tue","Thu");
 
     private static $dbConn = null;
     public function __construct ()
@@ -16,6 +16,11 @@ class PointsCenter
         if (is_null(self::$dbConn)) {
             self::$dbConn = DatabasePDO::getInstance();
         }
+    }
+
+    public function getP2PDays ()
+    {
+        return self::$p2p_days;
     }
     
     /**
@@ -99,21 +104,90 @@ class PointsCenter
         return $fellows;
     }
 
-    public static function getEvents ()
+    public function getEvents ()
     {
         self::initializeConnection();
         $events = array();
         try {
             $statement = self::$dbConn->prepare(
-            "SELECT * FROM events WHERE quarter=':quarter' ORDER BY date");
-            $statement->bindValue(":quarter", $quarter);
+            "SELECT event_name,date,type,attendees,description FROM events WHERE quarter=:quarter ORDER BY date");
+            $statement->bindValue(":quarter", self::$quarter);
             $statement->execute();
             $events = $statement->fetchAll();
 
+            $event_name = array();
+            $date = array();
+            $type = array();
+            $attendees = array();
+            $description = array();
+
+            foreach($events as $e){
+                $event_name[]  = $e['event_name'];
+                $date[]        = $e['date'];
+                $type[]        = $e['type'];
+                $attendees[]   = $e['attendees'];
+                $description[] = $e['description'];
+            }
             
+            $events = array(event_name=>$event_name,date=>$date,type=>$type,attendees=>$attendees,description=>$description);
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            die();
         }
+        return $events;
+    }
+
+    public function getPoints ()
+    {
+        self::initializeConnection();
+        $points = array();
+        try {
+            $statement = self::$dbConn->prepare(
+            "SELECT points.event_name,points.nu_email FROM points INNER JOIN events ON points.event_name=events.event_name WHERE events.quarter=:quarter ORDER BY events.date");
+            $statement->bindValue(":quarter", self::$quarter);
+            $statement->execute();
+            $points = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            die();
+        }
+        return $points;
+    }
+
+    public function getHelperPoints ()
+    {
+        self::initializeConnection();
+        $helper_points = array();
+        try {
+            $statement = self::$dbConn->prepare(
+            "SELECT helperpoints.event_name,helperpoints.nu_email FROM helperpoints INNER JOIN events ON helperpoints.event_name=events.event_name WHERE events.quarter=:quarter ORDER BY events.date");
+            $statement->bindValue(":quarter", self::$quarter);
+            $statement->execute();
+            $helper_points = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            die();
+        }
+        return $helper_points;
     }
     
+    public function getCommitteeAttendance ()
+    {
+        self::initializeConnection();
+        $committee_attendance = array();
+        try {
+            $statement = self::$dbConn->prepare(
+            "SELECT committeeattendance.event_name,committeeattendance.nu_email FROM committeeattendance INNER JOIN events ON committeeattendance.event_name=events.event_name WHERE events.quarter=:quarter ORDER BY events.date");
+            $statement->bindValue(":quarter", self::$quarter);
+            $statement->execute();
+            $committee_attendance = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            die();
+        }
+        return $committee_attendance;
+    }
+
     /**
      * @return Book 
      */
