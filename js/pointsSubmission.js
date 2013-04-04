@@ -16,13 +16,25 @@ jQuery(document).ready(function(){
         //initialization
         appendNameInputs(14);
 		appendFellowInputs(5);
+
+        if(localStorage.attendees){
+        	var attendees = localStorage.attendees.split(", ");
+        	if(attendees.length > 14){ appendNameInputs(attendees.length); }
+        	addSlivkans(attendees);
+        }
+
 		$('#filled-by').typeahead({source: slivkans.full_name.concat(nicknames.nickname)});
+
+		//save slivkans every 10 seconds
+		window.setInterval(function(){saveSlivkans(); console.log(localStorage.attendees)},10000);
     })
 
     $("#date").datepicker({
     	minDate: -5,
     	maxDate: 0,
     	dateFormat: "m/d",
+    	showOn: "button",
+    	buttonText: "",
     	altField: "#date-val",
     	altFormat: "yy-mm-dd",
     	onSelect: function(date){
@@ -30,9 +42,7 @@ jQuery(document).ready(function(){
     	}
     })
     $("#date").datepicker("setDate", new Date());
-
-    //remove annoying hover class
-    $('.ui-state-hover').removeClass('ui-state-hover');
+    $('button.ui-datepicker-trigger').addClass("btn").html('<i class="icon-calendar"></i>');
 
     //event handler for type
     $('.type-btn').click(function(event){toggleType(event)});
@@ -96,6 +106,12 @@ function appendFellowInputs(n){
 function toggleType(event){
 	type = event.target.value;
 
+	//clear description if **previous** type was IM
+	if($('.type-btn.active').val() == "IM"){
+		$('#description').val("");
+		validateDescription();
+	}
+
 	if(type == "P2P"){
 		$("#committee").val("Faculty");
 		$("#event").val("P2P");
@@ -114,14 +130,18 @@ function toggleType(event){
 
 	if(type == "IM"){
 		$(".im-team-control").slideDown();
+		$("#event").attr("disabled","disabled");
 	}else{
 		$(".im-team-control").slideUp();
+		$("#event").removeAttr("disabled");
 	}
 
 	if(type == "Other"){
 		$(".description-control").slideDown();
+		$("#committee").removeAttr("disabled");
 	}else{
 		$(".description-control").slideUp();
+		$("#committee").attr("disabled","disabled");
 	}
 }
 
@@ -152,7 +172,10 @@ function validatePointsForm(){
 	if(!valid_fellows){valid = false; errors.push("Fellows");}
 
 
-	if(valid){submitPointsForm()}else{
+	if(valid){
+		$('#submit-error').fadeOut();
+		submitPointsForm();
+	}else{
 		$("#submit-error").text("Validation errors in: "+errors.join(", ")).fadeIn();
 	}
 
@@ -276,12 +299,11 @@ function validateSlivkanName(entry){
     	if ($(this).val().length > 0){ nameArray.push($(this).val()) }
   	});
     
-    entry.removeClass("warning")
+    entry.removeClass("warning");
 
     if (name.length > 0){
     	name_ind = slivkans.full_name.indexOf(name);
 		if(name_ind != -1){
-			valid=true;
 			if(slivkans.committee[name_ind] == $('#committee').val() && type != 'IM'){
 				showCommitteeMember(helper,committee);
 			}else if(type == 'IM' || slivkans.committee[name_ind] == 'Facilities' || slivkans.committee[name_ind] == 'Exec'){
@@ -401,6 +423,25 @@ function addBulkNames(){
 function sortEntries(){
 	var nameArray = new Array();
 
+	nameArray = saveSlivkans();
+
+	//clear slivkans
+	$('.slivkan-entry').each(function(){$(this).val("")});
+
+  	//reset buttons
+  	$('.committee-point').removeClass('active');
+	$('.helper-point').removeClass('active');
+
+  	nameArray = nameArray.sort();
+
+  	addSlivkans(nameArray);
+
+  	$('#sort-alert').slideDown();
+}
+
+function saveSlivkans(){
+	var nameArray = new Array();
+
 	//forming name array, but appending values corresponding to the helper/committee buttons:
 	//0 - unpressed, 1 - pressed
 	$('.slivkan-entry').each(function(index){
@@ -418,16 +459,15 @@ function sortEntries(){
 
     		nameArray.push($(this).val()+h+c);
     	}
-  		$(this).val("");
   	});
 
-  	//reset buttons
-  	$('.committee-point').removeClass('active');
-	$('.helper-point').removeClass('active');
+  	localStorage.attendees = nameArray.join(", ");
 
-  	nameArray = nameArray.sort();
+  	return nameArray;
+}
 
-  	for(var i=0; i<nameArray.length; i++){
+function addSlivkans(nameArray){
+	for(var i=0; i<nameArray.length; i++){
   		name = nameArray[i].slice(0,nameArray[i].length-2);
   		h = nameArray[i].slice(nameArray[i].length-2,nameArray[i].length-1);
   		c = nameArray[i].slice(nameArray[i].length-1);
@@ -438,8 +478,6 @@ function sortEntries(){
   		if(h=="1") entry.find('.helper-point').addClass("active");
   		if(c=="0") entry.find('.committee-point').removeClass("active");
   	}
-
-  	$('#sort-alert').slideDown();
 }
 
 function updateValidity(element,valid){
@@ -450,37 +488,36 @@ function updateValidity(element,valid){
     }
 }
 
-function isSlivkan(name){
-	
-}
-
 function resetForm(){
-	$('#event').val(""); $('.event-control').removeClass("success").removeClass("error");
-	$('#description').val(""); $('.description-control').removeClass("success").removeClass("error");
-	$('#committee').val("Select One"); $('.committee-control').removeClass("success").removeClass("error");
-	$('.type-btn').last().click();
-	$('#filled-by').val(""); $('.filled-by-control').removeClass("success").removeClass("error");
-	$('#comments').val("");
+	if(confirm("Reset form?")){
+		$('.type-btn').last().click();
+		$('#event').val(""); $('.event-control').removeClass("success").removeClass("error");
+		$('#description').val(""); $('.description-control').removeClass("success").removeClass("error");
+		$('#committee').val("Select One"); $('.committee-control').removeClass("success").removeClass("error");
+		$('#filled-by').val(""); $('.filled-by-control').removeClass("success").removeClass("error");
+		$('#comments').val("");
 
-	$('.slivkan-entry').each(function(index){
-		$(this).val("");
-		validateSlivkanName($(this).parent());
-	});
+		$('.slivkan-entry').each(function(index){
+			$(this).val("");
+			validateSlivkanName($(this).parent());
+		});
 
-	$('.fellow-entry').each(function(index){
-		$(this).val("");
-		validateFellowName(index);
-	})
+		$('.fellow-entry').each(function(index){
+			$(this).val("");
+			validateFellowName($(this).parent());
+		})
 
-	$('#event-name-error').fadeOut();
-	$('#description-length-error').fadeOut();
-	$('#duplicate-error').fadeOut();
-	$('#submit-error').fadeOut();
+		$('#event-name-error').fadeOut();
+		$('#event-name-length-error').fadeOut();
+		$('#description-length-error').fadeOut();
+		$('#duplicate-error').fadeOut();
+		$('#submit-error').fadeOut();
+
+		localStorage.attendees = "";
+	}
 }
 
 function submitPointsForm(){
-	$(window).unbind('beforeunload');
-
 	var data = {
 		date: $('#date-val').val(),
 		type: type.toLowerCase().replace(" ","_"),
@@ -514,7 +551,11 @@ function submitPointsForm(){
 		}
 	})
 
-	console.log(data);
+
+	console.log(JSON.stringify(data));
+
+	//clear receipt:
+	$('.results-row').remove();
 
 	for(obj in data){
 		if(obj == "attendees" || obj == "helper_points" || obj == "committee_members" || obj == "fellows"){
@@ -523,14 +564,11 @@ function submitPointsForm(){
 			val = data[obj];
 		}
 
-		if($('.results-label').html().length == 0){
-			$('.results-label').html(obj);
-			$('.results').html(val);
-		}else{
-			row = $('.results-row').last().clone().appendTo('#receipt');
-			row.find('.results-label').html(obj);
-			row.find('.results').html(val);
-		}
+		$('<tr class="results-row" />').append(
+			$('<td class="results-label" />').html(obj)
+		).append(
+			$('<td class="results" />').html(val)
+		).appendTo("#receipt tbody");
 	}
 
 	$('#submit-results').modal({
@@ -554,6 +592,9 @@ function submitPointsForm(){
 				$('#unconfirmed').fadeOut({complete: function(){$('#confirmed').fadeIn();}});
 				
 				$('#results-status').html("Success!").parent().addClass("success");
+
+				localStorage.attendees = "";
+				$(window).unbind('beforeunload');
 			}
 		})
 	})

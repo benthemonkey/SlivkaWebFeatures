@@ -70,7 +70,7 @@ if($result['response'] == "0"){
 
 	$transport = Swift_SmtpTransport::newInstance('smtp.gmail.com', 465, 'ssl')
 	  ->setUsername("bensrothman@gmail.com")
-	  ->setPassword("uxburpifsptrdcot");
+	  ->setPassword($GMAIL_PASS);
 
 	$mailer = Swift_Mailer::newInstance($transport);
 

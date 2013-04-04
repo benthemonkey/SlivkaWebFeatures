@@ -3,72 +3,98 @@
 <head>
   <?php include('header.html'); ?>
   <title>List - Slivka Points Center</title>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
   <script type="text/javascript" src="js/pointsList.js"></script>
   <style type="text/css">
   table{
   	font-size: 12px;
   }
+
+  .chartWrapper{
+  	overflow: hidden;
+  }
+
+  .chart{
+  	height: 275px;
+  	width: 500px;
+  	left: -15%;
+  }
   </style>
 </head>
 <body>
 	<div class="container-fluid">
-		<div class="offset1 span12 content">
+		<div class="content">
 			<?php include('nav.html'); ?>
-			<legend>&nbsp;&nbsp;Points List</legend>
 			<div class="row-fluid">
-				<div class="span6 col">
-					<form>
-						<fieldset>
-							<div class="control-group">
-								<div class="row-fluid">
-									<div class="span6">
-										<label class="control-label" for="start">From: </label>
-										<div id="start-val" class="uneditable-input text-center span2"></div>
-										<div style="min-width: 250px;">
-											<div id="start" class="span6"></div>
-										</div>
-									</div>
-									<div class="span6 pull-right">
-										<label class="control-label" for="end">To: </label>
-										<div id="end-val" class="uneditable-input text-center span2"></div>
-										<div id="end"></div>
-									</div>
+				<div class="span3">
+					<legend>&nbsp;&nbsp;Filters</legend>
+					<div class="col">
+						<form>
+							<fieldset>
+								<div class="control-group">
+									<label class="control-label">Slivkan:</label>
+									<select id="slivkan" style="width: 100%" onchange="getSlivkanPoints()">
+										<option value="">Select One</option>
+									</select>
+								</div>
+								<div class="control-group">
+						            <label for="start" class="control-label" onclick="$('#start').datepicker('show');">From:</label>
+						            <input type="text" id="start-val" style="display: none">
+						            <div class="input-append">
+						              	<input type="text" id="start" name="start" class="input text-center" style="position: relative; z-index: 10; color: #000000; width: 50px;" disabled>
+						            </div>
+						        </div>
+						        <div class="control-group">
+						            <label for="end" class="control-label" onclick="$('#end').datepicker('show');">To:</label>
+						            <input type="text" id="end-val" style="display: none">
+						            <div class="input-append">
+						              	<input type="text" id="end" name="end" class="input text-center" style="position: relative; z-index: 10; color: #000000; width: 50px;" disabled>
+						            </div>
+						        </div>
+						        <div class="control-group">
+						        	Other:
+						        	<label for="showUnattended" class="checkbox">
+						        		<input type="checkbox" name="showUnattended" id="showUnattended" onclick="toggleShowUnattended();" checked="checked"> Show Unattended
+						        	</label>
+						        </div>
+							</fieldset>
+						</form>
+					</div>
+				</div>
+				<div class="span9">
+					<legend>&nbsp;&nbsp;Points Breakdown</legend>
+					<div class="col">
+						<div class="row-fluid hide" id="breakdown">
+							<div class="span6">
+								<table class="table table-bordered table-condensed table-striped">
+									<thead>
+										<tr>
+											<th>Events <span class="slivkan-submit">Ford</span> Attended</th>
+										</tr>
+									</thead>
+									<tbody id="attended">
+									</tbody>
+								</table>
+								<div class="chartWrapper">
+									<div id="attendedByCommittee" class="chart"></div>
 								</div>
 							</div>
-							<div class="control-group">
-								<label class="control-label">Slivkan:</label>
-								<select id="slivkan" onchange="getSlivkanPoints()">
-									<option value="">Select One</option>
-								</select>
+							<div class="span6" id="unattended-col">
+								<table class="table table-bordered table-condensed table-striped">
+									<thead>
+										<tr>
+											<th>Events <span class="slivkan-submit">Ford</span> Didn't</th>
+										</tr>
+									</thead>
+									<tbody id="unattended" class="fade in">
+									</tbody>
+								</table>
+								<div class="chartWrapper">
+									<div id="unattendedByCommittee" class="chart"></div>
+								</div>
 							</div>
-						</fieldset>
-					</form>
-				</div>
-				<div class="span6 col">
-					<div class="row-fluid hide" id="tables">
-						<div class="span6">
-							<table class="table table-bordered table-condensed table-striped">
-								<thead>
-									<tr>
-										<th>Events <span class="slivkan-submit">Ford</span> Attended</th>
-									</tr>
-								</thead>
-								<tbody id="attended">
-								</tbody>
-							</table>
-						</div>
-						<div class="span6">
-							<table class="table table-bordered table-condensed table-striped">
-								<thead>
-									<tr>
-										<th>Events <span class="slivkan-submit">Ford</span> Didn't</th>
-									</tr>
-								</thead>
-								<tbody id="missed" class="fade in">
-								</tbody>
-							</table>
-						</div>
-					</div>
+						</div><!-- row-fluid -->
+					</div><!--col-->
 				</div>
 			</div>
 		</div>

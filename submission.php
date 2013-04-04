@@ -42,7 +42,7 @@
 </head>
 <body>
   <div class="container-fluid">
-    <div class="offset1 span12 content">
+    <div class="content">
       <?php include('nav.html'); ?>
       <form autocomplete="off" onsubmit="return false;">
         <fieldset>
@@ -62,21 +62,6 @@
                 <input type="button" name="other" value="Other" class="btn type-btn active">
               </div>
 
-              <div class="control-group event-control">
-                <label class="control-label" for="event">Event name:</label>
-                <input type="text" name="event" id="event" class="input span10" onfocus="$('.event-control').addClass('warning');" onfocusout="validateEventName()">
-                <div class="help-block hide" id="event-name-error">Event name + date combination taken</div>
-                <div class="help-block hide" id="event-name-length-error">Event name must be between 8 and 40 characters.<br/><span id="event-name-length-error-count"></span></div>
-              </div>
-
-              <div class="control-group">
-                <label for="date">Date:</label>
-                <!--<div id="date-val" class="uneditable-input text-center span2"></div>-->
-                <input type="text" id="date-val" name="actual-date" style="display: none">
-                <input type="text" id="date" name="date" class="input span4" style="position: relative; z-index: 10;">
-              </div>
-              <!--<div id="date"></div>-->
-
               <div class="control-group im-team-control hide">
                 <label class="control-label" for="im-team">Team:</label>
                 <select id="im-team" class="input span4" onchange="validateIMTeam()">Soccer Softball Ultimate
@@ -88,6 +73,23 @@
                   <option>White Ultimate</option>
                 </select>
               </div>
+
+              <div class="control-group event-control">
+                <label class="control-label" for="event">Event name:</label>
+                <input type="text" name="event" id="event" class="input span10" onfocus="$('.event-control').addClass('warning');" onfocusout="validateEventName()">
+                <div class="help-block hide" id="event-name-error">Event name + date combination taken</div>
+                <div class="help-block hide" id="event-name-length-error">Event name must be between 8 and 40 characters.<br/><span id="event-name-length-error-count"></span></div>
+              </div>
+
+              <div class="control-group">
+                <label for="date" onclick="$('#date').datepicker('show');">Date:</label>
+                <input type="text" id="date-val" name="actual-date" style="display: none">
+                <!--<input type="text" id="date" name="date" class="input span4" style="position: relative; z-index: 10;">-->
+                <div class="input-append">
+                  <input type="text" id="date" name="date" class="input text-center" style="position: relative; z-index: 10; color: #000000; width: 50px;" disabled></input>
+                </div>
+              </div>
+              <!--<div id="date"></div>-->
 
               <div class="control-group committee-control">
                 <label class="control-label">Committee:</label>
@@ -126,6 +128,7 @@
 
               <div class="tab-content span11">
                 <div class="tab-pane active" id="slivkan-entry-tab" >
+                  <!--<div class="help-block span12"><small>Names saved every 10 seconds until submit/reset.</small></div>-->
                   <div class="alert alert-success hide" id="sort-alert">
                     <button type="button" class="close" onclick="$('#sort-alert').slideUp()">&times;</button>
                     <small>Sorted names!</small>
@@ -160,10 +163,11 @@
             </div>
           </div>
           <div class="form-actions">
-            <div class="help-block alert alert-error span6 pull-right hide" id="submit-error"></div>
-            <button type="submit" class="btn btn-primary btn-large" onclick="validatePointsForm()" >Validate</button>
-            <button type="button" class="btn btn-large" onclick="$('#real-reset').fadeToggle()">Reset</button>
-            <button type="button" class="btn btn-danger hide" id="real-reset" onclick="resetForm()">Really Reset?</button>
+            <div class="help-block alert alert-error span6 pull-left hide" id="submit-error"></div>
+            <div class="pull-right">
+              <button type="submit" class="btn btn-primary btn-large" onclick="validatePointsForm()" >Validate</button>
+              <button type="button" class="btn btn-large" onclick="resetForm()">Reset</button>
+            </div>
           </div>
         </fieldset>
       </form>
@@ -188,18 +192,11 @@
       <h3>Points Form Submission</h3>
     </div>
     <div class="modal-body">
-      <div>
-        <h4>Receipt:</h4>
-      </div>
       <table class="table table-bordered table-condensed" id="receipt">
         <tbody>
           <tr class="warning">
             <td>Status</td>
             <td id="results-status">Unsubmitted</td>
-          </tr>
-          <tr class="results-row">
-            <td class="results-label"></td>
-            <td class="results"></td>
           </tr>
         </tbody>
       </table>

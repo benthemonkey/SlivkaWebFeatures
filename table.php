@@ -60,9 +60,9 @@
   }
   </style>
 </head>
-<body style="min-width: 1000px;">
+<body><!--style="min-width: 1000px;"-->
 	<div class="container-fluid">
-    <div class="offset1 span12 content">
+    <div class="content">
       <?php include('nav.html'); ?>
       <div class="row-fluid">
         <div class="span12 col">

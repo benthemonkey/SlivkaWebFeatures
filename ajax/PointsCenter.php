@@ -46,7 +46,7 @@ class PointsCenter
                 $committee[] = $s['committee'];
             }
 
-            $slivkans = array("full_name"=>$full_name,"nu_email"=>$nu_email,"committee"=>$committee);
+            $slivkans = array('full_name'=>$full_name,'nu_email'=>$nu_email,'committee'=>$committee);
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
             die();
@@ -75,7 +75,7 @@ class PointsCenter
                 $nickname[] = $n['nickname'];
                 $aka[] = $n['first_name'] . ' ' . $n['last_name'];
             }
-            $nicknames = array(nickname=>$nickname,aka=>$aka);
+            $nicknames = array('nickname'=>$nickname,'aka'=>$aka);
             
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
@@ -104,21 +104,33 @@ class PointsCenter
         return $fellows;
     }
 
-    public function getEvents ()
+    public function getEvents ($start,$end)
     {
         self::initializeConnection();
         $events = array();
+
+        $sql = "SELECT * FROM events WHERE quarter=:quarter";
+        if($start AND $end){
+            $sql .= " AND date BETWEEN :start AND :end";
+        }
+        $sql .= " ORDER BY date";
+
         try {
             $statement = self::$dbConn->prepare(
-            "SELECT event_name,date,type,attendees,description FROM events WHERE quarter=:quarter ORDER BY date");
+            $sql);
             $statement->bindValue(":quarter", self::$quarter);
+            if($start AND $end){
+                $statement->bindValue(":start", $start, PDO::PARAM_STR);
+                $statement->bindValue(":end", $end, PDO::PARAM_STR);
+            }
             $statement->execute();
-            $events = $statement->fetchAll();
+            $events = $statement->fetchAll(PDO::FETCH_NAMED);
 
             $event_name = array();
             $date = array();
             $type = array();
             $attendees = array();
+            $committee = array();
             $description = array();
 
             foreach($events as $e){
@@ -126,10 +138,11 @@ class PointsCenter
                 $date[]        = $e['date'];
                 $type[]        = $e['type'];
                 $attendees[]   = $e['attendees'];
+                $committee[]   = $e['committee'];
                 $description[] = $e['description'];
             }
             
-            $events = array(event_name=>$event_name,date=>$date,type=>$type,attendees=>$attendees,description=>$description);
+            $events = array('event_name'=>$event_name,'date'=>$date,'type'=>$type,'attendees'=>$attendees,'committee'=>$committee,'description'=>$description);
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
             die();
@@ -188,26 +201,38 @@ class PointsCenter
         return $committee_attendance;
     }
 
-    /**
-     * @return Book 
-     */
-    public static function findById ($id)
+    public function getEventsAttendedBySlivkan ($nu_email,$start,$end)
     {
         self::initializeConnection();
-        $book = null;
+        $events = array();
         try {
             $statement = self::$dbConn->prepare(
-            "SELECT  * from book WHERE id = :id");
-            $statement->bindValue(":id", $id);
+            "SELECT events.type,events.event_name,events.committee FROM points INNER JOIN events ON points.event_name=events.event_name WHERE events.quarter=:quarter AND points.nu_email=:nu_email AND events.date BETWEEN :start AND :end ORDER BY events.date");
+            $statement->bindValue(":quarter", self::$quarter);
+            $statement->bindValue(":nu_email", $nu_email, PDO::PARAM_STR);
+            $statement->bindValue(":start", $start, PDO::PARAM_STR);
+            $statement->bindValue(":end", $end, PDO::PARAM_STR);
             $statement->execute();
-            $statement->setFetchMode(PDO::FETCH_CLASS, __CLASS__);
-            $book = $statement->fetch();
+            $events = $statement->fetchAll(PDO::FETCH_NAMED);
+
+            $type = array();
+            $event_name = array();
+            $committee = array();
+
+            foreach($events as $e){
+                $type[] = $e['type'];
+                $event_name[] = $e['event_name'];
+                $committee[] = $e['committee'];
+            }
+
+            $events = array('type'=>$type,'event_name'=>$event_name,'committee'=>$committee);
         } catch (PDOException $e) {
-            echo "Error!: " . $e->getMessage();
+            echo "Error: " . $e->getMessage();
             die();
         }
-        return $book;
+        return $events;
     }
+    
     /**
      * Save the Book to the DB.  If new book, it creates a record and grabs the id.
      * @return boolean

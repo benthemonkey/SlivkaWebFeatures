@@ -7,7 +7,7 @@
 </head>
 <body>
 	<div class="container-fluid">
-		<div class="offset1 span12 content">
+		<div class="content">
 			<?php include('nav.html'); ?>
 			<div class="row-fluid">
 				<div class="span3"></div>

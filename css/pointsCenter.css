@@ -2,8 +2,13 @@ body{
   background-image: url('../img/slivka-wallpaper.jpg');
 }
 
-.content{
+.container-fluid{
+  margin: 0px auto;
   max-width: 1000px; 
+}
+
+.content{
+  
   background-color: #FFFFFF;
 }
 
@@ -18,7 +23,7 @@ body{
 	}
 
   .col{
-    padding: 10px 10px;
+    padding: 10px;
   }
 
 	.modal-body {
