@@ -30,6 +30,7 @@ $(document).ready(function(){
 	        $( "#end" ).datepicker( "option", "minDate", selectedDate );
 	        localStorage.pointsStart = selectedDate;
 	        fixDateButtons();
+	        getSlivkanPoints();
 	    }
     });
     $( "#end" ).datepicker({
@@ -43,6 +44,7 @@ $(document).ready(function(){
             $('#start').datepicker( "option", "maxDate", selectedDate );
             localStorage.pointsEnd = selectedDate;
             fixDateButtons();
+            getSlivkanPoints();
         }
     });
 

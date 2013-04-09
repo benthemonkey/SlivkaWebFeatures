@@ -19,14 +19,17 @@ jQuery(document).ready(function(){
 
         if(localStorage.attendees){
         	var attendees = localStorage.attendees.split(", ");
-        	if(attendees.length > 14){ appendNameInputs(attendees.length); }
+        	if(attendees.length > 14){ appendNameInputs(attendees.length - 13); }
         	addSlivkans(attendees);
         }
 
 		$('#filled-by').typeahead({source: slivkans.full_name.concat(nicknames.nickname)});
 
-		//save slivkans every 10 seconds
-		window.setInterval(function(){saveSlivkans(); console.log(localStorage.attendees)},10000);
+		//save form every 10 seconds
+		/*window.setInterval(function(){
+			saveSlivkans(); 
+			console.log(localStorage.attendees)
+		},10000);*/
     })
 
     $("#date").datepicker({
@@ -264,7 +267,7 @@ function validateFilledBy(){
 	var valid, name = $('#filled-by').val();
 
 	if (nicknames.nickname.indexOf(name) != -1){
-    	name = nicknames.aka[nicknames.nickname.indexOf(name)];
+    	name = nicknames.full_name[nicknames.nickname.indexOf(name)];
     	$('#filled-by').val(name);
     }
 
@@ -289,7 +292,7 @@ function validateSlivkanName(entry){
     name = slivkan_entry.val();
 
     if (nicknames.nickname.indexOf(name) != -1){
-    	name = nicknames.aka[nicknames.nickname.indexOf(name)];
+    	name = nicknames.full_name[nicknames.nickname.indexOf(name)];
     	slivkan_entry.val(name);
     }
 
@@ -320,6 +323,8 @@ function validateSlivkanName(entry){
 
 	//no names = invalid
 	if(nameArray.length == 0){ valid=false }
+
+	saveSlivkans();
     
     return valid;
 }
@@ -413,6 +418,13 @@ function addBulkNames(){
 
 	while(nameArray.length > 0){
 		name = nameArray.shift();
+
+		//check if wildcard
+		wildcardInd = slivkans.wildcard.indexOf(name);
+		if(wildcardInd != -1){
+			name = slivkans.full_name[wildcardInd];
+		}
+
 		ind = slots.indexOf(0);
 		slots[ind] = 1;
 		$('.slivkan-entry').eq(ind).val(name);
@@ -447,15 +459,8 @@ function saveSlivkans(){
 	$('.slivkan-entry').each(function(index){
     	if($(this).val().length > 0){
     		name = $(this).val();
-    		h = "0"; 
-    		if($('.helper-point').eq(index).hasClass("active")){
-    			h = "1";
-    		}
-
-			c = "0";
-    		if($('.committee-point').eq(index).hasClass("active")){
-    			c = "1";
-    		}
+    		h = ($('.helper-point').eq(index).hasClass("active")) ? "1" : "0";
+			c = ($('.committee-point').eq(index).hasClass("active")) ? "1" : "0";
 
     		nameArray.push($(this).val()+h+c);
     	}

@@ -58,6 +58,8 @@ if($result['response'] == "0"){
 
 	<p style=\"padding: 10; width: 70%\">$html_snippet</p>
 
+	<p style=\"padding: 10; width: 70%\"><a href=\"http://slivka.northwestern.edu/points/table.php\" target=\"_blank\">View Points</a></p>
+
 	<p style=\"padding: 10; width: 70%\">If you received this email in error, please contact BenSRothman@gmail.com</p>";
 
 	$text = "Slivka Points Correction Response Posted (Automated)";

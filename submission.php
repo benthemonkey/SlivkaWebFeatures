@@ -8,9 +8,7 @@
     label{
       margin-top: 10px;
     }
-    .ui-datepicker-div{
-      z-index: 5;
-    }
+
     .no-bottom{
       margin-bottom: 0px;
     }
@@ -26,17 +24,6 @@
 
     .control-group{
       margin-bottom: 10px;
-    }
-
-    .tight .row-fluid [class*="span"]{
-      margin-top: 0px;
-      margin-bottom: 0px;
-      min-height: 0px;
-    }
-    .tight p{
-      margin-top: 0px;
-      margin-bottom: 0px;
-      min-height: 0px;
     }
   </style>
 </head>
@@ -138,7 +125,7 @@
                     <small>Duplicate name!</small>
                   </div>
                   <div id="slivkan-entry-tab-buttons">
-                    <div class="btn" role="button" data-toggle="modal" data-target="#QR-entry"><i class="icon-qrcode"></i> QR</div>
+                    <div class="btn" role="button" data-toggle="modal" data-target="#QR-entry"><i class="icon-qrcode"></i> QR/Wildcard <i class="icon-barcode"></i></div>
                     <div class="btn" onclick="sortEntries()"><i class="icon-list" title="Sort"></i><i class="icon-arrow-down"></i></div>
                   </div>  
                   <div class="control-group input-prepend input-append slivkan-entry-control" style="margin-left: 1px; width: 95%">

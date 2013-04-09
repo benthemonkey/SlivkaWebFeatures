@@ -32,21 +32,23 @@ class PointsCenter
         $slivkans = array();
         try {
             $statement = self::$dbConn->prepare(
-            "SELECT full_name,nu_email,committee FROM directory WHERE qtr_final IS NULL ORDER BY first_name");
+            "SELECT full_name,nu_email,wildcard,committee FROM directory WHERE qtr_final IS NULL ORDER BY first_name");
             $statement->execute();
             $slivkans = $statement->fetchAll();
 
             $full_name = array();
             $nu_email = array();
+            $wildcard = array();
             $committee = array();
 
             foreach($slivkans as $s){
                 $full_name[] = $s['full_name'];
                 $nu_email[]  = $s['nu_email'];
+                $wildcard[]  = $s['wildcard'];
                 $committee[] = $s['committee'];
             }
 
-            $slivkans = array('full_name'=>$full_name,'nu_email'=>$nu_email,'committee'=>$committee);
+            $slivkans = array('full_name'=>$full_name,'nu_email'=>$nu_email,'wildcard'=>$wildcard,'committee'=>$committee);
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
             die();
@@ -64,18 +66,18 @@ class PointsCenter
         $nicknames = array();
         try {
             $statement = self::$dbConn->prepare(
-            "SELECT nicknames.nickname,directory.first_name,directory.last_name FROM nicknames INNER JOIN directory ON nicknames.nu_email=directory.nu_email WHERE directory.qtr_final IS NULL");
+            "SELECT nicknames.nickname,directory.full_name FROM nicknames INNER JOIN directory ON nicknames.nu_email=directory.nu_email");
             $statement->execute();
             $nicknames = $statement->fetchAll();
 
             $nickname = array();
-            $aka = array();
+            $full_name = array();
 
             foreach($nicknames as $n){
                 $nickname[] = $n['nickname'];
-                $aka[] = $n['first_name'] . ' ' . $n['last_name'];
+                $full_name[] = $n['full_name'];
             }
-            $nicknames = array('nickname'=>$nickname,'aka'=>$aka);
+            $nicknames = array('nickname'=>$nickname,'full_name'=>$full_name);
             
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
@@ -108,6 +110,10 @@ class PointsCenter
     {
         self::initializeConnection();
         $events = array();
+
+        if($start AND !$end){
+            $end = "01-01-2050";
+        }
 
         $sql = "SELECT * FROM events WHERE quarter=:quarter";
         if($start AND $end){
@@ -232,7 +238,7 @@ class PointsCenter
         }
         return $events;
     }
-    
+
     /**
      * Save the Book to the DB.  If new book, it creates a record and grabs the id.
      * @return boolean
