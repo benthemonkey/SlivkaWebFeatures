@@ -52,7 +52,7 @@ $(document).ready(function(){
         html: true,
         title: event_names[index],
         content: "Date: "+event_dates[index]+"<br/>Attendees: "+events.attendees[index]+(events.description[index].length > 0 ? "<br/>Description: "+events.description[index] : ""),
-        placement: 'left',
+        placement: 'top',
         container: '.container-fluid'
       });
     });

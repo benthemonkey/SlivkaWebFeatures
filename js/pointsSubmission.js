@@ -1,10 +1,7 @@
 var slivkans, nicknames, fellows, type = "Other",
 valid_event_name = false;
 
-jQuery(document).ready(function(){ 
-    //navigate away warning
-    $(window).bind('beforeunload', function() {return 'Your points form was not submitted.';});
-
+jQuery(document).ready(function(){
     //nav
     $('.nav li').eq(3).addClass('active');
 
@@ -12,24 +9,54 @@ jQuery(document).ready(function(){
         slivkans = data.slivkans;
         nicknames = data.nicknames;
         fellows = data.fellows;
-        
+
+        slivkans.autocomplete = slivkans.full_name.concat(nicknames.nickname);
+
         //initialization
         appendNameInputs(14);
         appendFellowInputs(5);
 
-        if(localStorage.attendees){
-            var attendees = localStorage.attendees.split(", ");
-            if(attendees.length > 14){ appendNameInputs(attendees.length - 13); }
+        //loading saved values
+        if(localStorage.spc_sub_attendees){
+            var attendees = localStorage.spc_sub_attendees;
+            attendees = attendees.split(", ");
+            if(attendees.length > 14){ appendNameInputs(attendees.length - 14); }
             addSlivkans(attendees);
         }
+        if(localStorage.spc_sub_filledby){
+            $('#filled-by').val(localStorage.spc_sub_filledby);
+            validateFilledBy();
+        }
+        if(localStorage.spc_sub_type && localStorage.spc_sub_type != "Other"){
+            $('.type-btn[value="'+localStorage.spc_sub_type+'"]').click();
+        }
+        if(localStorage.spc_sub_date){
+            $("#date").datepicker("setDate", localStorage.spc_sub_date);
+        }
+        if(localStorage.spc_sub_name){
+            $('#event').val(localStorage.spc_sub_name);
+            validateEventName();
+        }
+        if(localStorage.spc_sub_committee){
+            $('#committee').val(localStorage.spc_sub_committee);
+            validateCommittee();
+        }
+        if(localStorage.spc_sub_comments){
+            $('#comments').val(localStorage.spc_sub_comments);
+        }
 
-        $('#filled-by').typeahead({source: slivkans.full_name.concat(nicknames.nickname)});
+        //autocomplete and other events
+        $('#filled-by').typeahead({source: slivkans.full_name.concat(nicknames.nickname)})
+        .on('focus',makeHandler.addClassWarning())
+        .on('focusout',function(){validateFilledBy();});
 
-        //save form every 10 seconds
-        /*window.setInterval(function(){
-            saveSlivkans(); 
-            console.log(localStorage.attendees)
-        },10000);*/
+        $('#slivkan-entry-tab').on('focus','.slivkan-entry',makeHandler.addClassWarning())
+        .on('focusout','.slivkan-entry',makeHandler.validateSlivkanName())
+        .on('click','.helper-point',makeHandler.toggleActive())
+        .on('click','.committee-point',makeHandler.toggleActive());
+
+        $('#fellow-entry-tab').find('.fellow-entry').on('focus',makeHandler.addClassWarning())
+        .on('focusout',makeHandler.validateFellowName());
     });
 
     $("#date").datepicker({
@@ -42,6 +69,7 @@ jQuery(document).ready(function(){
         altFormat: "yy-mm-dd",
         onSelect: function(date){
             validateEventName();
+            localStorage.spc_sub_date = date;
         }
     });
     $("#date").datepicker("setDate", new Date());
@@ -50,64 +78,72 @@ jQuery(document).ready(function(){
     //event handler for type
     $('.type-btn').click(function(event){toggleType(event);});
 
+    //event handler for comments
+    $('#comments').on('keyup',function(){
+        localStorage.spc_sub_comments = $('#comments').val();
+    });
+
     $('#tabs a:first').tab('show');
 });
 
+
+var makeHandler = {
+    addClassWarning : function(){
+        return function(){ $(this).parent().addClass("warning"); };
+    },
+    validateSlivkanName : function(){
+        return function(){ validateSlivkanName($(this).parent()); };
+    },
+    validateFellowName : function(){
+        return function(){ validateFellowName($(this).parent()); };
+    },
+    toggleActive : function(){
+        return function(){ $(this).toggleClass("active"); saveSlivkans(); };
+    }
+};
+
 function appendNameInputs(n){
+    //2-4ms per insertion. Slow but acceptable.
+    var cloned = $('#slivkan-entry-tab').find('.slivkan-entry-control').last(),
+    start = parseInt(cloned.find('.add-on').text(),10);
     for (var i=0; i<n; i++){
-        entry = $('.slivkan-entry-control').last();
-        add_on = entry.find('.add-on');
-        slivkan_entry = entry.find('.slivkan-entry');
-        helper = entry.find('.helper-point');
-        committee = entry.find('.committee-point');
-
-        //autocomplete and other events
-        slivkan_entry.typeahead({source: slivkans.full_name.concat(nicknames.nickname)})
-        .on('focus',function(){$(this).parent().addClass("warning")})
-        .on('focusout',function(){validateSlivkanName($(this).parent())});
-
-        //buttons
-        helper.click(function(){$(this).toggleClass("active")});
-        committee.click(function(){$(this).toggleClass("active")});
-
-
-        $('.slivkan-entry-control').last().clone().appendTo('#slivkan-entry-tab')
+        next = cloned.clone().appendTo('#slivkan-entry-tab')
         .removeClass("warning")
-        .find('.add-on').html(parseInt(add_on.html())+1);
+        .find('.add-on').text(start+i+1);
     }
 
-    $('.slivkan-entry').last().bind('focus',function(){
+    $('#slivkan-entry-tab').find('.slivkan-entry').typeahead({source:slivkans.autocomplete});
+
+    $('#slivkan-entry-tab').find('.slivkan-entry').last().on('focus',function(){
         $(this).parent().addClass("warning");
-        var num_inputs = $('.slivkan-entry').length;
-        $(this).unbind('focus');
-        if(num_inputs < 99){ appendNameInputs(1); }
+        var num_inputs = $('#slivkan-entry-tab').find('.slivkan-entry').length;
+        $(this).off('focus');
+        if(num_inputs < 120){ appendNameInputs(1); }
     });
 }
 
 function appendFellowInputs(n){
     for (var i=0; i<n; i++){
-        entry = $('.fellow-entry-control').last();
-        fellow_entry = entry.find('.fellow-entry');
-
-        //autocomplete and other events
-        fellow_entry.typeahead({source: fellows})
-        .on('focus',function(){$(this).parent().addClass("warning")})
-        .on('focusout',function(){validateFellowName($(this).parent())});
-
-        $('.fellow-entry-control').last().clone().appendTo('#fellow-entry-tab')
+        next = $('.fellow-entry-control').last().clone().appendTo('#fellow-entry-tab')
         .removeClass("warning");
+
+        //autocomplete
+        next.find('.fellow-entry').typeahead({source: fellows});
     }
 
-    $('.fellow-entry').last().bind('focus',function(){
+    $('.fellow-entry').last().on('focus',function(){
         $(this).parent().addClass("warning");
         var num_inputs = $('.fellow-entry').length;
-        $(this).unbind('focus');
+        $(this).off('focus');
         if(num_inputs < 20){appendFellowInputs(1);}
     });
 }
 
 function toggleType(event){
     type = event.target.value;
+
+    //store value
+    localStorage.spc_sub_type = type;
 
     //clear description if **previous** type was IM
     if($('.type-btn.active').val() == "IM"){
@@ -152,27 +188,27 @@ function validatePointsForm(){
     var valid = true,
     errors = [];
 
-    if (!validateFilledBy()){valid = false; errors.push("Filled By");}
-    if (!valid_event_name){valid = false; updateValidity($(".event-control"),valid); errors.push("Name");}
-    if (!validateCommittee()){valid = false; errors.push("Committee");}
-    if (!validateDescription()){valid = false; errors.push("Description");}
+    if (!validateFilledBy()){ valid = false; errors.push("Filled By"); }
+    if (!valid_event_name){ valid = false; updateValidity($(".event-control"),valid); errors.push("Name"); }
+    if (!validateCommittee()){ valid = false; errors.push("Committee"); }
+    if (!validateDescription()){ valid = false; errors.push("Description"); }
 
     var valid_slivkans = true;
 
     $('.slivkan-entry-control').each(function(){
-        if(!validateSlivkanName($(this))){valid_slivkans = false;}
+        if(!validateSlivkanName($(this),true)){ valid_slivkans = false; }
     });
 
-    if(!valid_slivkans){valid = false; errors.push("Attendees");}
+    if(!valid_slivkans){ valid = false; errors.push("Attendees"); }
 
 
     var valid_fellows = true;
 
     $('.fellow-entry-control').each(function(){
-        if(!validateFellowName($(this))){valid_fellows = false;}
+        if(!validateFellowName($(this))){ valid_fellows = false; }
     });
 
-    if(!valid_fellows){valid = false; errors.push("Fellows");}
+    if(!valid_fellows){ valid = false; errors.push("Fellows"); }
 
 
     if(valid){
@@ -188,6 +224,9 @@ function validatePointsForm(){
 function validateEventName(){
     var valid = false, event_name = $('#event').val(), event_names = [];
 
+    //store value
+    localStorage.spc_sub_name = event_name;
+
     valid_event_name = false;
 
     if((event_name.length <= 40 && event_name.length >= 8) || event_name == "P2P"){
@@ -196,12 +235,12 @@ function validateEventName(){
         $.getJSON("ajax/getEvents.php",function(data){
             $(".event-control").removeClass("warning");
 
-            if(data.event_names.length > 0){
-                event_names = data.event_names;
+            if(data.event_name.length > 0){
+                event_names = data.event_name;
 
                 if(event_names.indexOf(event_name) != -1){
                     if(type == 'IM'){
-                        var last = parseInt($('#event').val().slice(-1));
+                        var last = parseInt($('#event').val().slice(-1),10);
                         $('#event').val($('#event').val().slice(0,-1) + (last+1).toString());
                         validateEventName();
                     }else{
@@ -242,14 +281,21 @@ function validateCommittee(){
     updateValidity($('.committee-control'),valid);
 
     $('.slivkan-entry-control').each(function(){
-        validateSlivkanName($(this));
+        validateSlivkanName($(this),true);
     });
+
+    //store values
+    saveSlivkans();
+    localStorage.spc_sub_committee = committee;
 
     return valid;
 }
 
 function validateDescription(){
     var valid = true, description = $("#description").val();
+
+    //store value
+    localStorage.spc_sub_description = description;
 
     if(description.length < 10 && type == "Other"){
         valid = false;
@@ -264,7 +310,10 @@ function validateDescription(){
 }
 
 function validateFilledBy(){
-    var valid, name = $('#filled-by').val();
+    var valid = true, name = $('#filled-by').val();
+
+    //store value
+    localStorage.spc_sub_filledby = name;
 
     if (nicknames.nickname.indexOf(name) != -1){
         name = nicknames.full_name[nicknames.nickname.indexOf(name)];
@@ -283,9 +332,8 @@ function validateFilledBy(){
     return valid;
 }
 
-function validateSlivkanName(entry){
-    var valid = true, 
-    nameArray = [], 
+function validateSlivkanName(entry,inBulk){
+    var valid = true,
     slivkan_entry = entry.find('.slivkan-entry'),
     helper = entry.find('.helper-point'),
     committee = entry.find('.committee-point'),
@@ -296,51 +344,79 @@ function validateSlivkanName(entry){
         slivkan_entry.val(name);
     }
 
-    //clear duplicates
-    $('.slivkan-entry').each(function(index){
-        if (nameArray.indexOf($(this).val()) != -1){ $(this).val(''); name=''; $('#duplicate-alert').slideDown(); }
-        if ($(this).val().length > 0){ nameArray.push($(this).val()); }
-      });
-    
+    //only process individually
+    if(!inBulk){
+        var nameArray = [];
+
+        //clear duplicates
+        $('#slivkan-entry-tab').find('.slivkan-entry').each(function(index){
+            var self = $(this);
+            if (self.val().length > 0){
+                if (nameArray.indexOf(self.val()) == -1){
+                    nameArray.push(self.val());
+                }else{
+                    self.val('');
+                    $('#duplicate-alert').slideDown();
+                    validateSlivkanName(self.parent(),true);
+                }
+            }
+        });
+
+        //no names = invalid
+        if(nameArray.length === 0){ valid=false; }
+
+        //store values
+        saveSlivkans();
+
+        //update name in case it changed
+        name = slivkan_entry.val();
+    }
+
+
     entry.removeClass("warning");
 
     if (name.length > 0){
         name_ind = slivkans.full_name.indexOf(name);
         if(name_ind != -1){
             if(slivkans.committee[name_ind] == $('#committee').val() && type != 'IM'){
-                showCommitteeMember(helper,committee);
+                showCommitteeMember(helper,committee,inBulk);
             }else if(type == 'IM' || slivkans.committee[name_ind] == 'Facilities' || slivkans.committee[name_ind] == 'Exec'){
-                hideButtons(helper,committee);
+                hideButtons(helper,committee,inBulk);
             }else{
-                showHelperPoint(helper,committee);
+                showHelperPoint(helper,committee,inBulk);
             }
         }else{ valid=false; }
         updateValidity(entry,valid);
     }else{
         entry.removeClass("success").removeClass("error");
-        hideButtons(helper,committee);
+        hideButtons(helper,committee,inBulk);
     }
 
-    //no names = invalid
-    if(nameArray.length === 0){ valid=false; }
-
-    saveSlivkans();
-    
     return valid;
 }
 
-function showHelperPoint(helper,committee){
+function showHelperPoint(helper,committee,inBulk){ //quick: 46.15
     committee.removeClass('active');
-    if(helper.css('display') == 'none'){
+    if(inBulk){
+        committee.hide();
+        helper.show();
+    }else{
         committee.hide('slide',function(){
             helper.show('slide');
         });
     }
+
+    /*if(helper.css('display') == 'none'){
+        
+    }*/
 }
 
-function showCommitteeMember(helper,committee){
+function showCommitteeMember(helper,committee,inBulk){
     helper.removeClass('active');
-    if(committee.css('display') == 'none'){
+    if(inBulk){
+        helper.hide();
+        committee.show();
+    }else{
         helper.hide('slide',function(){
             committee.show('slide');
         });
@@ -348,16 +424,21 @@ function showCommitteeMember(helper,committee){
     committee.addClass('active');
 }
 
-function hideButtons(helper,committee){
+function hideButtons(helper,committee,inBulk){
     helper.removeClass('active');
-    helper.hide('slide');
     committee.removeClass('active');
-    committee.hide('slide');
+    if(inBulk){
+        helper.hide();
+        committee.hide();
+    }else{
+        helper.hide('slide');
+        committee.hide('slide');
+    }
 }
 
 function validateFellowName(entry){
-    var valid = true, 
-    nameArray = [], 
+    var valid = true,
+    nameArray = [],
     fellow_entry = entry.find('.fellow-entry'),
     name = fellow_entry.val();
 
@@ -366,7 +447,7 @@ function validateFellowName(entry){
         if (nameArray.indexOf($(this).val()) != -1){ $(this).val(''); name=''; $('#duplicate-alert').slideDown(); }
         if ($(this).val().length > 0){ nameArray.push($(this).val()); }
       });
-    
+
     entry.removeClass("warning");
 
     if (name.length > 0){
@@ -392,7 +473,7 @@ function addBulkNames(){
     var slots = [],
     free_slots = 0;
 
-    $('.slivkan-entry').each(function(){
+    $('#slivkan-entry-tab').find('.slivkan-entry').each(function(){
         if($(this).val().length > 0){
             slots.push(1);
         }else{
@@ -413,11 +494,13 @@ function addBulkNames(){
     if(nameArray.length >= free_slots){
         n = nameArray.length-free_slots+1;
         appendNameInputs(n);
-        for(var i=0; i<n; i++){slots.push(0);}
+        for(var k=0; k<n; k++){slots.push(0);}
     }
 
-    while(nameArray.length > 0){
-        name = nameArray.shift();
+    var slivkan_entries = $('#slivkan-entry-tab').find('.slivkan-entry'),
+    len = nameArray.length;
+    for(var i=0; i<len; i++){
+        var name = nameArray[i];
 
         //check if wildcard
         wildcardInd = slivkans.wildcard.indexOf(name);
@@ -427,8 +510,8 @@ function addBulkNames(){
 
         ind = slots.indexOf(0);
         slots[ind] = 1;
-        $('.slivkan-entry').eq(ind).val(name);
-        validateSlivkanName($('.slivkan-entry').eq(ind).parent());
+        slivkan_entries.eq(ind).val(name);
+        validateSlivkanName(slivkan_entries.eq(ind).parent(),(i < len-1));
     }
 }
 
@@ -438,17 +521,17 @@ function sortEntries(){
     nameArray = saveSlivkans();
 
     //clear slivkans
-    $('.slivkan-entry').each(function(){ $(this).val(""); });
+    $('#slivkan-entry-tab').find('.slivkan-entry').val("");
 
-      //reset buttons
-      $('.committee-point').removeClass('active');
+    //reset buttons
+    $('.committee-point').removeClass('active');
     $('.helper-point').removeClass('active');
 
-      nameArray = nameArray.sort();
+    nameArray = nameArray.sort();
 
-      addSlivkans(nameArray);
+    addSlivkans(nameArray);
 
-      $('#sort-alert').slideDown();
+    $('#sort-alert').slideDown();
 }
 
 function saveSlivkans(){
@@ -456,39 +539,40 @@ function saveSlivkans(){
 
     //forming name array, but appending values corresponding to the helper/committee buttons:
     //0 - unpressed, 1 - pressed
-    $('.slivkan-entry').each(function(index){
-        if($(this).val().length > 0){
-            name = $(this).val();
-            h = ($('.helper-point').eq(index).hasClass("active")) ? "1" : "0";
-            c = ($('.committee-point').eq(index).hasClass("active")) ? "1" : "0";
+    $('#slivkan-entry-tab').find('.slivkan-entry-control').each(function(){
+        var self = $(this), name = self.find('.slivkan-entry').val();
+        if(name.length > 0){
+            h = (self.find('.helper-point').hasClass("active")) ? "1" : "0";
+            c = (self.find('.committee-point').hasClass("active")) ? "1" : "0";
 
-            nameArray.push($(this).val()+h+c);
+            nameArray.push(name+h+c);
         }
-      });
+    });
 
-      localStorage.attendees = nameArray.join(", ");
+    localStorage.spc_sub_attendees = nameArray.join(", ");
 
-      return nameArray;
+    return nameArray;
 }
 
 function addSlivkans(nameArray){
-    for(var i=0; i<nameArray.length; i++){
-          name = nameArray[i].slice(0,nameArray[i].length-2);
-          h = nameArray[i].slice(nameArray[i].length-2,nameArray[i].length-1);
-          c = nameArray[i].slice(nameArray[i].length-1);
+    var entries = $('#slivkan-entry-tab').find('.slivkan-entry-control'),
+    len = nameArray.length;
 
-          entry = $('.slivkan-entry-control').eq(i);
-          entry.find('.slivkan-entry').val(name);
-          validateSlivkanName(entry);
-          if(h=="1") entry.find('.helper-point').addClass("active");
-          if(c=="0") entry.find('.committee-point').removeClass("active");
-      }
+    for(var i=0; i<len; i++){
+        var name = nameArray[i].slice(0,nameArray[i].length-2);
+        h = nameArray[i].slice(nameArray[i].length-2,nameArray[i].length-1);
+        c = nameArray[i].slice(nameArray[i].length-1);
 
-      $('.slivkan-entry-control').each(function(index){
-          if(index >= nameArray.length){
-              validateSlivkanName($(this));
-          }
-      });
+        entry = entries.eq(i);
+        entry.find('.slivkan-entry').val(name);
+        validateSlivkanName(entry,(i < len-1));
+        if(h=="1"){ entry.find('.helper-point').addClass("active"); }
+        if(c=="0"){ entry.find('.committee-point').removeClass("active"); }
+    }
+
+    for(i; i<entries.length; i++){
+        validateSlivkanName(entries.eq(i),true);
+    }
 }
 
 function updateValidity(element,valid){
@@ -508,10 +592,13 @@ function resetForm(force){
         $('#filled-by').val(""); $('.filled-by-control').removeClass("success").removeClass("error");
         $('#comments').val("");
 
-        $('.slivkan-entry').each(function(index){
-            $(this).val("");
-            validateSlivkanName($(this).parent());
+        $('#slivkan-entry-tab').find('.slivkan-entry-control').slice(15).remove();
+
+        $('#slivkan-entry-tab').find('.slivkan-entry-control').each(function(){
+            $(this).find('.slivkan-entry').val("");
+            validateSlivkanName($(this),true);
         });
+        validateSlivkanName($('.slivkan-entry-control').last());
 
         $('.fellow-entry').each(function(index){
             $(this).val("");
@@ -524,7 +611,12 @@ function resetForm(force){
         $('#duplicate-error').fadeOut();
         $('#submit-error').fadeOut();
 
-        localStorage.attendees = "";
+        localStorage.spc_sub_filledby = "";
+        localStorage.spc_sub_type = "";
+        localStorage.spc_sub_name = "";
+        localStorage.spc_sub_committee = "";
+        localStorage.spc_sub_comments = "";
+        localStorage.spc_sub_attendees = "";
     }
 }
 
@@ -543,7 +635,7 @@ function submitPointsForm(){
         fellows: []
     };
 
-    $('.slivkan-entry').each(function(index){
+    $('#slivkan-entry-tab').find('.slivkan-entry').each(function(index){
         var name = $(this).val();
         if(name.length > 0){
             name_ind = slivkans.full_name.indexOf(name);
@@ -593,19 +685,18 @@ function submitPointsForm(){
     });
 
     //$('#submit-results').modal('show');
-    
-    $('#real-submit').click(function(){
+
+    $('#real-submit').off('click');
+    $('#real-submit').on('click',function(){
         $.getJSON('./ajax/submitPointsForm.php',data,function(data_in){
             $('#results-status').parent().removeClass("warning");
             if(data_in.error){
                 $('#results-status').html("Error in Step "+data_in.step).parent().addClass("error");
             }else{
                 $('#unconfirmed').fadeOut({complete: function(){$('#confirmed').fadeIn();}});
-                
                 $('#results-status').html("Success!").parent().addClass("success");
 
                 resetForm("force");
-                $(window).unbind('beforeunload');
             }
         });
     });

@@ -18,6 +18,11 @@
       display: block;
     }
 
+    .slivkan-entry-control{
+      margin-left: 1px; 
+      width: 95%;
+    }
+
     .input-append, input-prepend{
       margin-bottom: 0px;
     }
@@ -38,7 +43,7 @@
             <div class="span6 col">
               <div class="control-group filled-by-control">
                 <label class="control-label" for="filled-by">Points filled out by:</label>
-                <input type="text" name="filled-by" id="filled-by" class="input span10" onfocus="$('.filled-by-control').addClass('warning')" onfocusout="validateFilledBy()">
+                <input type="text" name="filled-by" id="filled-by" class="input span10">
               </div>
 
               <label for="type">Type:</label>
@@ -125,10 +130,10 @@
                     <small>Duplicate name!</small>
                   </div>
                   <div id="slivkan-entry-tab-buttons">
-                    <div class="btn" role="button" data-toggle="modal" data-target="#QR-entry"><i class="icon-qrcode"></i> QR/Wildcard <i class="icon-barcode"></i></div>
+                    <div class="btn" role="button" data-toggle="modal" data-target="#QR-entry" title="add QR Codes / Wildcards"><i class="icon-qrcode"></i> Bulk Entry <i class="icon-barcode"></i></div>
                     <div class="btn" onclick="sortEntries()"><i class="icon-list" title="Sort"></i><i class="icon-arrow-down"></i></div>
                   </div>  
-                  <div class="control-group input-prepend input-append slivkan-entry-control" style="margin-left: 1px; width: 95%">
+                  <div class="control-group input-prepend input-append slivkan-entry-control">
                     <div class="add-on">1</div>
                     <input type="text" class="slivkan-entry span10" name="slivkan-entry" placeholder="Slivkan">
                     <div class="input-append">
@@ -137,7 +142,6 @@
                     <div class="input-append">
                       <div class="btn helper-point" title="Helper Point" style="display: none"><i class="icon-thumbs-up"></i></div>
                     </div>
-                    
                   </div>
                 </div>
                 <div class="tab-pane" id="fellow-entry-tab">
@@ -163,7 +167,7 @@
   <div id="QR-entry" class="modal hide fade" role="dialog" style="width: auto;">
     <div class="modal-header">
       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-      <h3>Paste Names from QR Codes</h3>
+      <h3>Paste Names / Wildcard Barcodes </h3>
     </div>
     <div class="modal-body">
       <textarea name="bulk-names" id="bulk-names" rows="12" class="span5" onkeyup="processBulkNames()"></textarea>

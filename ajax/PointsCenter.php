@@ -2,7 +2,7 @@
 require_once "./DatabasePDO.php";
 class PointsCenter
 {
-    private static $quarter = "Spring 2013";
+    private static $quarter = 1302;
     public static $p2p_days = array("Tue","Thu");
 
     private static $dbConn = null;
@@ -118,10 +118,11 @@ class PointsCenter
         }
 
         try {
-            $statement = self::$dbConn->prepare("SELECT * 
-        FROM events 
-        WHERE quarter=:quarter AND date BETWEEN :start AND :end
-        ORDER BY date");
+            $statement = self::$dbConn->prepare(
+                "SELECT event_name,date,type,attendees,committee,description
+                FROM events 
+                WHERE quarter=:quarter AND date BETWEEN :start AND :end
+                ORDER BY date");
             $statement->bindValue(":quarter", self::$quarter);
             $statement->bindValue(":start", $start, PDO::PARAM_STR);
             $statement->bindValue(":end", $end, PDO::PARAM_STR);
