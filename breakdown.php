@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <?php include('header.html'); ?>
-  <title>List - Slivka Points Center</title>
+  <title>Breakdown - Slivka Points Center</title>
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-  <script type="text/javascript" src="js/pointsList.js"></script>
+  <script type="text/javascript" src="js/pointsBreakdown.js"></script>
   <style type="text/css">
   table{
   	font-size: 12px;

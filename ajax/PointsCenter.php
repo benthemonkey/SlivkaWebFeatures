@@ -23,16 +23,16 @@ class PointsCenter
         return self::$p2p_days;
     }
     
-    /**
-     * get slivkans name, nu_email and committee
-     */
     public function getSlivkans ()
     {
         self::initializeConnection();
         $slivkans = array();
         try {
             $statement = self::$dbConn->prepare(
-            "SELECT full_name,nu_email,wildcard,committee FROM directory WHERE qtr_final IS NULL ORDER BY first_name");
+            "SELECT full_name,nu_email,wildcard,committee 
+            FROM directory 
+            WHERE qtr_final IS NULL 
+            ORDER BY first_name");
             $statement->execute();
             $slivkans = $statement->fetchAll();
 
@@ -56,17 +56,14 @@ class PointsCenter
         return $slivkans;
     }
 
-    /**
-     * get nickname-nu_email pairs
-     */
-
     public function getNicknames ()
     {
         self::initializeConnection();
         $nicknames = array();
         try {
             $statement = self::$dbConn->prepare(
-            "SELECT nicknames.nickname,directory.full_name FROM nicknames INNER JOIN directory ON nicknames.nu_email=directory.nu_email");
+                "SELECT nicknames.nickname,directory.full_name 
+                FROM nicknames INNER JOIN directory ON nicknames.nu_email=directory.nu_email");
             $statement->execute();
             $nicknames = $statement->fetchAll();
 
@@ -96,7 +93,9 @@ class PointsCenter
         $fellows = array();
         try {
             $statement = self::$dbConn->prepare(
-            "SELECT full_name FROM fellows WHERE qtr_final IS NULL");
+                "SELECT full_name 
+                FROM fellows 
+                WHERE qtr_final IS NULL");
             $statement->execute();
             $fellows = $statement->fetchAll(PDO::FETCH_COLUMN,0);
         } catch (PDOException $e) {
@@ -111,24 +110,21 @@ class PointsCenter
         self::initializeConnection();
         $events = array();
 
-        if($start AND !$end){
-            $end = "01-01-2050";
+        if(!$start){
+            $start = date('Y-m-d',mktime(0,0,0,date("m"),date("d")-14,date("Y")));
         }
-
-        $sql = "SELECT * FROM events WHERE quarter=:quarter";
-        if($start AND $end){
-            $sql .= " AND date BETWEEN :start AND :end";
+        if(!$end){
+            $end = '2050-01-01';
         }
-        $sql .= " ORDER BY date";
 
         try {
-            $statement = self::$dbConn->prepare(
-            $sql);
+            $statement = self::$dbConn->prepare("SELECT * 
+        FROM events 
+        WHERE quarter=:quarter AND date BETWEEN :start AND :end
+        ORDER BY date");
             $statement->bindValue(":quarter", self::$quarter);
-            if($start AND $end){
-                $statement->bindValue(":start", $start, PDO::PARAM_STR);
-                $statement->bindValue(":end", $end, PDO::PARAM_STR);
-            }
+            $statement->bindValue(":start", $start, PDO::PARAM_STR);
+            $statement->bindValue(":end", $end, PDO::PARAM_STR);
             $statement->execute();
             $events = $statement->fetchAll(PDO::FETCH_NAMED);
 
@@ -162,7 +158,9 @@ class PointsCenter
         $points = array();
         try {
             $statement = self::$dbConn->prepare(
-            "SELECT points.event_name,points.nu_email FROM points INNER JOIN events ON points.event_name=events.event_name WHERE events.quarter=:quarter ORDER BY events.date");
+                "SELECT event_name,nu_email 
+                FROM points
+                WHERE quarter=:quarter");
             $statement->bindValue(":quarter", self::$quarter);
             $statement->execute();
             $points = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
@@ -179,7 +177,9 @@ class PointsCenter
         $helper_points = array();
         try {
             $statement = self::$dbConn->prepare(
-            "SELECT helperpoints.event_name,helperpoints.nu_email FROM helperpoints INNER JOIN events ON helperpoints.event_name=events.event_name WHERE events.quarter=:quarter ORDER BY events.date");
+                "SELECT event_name,nu_email 
+                FROM helperpoints
+                WHERE quarter=:quarter");
             $statement->bindValue(":quarter", self::$quarter);
             $statement->execute();
             $helper_points = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
@@ -196,7 +196,9 @@ class PointsCenter
         $committee_attendance = array();
         try {
             $statement = self::$dbConn->prepare(
-            "SELECT committeeattendance.event_name,committeeattendance.nu_email FROM committeeattendance INNER JOIN events ON committeeattendance.event_name=events.event_name WHERE events.quarter=:quarter ORDER BY events.date");
+                "SELECT event_name,nu_email 
+                FROM committeeattendance
+                WHERE quarter=:quarter");
             $statement->bindValue(":quarter", self::$quarter);
             $statement->execute();
             $committee_attendance = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
@@ -213,7 +215,10 @@ class PointsCenter
         $events = array();
         try {
             $statement = self::$dbConn->prepare(
-            "SELECT events.type,events.event_name,events.committee FROM points INNER JOIN events ON points.event_name=events.event_name WHERE events.quarter=:quarter AND points.nu_email=:nu_email AND events.date BETWEEN :start AND :end ORDER BY events.date");
+                "SELECT events.type,events.event_name,events.committee 
+                FROM points INNER JOIN events ON points.event_name=events.event_name 
+                WHERE events.quarter=:quarter AND points.nu_email=:nu_email AND events.date BETWEEN :start AND :end 
+                ORDER BY events.date");
             $statement->bindValue(":quarter", self::$quarter);
             $statement->bindValue(":nu_email", $nu_email, PDO::PARAM_STR);
             $statement->bindValue(":start", $start, PDO::PARAM_STR);
@@ -237,6 +242,25 @@ class PointsCenter
             die();
         }
         return $events;
+    }
+
+    public function getBonusPoints ()
+    {
+        self::initializeConnection();
+        $bonus_points = array();
+        try {
+            $statement = self::$dbConn->prepare(
+                "SELECT nu_email,committee,other1_name,other1,other2_name,other2,other3_name,other3 
+                FROM bonuspoints 
+                WHERE quarter=:quarter");
+            $statement->bindValue(":quarter", self::$quarter);
+            $statement->execute();
+            $bonus_points = $statement->fetchAll(PDO::FETCH_ASSOC|PDO::FETCH_GROUP);
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            die();
+        }
+        return $bonus_points;
     }
 
     /**

@@ -32,6 +32,10 @@ $receipt = array("date"=>$date,"type"=>$type,"committee"=>$committee,"event_name
 	"description"=>$description,"filled_by"=>$filled_by,"comments"=>$comments,"attendees"=>$attendees_list,
 	"helper_points"=>$helper_points_list,"committee_members"=>$committee_members_list,"fellows"=>$fellows_list);
 
+$f = fopen("log.txt","a");
+fwrite($f, "\n" . implode("; ",$receipt));
+fclose($f);
+
 $sql = "INSERT INTO pointsform (date,type,committee,event_name,description,filled_by,comments,attendees,helper_points,committee_members,fellows) VALUES ('$date','$type','$committee','$event_name','$description','$filled_by','$comments','$attendees_list','$helper_points_list','$committee_members_list','$fellows_list')";
 
 if (!mysql_query($sql)){
@@ -42,7 +46,7 @@ if (!mysql_query($sql)){
 $event_name .= " " . $date;
 $num_attendees = count($attendees);
 
-$sql = "INSERT INTO events (event_name, date, quarter, filled_by, committee, description, type, attendees) VALUES ('$event_name','$date', '$quarter', '$filled_by','$committee','$description','$type','$num_attendees')";
+$sql = "INSERT INTO events (event_name, date, quarter, filled_by, committee, description, type, attendees) VALUES ('$event_name','$date', '$qtr', '$filled_by','$committee','$description','$type','$num_attendees')";
 
 if (!mysql_query($sql)){
 	echo json_encode(array(receipt => $receipt,error => mysql_error(),step => "2"));
@@ -50,7 +54,7 @@ if (!mysql_query($sql)){
 }
 
 foreach($attendees as $s){
-	$sql = "INSERT INTO points (nu_email,event_name) VALUES ('$s','$event_name')";
+	$sql = "INSERT INTO points (nu_email,event_name,quarter) VALUES ('$s','$event_name','$qtr')";
 	if (!mysql_query($sql)){
 	  	echo json_encode(array(receipt => $receipt,error => mysql_error(),step => "3"));
 		die();
@@ -58,7 +62,7 @@ foreach($attendees as $s){
 }
 
 foreach($helper_points as $s){
-	$sql = "INSERT INTO helperpoints (nu_email,event_name) VALUES ('$s','$event_name')";
+	$sql = "INSERT INTO helperpoints (nu_email,event_name,quarter) VALUES ('$s','$event_name','$qtr')";
 	if(!mysql_query($sql)){
 		echo json_encode(array(receipt => $receipt,error => mysql_error(),step => "4"));
 		die();
@@ -66,7 +70,7 @@ foreach($helper_points as $s){
 }
 
 foreach($committee_members as $s){
-	$sql = "INSERT INTO committeeattendance (nu_email,event_name) VALUES ('$s','$event_name')";
+	$sql = "INSERT INTO committeeattendance (nu_email,event_name,quarter) VALUES ('$s','$event_name','$qtr')";
 	if (!mysql_query($sql)){
 	  	echo json_encode(array(receipt => $receipt,error => mysql_error(),step => "5"));
 		die();
@@ -74,7 +78,7 @@ foreach($committee_members as $s){
 }
 
 foreach($fellows as $s){
-	$sql = "INSERT INTO fellowattendance (fellow,event_name) VALUES ('$s','$event_name')";
+	$sql = "INSERT INTO fellowattendance (fellow,event_name,quarter) VALUES ('$s','$event_name','$qtr')";
 	if (!mysql_query($sql)){
 	  	echo json_encode(array(receipt => $receipt,error => mysql_error(),step => "6"));
 		die();
@@ -82,10 +86,6 @@ foreach($fellows as $s){
 }
 
 echo json_encode(array(receipt => $receipt));
-
-$f = fopen("log.txt","a");
-fwrite($f, "\n" . implode("; ",$receipt));
-fclose($f);
 
 mysql_close($con);
 ?>

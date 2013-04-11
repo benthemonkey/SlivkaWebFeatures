@@ -7,9 +7,10 @@ $events = $points_center->getEvents();
 $points = $points_center->getPoints();
 $helperpoints = $points_center->getHelperPoints();
 $committeeattendance = $points_center->getCommitteeAttendance();
+$bonuspoints = $points_center->getBonusPoints();
 $p2p_days = $points_center->getP2PDays();
 
-$points_table = array(); #table that is slivkan count by event count + 3
+$points_table = array(); #table that is slivkan count by event count + 6
 
 for($s=0; $s < count($slivkans['full_name']); $s++){
 	$events_total = 0;
@@ -17,45 +18,35 @@ for($s=0; $s < count($slivkans['full_name']); $s++){
 	$helper_points = 0;
 	$p2p_points = array();
 	$im_points = array();
+	$nu_email = $slivkans['nu_email'][$s];
 
 	for($e=0; $e < count($events['event_name']); $e++){
 		$event_name = $events['event_name'][$e];
-		$event_type = $events['type'][$e];
-		#echo json_encode($points[$e['event_name']]) . "<br/>";
-		if(in_array($slivkans['nu_email'][$s], $points[$event_name])){
-			#echo $nu_email . " was at " . $e['event_name'] . "<br/>";
+
+		if(in_array($nu_email, $points[$event_name])){
 			$event_points_tmp = 1;
-			if($event_type != "im" AND $event_type != "p2p"){ $events_total++; }
-			if($event_type == "im"){ $im_points[$events['description'][$e]]++; }
+			if($events['type'][$e] != "im"){ 
+				$events_total++; 
+			}else{ 
+				$im_points[$events['description'][$e]]++; 
+			}
 		}else{
 			$event_points_tmp = 0;
 		}
 
-		if($event_type == "p2p"){
-			$date = explode("-",$events['date'][$e]);
-			$day = date("D",mktime(0,0,0,$date[1],$date[2],$date[0]));
-			if($event_points_tmp == 1){
-				$p2p_points[$day][] = 1;
-			}else{
-				$p2p_points[$day][] = 0;
-			}
-		}
-
-		if(in_array($slivkans['nu_email'][$s], $helperpoints[$event_name])){
+		if(in_array($nu_email, $helperpoints[$event_name])){
 			$event_points_tmp .= "h";
 			$helper_points++;
-		}elseif(in_array($slivkans['nu_email'][$s], $committeeattendance[$event_name])){
+		}elseif(in_array($nu_email, $committeeattendance[$event_name])){
 			$event_points_tmp .= "c";
 		}
 
 		$event_points[] = $event_points_tmp;
 	}
 
-	#handling p2p points:
-
-	$p2p_points_actual = 0;
-	for($i = 0; $i < count($p2p_points[$p2p_days[0]]); $i++){
-		if($p2p_points[$p2p_days[0]][$i] == 1 OR $p2p_points[$p2p_days[1]][$i] == 1){ $p2p_points_actual++; } 
+	#handling helper points max
+	if($helper_points > 5){
+		$helper_points = 5;
 	}
 
 	#handling IMs:
@@ -66,14 +57,15 @@ for($s=0; $s < count($slivkans['full_name']); $s++){
 
 	#handling bonus points:
 	$bonus_points = 0;
-	if($slivkans['committee'][$s] == "Exec"){
-		$bonus_points+= 40;
+	$committee_points = 0;
+	if(array_key_exists($nu_email,$bonuspoints)){
+		$bonus_points = $bonuspoints[$nu_email][0]['other1']+$bonuspoints[$nu_email][0]['other2']+$bonuspoints[$nu_email][0]['other3'];
+		$committee_points = $bonuspoints[$nu_email][0]['committee'];
 	}
 
-	$events_total += $p2p_points_actual;
-	$total = $events_total + $im_points_actual + $bonus_points;
+	$total = $events_total + $helper_points + $im_points_actual + $bonus_points + $committee_points;
 
-	$points_table[$slivkans['full_name'][$s]] = array_merge($event_points,array($p2p_points_actual,$events_total,$helper_points,$im_points_actual,0,$bonus_points,$total));
+	$points_table[$slivkans['full_name'][$s]] = array_merge($event_points,array($events_total,$helper_points,$im_points_actual,$committee_points,$bonus_points,$total));
 }
 
 echo json_encode(array(points_table => $points_table, events => $events));
