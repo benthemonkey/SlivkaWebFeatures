@@ -38,7 +38,7 @@ for($s=0; $s < count($slivkans['full_name']); $s++){
 			$event_points_tmp .= "h";
 			$helper_points++;
 		}elseif(in_array($nu_email, $committeeattendance[$event_name])){
-			$event_points_tmp .= "c";
+			#$event_points_tmp .= "c";										#####NOT NOTING COMMITTEES#######
 		}
 
 		$event_points[] = $event_points_tmp;
@@ -65,7 +65,11 @@ for($s=0; $s < count($slivkans['full_name']); $s++){
 
 	$total = $events_total + $helper_points + $im_points_actual + $bonus_points + $committee_points;
 
-	$points_table[$slivkans['full_name'][$s]] = array_merge($event_points,array($events_total,$helper_points,$im_points_actual,$committee_points,$bonus_points,$total));
+	$points_table[$slivkans['full_name'][$s]] = array_merge(
+		array($slivkans['gender'][$s]),
+		$event_points,
+		array($events_total,$helper_points,$im_points_actual,$committee_points,$bonus_points,$total)
+	);
 }
 
 echo json_encode(array(points_table => $points_table, events => $events));

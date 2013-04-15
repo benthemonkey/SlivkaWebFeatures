@@ -27,7 +27,7 @@ if($result = mysql_query($sql)){
 	die();
 }
 
-$date = substr($event_name,-10,10);
+$date = substr($event_name, -10, 10);
 
 date_default_timezone_set('UTC');
 $today = date("Y-m-d H:i:s",mktime(date("H")-11,date("i"),date("s"),date("m"),date("d"),date("Y")));

@@ -15,9 +15,9 @@
   }
 
   .chart{
-  	height: 275px;
-  	width: 500px;
-  	left: -15%;
+  	margin: 0 auto;
+  	height: 270px;
+  	width: 270px;
   }
   </style>
 </head>
@@ -54,7 +54,7 @@
 						        <div class="control-group">
 						        	Other:
 						        	<label for="showUnattended" class="checkbox">
-						        		<input type="checkbox" name="showUnattended" id="showUnattended" onclick="toggleShowUnattended();" checked="checked"> Show Unattended
+						        		<input type="checkbox" name="showUnattended" id="showUnattended" checked> Show Unattended
 						        	</label>
 						        </div>
 							</fieldset>

@@ -46,9 +46,12 @@ jQuery(document).ready(function(){
         }
 
         //autocomplete and other events
+        $('#event').on('focus',makeHandler.addClassWarning())
+        .on('focusout',function(){ validateEventName(); });
+
         $('#filled-by').typeahead({source: slivkans.full_name.concat(nicknames.nickname)})
         .on('focus',makeHandler.addClassWarning())
-        .on('focusout',function(){validateFilledBy();});
+        .on('focusout',function(){ validateFilledBy(); });
 
         $('#slivkan-entry-tab').on('focus','.slivkan-entry',makeHandler.addClassWarning())
         .on('focusout','.slivkan-entry',makeHandler.validateSlivkanName())

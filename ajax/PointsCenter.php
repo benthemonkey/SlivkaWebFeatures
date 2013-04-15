@@ -29,26 +29,28 @@ class PointsCenter
         $slivkans = array();
         try {
             $statement = self::$dbConn->prepare(
-            "SELECT full_name,nu_email,wildcard,committee 
-            FROM directory 
-            WHERE qtr_final IS NULL 
-            ORDER BY first_name");
+                "SELECT full_name,nu_email,gender,wildcard,committee 
+                FROM directory 
+                WHERE qtr_final IS NULL 
+                ORDER BY first_name");
             $statement->execute();
             $slivkans = $statement->fetchAll();
 
             $full_name = array();
             $nu_email = array();
+            $gender = array();
             $wildcard = array();
             $committee = array();
 
             foreach($slivkans as $s){
                 $full_name[] = $s['full_name'];
                 $nu_email[]  = $s['nu_email'];
+                $gender[]    = $s['gender'];
                 $wildcard[]  = $s['wildcard'];
                 $committee[] = $s['committee'];
             }
 
-            $slivkans = array('full_name'=>$full_name,'nu_email'=>$nu_email,'wildcard'=>$wildcard,'committee'=>$committee);
+            $slivkans = array('full_name'=>$full_name,'nu_email'=>$nu_email,'gender'=>$gender,'wildcard'=>$wildcard,'committee'=>$committee);
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
             die();
@@ -82,10 +84,6 @@ class PointsCenter
         }
         return $nicknames;
     }
-
-    /**
-     * get names of fellows
-     */
 
     public function getFellows ()
     {

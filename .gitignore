@@ -1,11 +1,14 @@
 .DS_Store
-/img/slivkans/*.jpg
+img/slivkans/*.jpg
 
-/ajax/datastoreVars.php
-/ajax/DatabasePDO.php
-/ajax/log.txt
-/ajax/pointsCorrectionReply.php
-/ajax/sendPointsCorrection.php
+ajax/datastoreVars.php
+ajax/DatabasePDO.php
+ajax/log.txt
+ajax/pointsCorrectionReply.php
+ajax/sendPointsCorrection.php
+ajax/tmp.php
 
 **.sql
-ajax/tmp.php
+ajax/pointsCorrectionReply.php
+
+ajax/sendPointsCorrection.php

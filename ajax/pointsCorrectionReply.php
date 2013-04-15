@@ -32,7 +32,7 @@ if($result['response'] == "0"){
 	mysql_query($sql) OR die("Ahhh! Ben has failed! Tell him what the points correction reply should be. Please paste this too: " . mysql_error());
 
 	if($code == 1){
-		$sql = "INSERT INTO points (nu_email,event_name) VALUES ('$nu_email','$event_name')";
+		$sql = "INSERT INTO points (nu_email,event_name,quarter) VALUES ('$nu_email','$event_name','$qtr')";
 		mysql_query($sql) OR die("Ahhh! Ben has failed! Tell him what the points correction reply should be. Please paste this too: " . mysql_error());
 
 		$sql = "UPDATE events SET attendees = attendees+1 WHERE event_name='$event_name'";
@@ -41,7 +41,7 @@ if($result['response'] == "0"){
 		echo "Success! She/He was given a point for the event.";
 		$html_snippet = "You were given a point for $event_name.";
 	}elseif($code == 2){
-		echo "Success! A point has not been given.";
+		echo "Success! A point has NOT been given.";
 		$html_snippet = "You were NOT given a point for $event_name. You can request an explanation through the VP.";
 	}elseif($code == 3){
 		echo "Success! The VP will consult another attendee of the event.";

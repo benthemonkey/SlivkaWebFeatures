@@ -24,7 +24,7 @@
             </div>
             <div id="collapseOne" class="accordion-body collapse in">
               <div class="accordion-inner">
-                Housing points are points that determine the eligibility of a resident to return to Slivka. By the end of Winter Quarter, these points are totaled and ranked by amount. Then, starting from the top of the list, Slivkans are invited to return until all available slots have been fulfilled. The Vice President is responsible for recording housing points and consistently reporting them to Slivkans. Discrepancies can be addressed with the Vice President to rectify any errors held valid by the Vice President.
+                Housing points are points that determine the eligibility of a resident to return to Slivka. By the end of Winter Quarter, these points are totaled and ranked by amount. Then, starting from the top of the list, Slivkans are invited to return until all available slots have been filled. The Vice President is responsible for recording housing points and consistently reporting them to Slivkans. Discrepancies can be addressed with the Vice President to rectify any errors held valid by the Vice President.
               </div>
             </div>
           </div>
@@ -43,7 +43,7 @@
           <div class="accordion-group">
             <div class="accordion-heading">
               <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseThree">
-                How many points to I get for each event?
+                How many points do I get for each event?
               </a>
             </div>
             <div id="collapseThree" class="accordion-body collapse">

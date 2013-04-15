@@ -16,20 +16,18 @@ $(document).ready(function(){
     }
 
     for(var i=0;i<events.event_name.length;i++){
-      en = events.event_name[i];
-      name = en.substr(0,en.length-11);
+      var en = events.event_name[i],
+      name = en.substr(0,en.length-11),
       date = en.substr(en.length-5);
 
-      event_targets.push(i+1);
-
-      $('<li />').html(name).appendTo('#columns');
+      event_targets.push(i+2);
 
       event_names.push(name);
       event_dates.push(date);
     }
 
-    var totals_targets = [], 
-    first_totals_target = data.events.event_name.length+1;
+    var totals_targets = [],
+    first_totals_target = data.events.event_name.length+2;
     for(i=0; i<6; i++){
       totals_targets.push(first_totals_target + i);
     }
@@ -38,15 +36,36 @@ $(document).ready(function(){
       "aaData": aDataSet,
       "aoColumnDefs": [
       { aTargets: [0], sTitle: "Name", sWidth: "120px", sClass: "name"},
+      { aTargets: [1], bVisible: false },
       { aTargets: event_targets, bSortable: false},
       { aTargets: event_targets.concat(totals_targets), sTitle: '', sWidth: "14px"},
       { aTargets: totals_targets, sClass: 'totals', asSorting: ['desc']}
       ],
       "bPaginate": false,
-      "bAutoWidth": false
+      "bAutoWidth": false,
+      "sDom": '<"row-fluid"<"span3 table-info"><"span3"fi>><"row-fluid"<"header-row">><"row-fluid"<"span12"rt>>'
     });
 
-    $('#columns li').each(function(index){
+    $('#table_filter label').html('Filter: <input type="text" aria-controls="table">');
+
+    var cols_width = 120+14*(event_targets.length + totals_targets.length)+100;
+    console.log(cols_width);
+
+    $('.header-row').attr("id","columns");
+    $('body').css("min-width",cols_width+"px");
+
+    for(i=0; i<event_names.length; i++){
+      $('<li />').html(event_names[i]).popover({
+        trigger: 'hover',
+        html: true,
+        title: event_names[i],
+        content: "Date: "+event_dates[i]+"<br/>Attendees: "+events.attendees[i]+(events.description[i].length > 0 ? "<br/>Description: "+events.description[i] : ""),
+        placement: 'top',
+        container: '.container-fluid'
+      }).appendTo('#columns');
+    }
+
+    /*$('#columns li').each(function(index){
       $(this).popover({
         trigger: 'hover',
         html: true,
@@ -55,7 +74,7 @@ $(document).ready(function(){
         placement: 'top',
         container: '.container-fluid'
       });
-    });
+    });*/
 
     //Append "totals" column labels
     $('<li />').addClass('totals-label').html("Events Total").appendTo('#columns');
@@ -76,6 +95,6 @@ $(document).ready(function(){
       else if($(this).html() == "1c" && !$(this).hasClass('totals')){$(this).addClass("blue");}
     });
 
-    $('<div />').text('Hover over column labels to view event information, click to sort by totals.').css({fontSize: '14px',float: 'right'}).addClass('alert alert-info').prependTo('#table_wrapper');
+    $('<div />').text('Hover over column labels to view event information, click to sort by totals.').css({fontSize: '14px'}).addClass('alert alert-info').prependTo('.table-info');
   });
 });
