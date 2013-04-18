@@ -9,6 +9,5 @@ ajax/sendPointsCorrection.php
 ajax/tmp.php
 
 **.sql
-ajax/pointsCorrectionReply.php
 
-ajax/sendPointsCorrection.php
+header.html

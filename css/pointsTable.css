@@ -1,9 +1,9 @@
 table.dataTable td{
-	padding: 0px;
+	padding: 0;
   text-align: center;
   border-top: 1px solid gray;
 }
-table.dataTable td.name{
+table.dataTable .name{
   text-align: left;
 }
 .odd{
@@ -12,7 +12,7 @@ table.dataTable td.name{
 .col{
   font-size: 10px;
   line-height: 14px;
-  margin: 0px 10px;
+  margin: 0 10px;
 }
 .nolabel{
   color: #FFFFFF;
@@ -22,7 +22,7 @@ table.dataTable td.name{
   padding-left: 122px; /*193*/
   list-style: none;
   margin-top: 85px;
-  padding-top: 0px;
+  padding-top: 0;
   position: relative;
   display: block;
 }
@@ -33,8 +33,10 @@ table.dataTable td.name{
   display: block;
   position: relative;
   -webkit-transform: rotate(-55deg) translate(-10px,10px);
-  -moz-transform: rotate(-55deg) translate(-10px,10px);
+     -moz-transform: rotate(-55deg) translate(-10px,10px);
+          transform: rotate(-55deg) translate(-10px,10px);
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .red{

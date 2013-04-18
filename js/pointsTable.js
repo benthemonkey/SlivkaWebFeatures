@@ -37,13 +37,13 @@ $(document).ready(function(){
       "aoColumnDefs": [
       { aTargets: [0], sTitle: "Name", sWidth: "120px", sClass: "name"},
       { aTargets: [1], bVisible: false },
-      { aTargets: event_targets, bSortable: false},
+      { aTargets: event_targets, asSorting: ['desc']},
       { aTargets: event_targets.concat(totals_targets), sTitle: '', sWidth: "14px"},
       { aTargets: totals_targets, sClass: 'totals', asSorting: ['desc']}
       ],
       "bPaginate": false,
       "bAutoWidth": false,
-      "sDom": '<"row-fluid"<"span3 table-info"><"span3"fi>><"row-fluid"<"header-row">><"row-fluid"<"span12"rt>>'
+      "sDom": '<"row-fluid"<"span3 table-info"><"span3"fi><"span3 filter">><"row-fluid"<"header-row">><"row-fluid"<"span12"rt>>'
     });
 
     $('#table_filter label').html('Filter: <input type="text" aria-controls="table">');
@@ -51,8 +51,9 @@ $(document).ready(function(){
     var cols_width = 120+14*(event_targets.length + totals_targets.length)+100;
     console.log(cols_width);
 
-    $('.header-row').attr("id","columns");
     $('body').css("min-width",cols_width+"px");
+    $('.header-row').attr('id','columns');
+    var columns = $('.header-row');
 
     for(i=0; i<event_names.length; i++){
       $('<li />').html(event_names[i]).popover({
@@ -60,21 +61,10 @@ $(document).ready(function(){
         html: true,
         title: event_names[i],
         content: "Date: "+event_dates[i]+"<br/>Attendees: "+events.attendees[i]+(events.description[i].length > 0 ? "<br/>Description: "+events.description[i] : ""),
-        placement: 'top',
+        placement: 'bottom',
         container: '.container-fluid'
       }).appendTo('#columns');
     }
-
-    /*$('#columns li').each(function(index){
-      $(this).popover({
-        trigger: 'hover',
-        html: true,
-        title: event_names[index],
-        content: "Date: "+event_dates[index]+"<br/>Attendees: "+events.attendees[index]+(events.description[index].length > 0 ? "<br/>Description: "+events.description[index] : ""),
-        placement: 'top',
-        container: '.container-fluid'
-      });
-    });*/
 
     //Append "totals" column labels
     $('<li />').addClass('totals-label').html("Events Total").appendTo('#columns');
@@ -84,15 +74,23 @@ $(document).ready(function(){
     $('<li />').addClass('totals-label').html("Position-Related").appendTo('#columns');
     $('<li />').addClass('totals-label').html("Total").appendTo('#columns');
 
-    $('.totals-label').each(function(index){
-      $(this).click(function(){$('th.totals').eq(index).click();});
+    //event handler for column labels
+    $('#columns').find('li').each(function(index){
+      $(this).on('click',function(){$('#table').find('th').eq(index+1).click();});
     });
 
+    /*$('.totals-label').each(function(index){
+      $(this).click(function(){$('th.totals').eq(index).click();});
+    });*/
+
     $('td').each(function(){
-      if($(this).html() == "1" && !$(this).hasClass('totals')){$(this).addClass("green");}
-      else if($(this).html() == "0" && !$(this).hasClass('totals')){$(this).addClass("red");}
-      else if($(this).html() == "1h" && !$(this).hasClass('totals')){$(this).addClass("gold");}
-      else if($(this).html() == "1c" && !$(this).hasClass('totals')){$(this).addClass("blue");}
+      var self = $(this);
+      if(!self.hasClass('totals')){
+        if(self.html() == "1"){self.addClass("green");}
+        else if(self.html() == "0"){self.addClass("red");}
+        else if(self.html() == "1h"){self.addClass("gold"); self.html("1");}
+        else if(self.html() == "1c"){self.addClass("blue");}
+      }
     });
 
     $('<div />').text('Hover over column labels to view event information, click to sort by totals.').css({fontSize: '14px'}).addClass('alert alert-info').prependTo('.table-info');
