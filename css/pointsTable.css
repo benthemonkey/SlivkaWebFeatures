@@ -6,16 +6,14 @@ table.dataTable td{
 table.dataTable .name{
   text-align: left;
 }
-.odd{
-  background-color: #F9F9F9;
-}
+
 .col{
   font-size: 10px;
   line-height: 14px;
   margin: 0 10px;
 }
 .nolabel{
-  color: #FFFFFF;
+  color: #000000;
 }
 .header-row{
   font-weight: bold;
@@ -32,22 +30,60 @@ table.dataTable .name{
   width: 16px; /*42*/
   display: block;
   position: relative;
-  -webkit-transform: rotate(-55deg) translate(-10px,10px);
-     -moz-transform: rotate(-55deg) translate(-10px,10px);
-          transform: rotate(-55deg) translate(-10px,10px);
+  -webkit-transform: rotate(-55deg); /*-10, 10 */
+     -moz-transform: rotate(-55deg);
+      -ms-transform: rotate(-55deg);
+       -o-transform: rotate(-55deg);
+          transform: rotate(-55deg);
   white-space: nowrap;
   cursor: pointer;
 }
 
-.red{
-  background-color: #FF8F8F;
+tr.even{ background-color: #FFFFFE; }
+tr.odd { background-color: #F9F9F9; }
+
+tr.even td.sorting_1 { background-color: #EFEFEF; }
+tr.odd  td.sorting_1 { background-color: #D0D0D0; }
+
+tr.even td.red { background-color: #FFA1A1; }
+tr.odd  td.red { background-color: #FF8F8F; }
+
+tr.even td.red.sorting_1 { background-color: #FF7070; }
+tr.odd  td.red.sorting_1 { background-color: #FF5050; }
+
+tr.even td.green { background-color: #00D10E; }
+tr.odd  td.green { background-color: #00BF0D; }
+
+tr.even td.green.sorting_1 { background-color: #00B30C; }
+tr.odd  td.green.sorting_1 { background-color: #00A30B; }
+
+tr.even td.blue { background-color: #99CCFF; }
+tr.odd  td.blue { background-color: #80BFFF; }
+
+tr.even td.blue.sorting_1 { background-color: #82BBFF; }
+tr.odd  td.blue.sorting_1 { background-color: #409FFF; }
+
+tr.even td.gold, tr.even td.gold.sorting_1, tr.odd td.gold, tr.odd td.gold.sorting_1 { background-color: #FFCC66; }
+
+.sorting_asc {
+  background: url('../DataTables/media/images/sort_asc.png') no-repeat center right;
 }
-.green{
-  background-color: #00D10E;
+
+.sorting_desc {
+  background: url('../DataTables/media/images/sort_desc.png') no-repeat center center;
 }
-.blue{
-  background-color: #99CCFF;
+
+.sorting {
+  background: url('../DataTables/media/images/sort_both.png') no-repeat center center;
 }
-.gold{
-  background-color: #FFCC66;
+
+th.name.sorting_asc, th.name.sorting_desc, th.name.sorting {
+  background-position: right;
+}
+ 
+th:active {
+  outline: none;
+}
+th:hover {
+  cursor: pointer;
 }

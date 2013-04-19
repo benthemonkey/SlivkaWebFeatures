@@ -2,8 +2,7 @@
 require_once "./DatabasePDO.php";
 class PointsCenter
 {
-    private static $quarter = 1302;
-    public static $p2p_days = array("Tue","Thu");
+    private static $qtr = 1302;
 
     private static $dbConn = null;
     public function __construct ()
@@ -18,9 +17,23 @@ class PointsCenter
         }
     }
 
-    public function getP2PDays ()
+    public function getQuarterInfo ()
     {
-        return self::$p2p_days;
+        self::initializeConnection();
+        $quarter_info;
+        try {
+            $statement = self::$dbConn->prepare(
+                "SELECT *
+                FROM quarters
+                WHERE qtr=:qtr");
+            $statement->bindValue(":qtr", self::$qtr);
+            $statement->execute();
+            $quarter_info = $statement->fetchObject();
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            die();
+        }
+        return $quarter_info;
     }
     
     public function getSlivkans ()
@@ -119,9 +132,9 @@ class PointsCenter
             $statement = self::$dbConn->prepare(
                 "SELECT event_name,date,type,attendees,committee,description
                 FROM events 
-                WHERE quarter=:quarter AND date BETWEEN :start AND :end
+                WHERE qtr=:qtr AND date BETWEEN :start AND :end
                 ORDER BY date");
-            $statement->bindValue(":quarter", self::$quarter);
+            $statement->bindValue(":qtr", self::$qtr);
             $statement->bindValue(":start", $start, PDO::PARAM_STR);
             $statement->bindValue(":end", $end, PDO::PARAM_STR);
             $statement->execute();
@@ -159,8 +172,8 @@ class PointsCenter
             $statement = self::$dbConn->prepare(
                 "SELECT event_name,nu_email 
                 FROM points
-                WHERE quarter=:quarter");
-            $statement->bindValue(":quarter", self::$quarter);
+                WHERE qtr=:qtr");
+            $statement->bindValue(":qtr", self::$qtr);
             $statement->execute();
             $points = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
         } catch (PDOException $e) {
@@ -178,8 +191,8 @@ class PointsCenter
             $statement = self::$dbConn->prepare(
                 "SELECT event_name,nu_email 
                 FROM helperpoints
-                WHERE quarter=:quarter");
-            $statement->bindValue(":quarter", self::$quarter);
+                WHERE qtr=:qtr");
+            $statement->bindValue(":qtr", self::$qtr);
             $statement->execute();
             $helper_points = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
         } catch (PDOException $e) {
@@ -197,8 +210,8 @@ class PointsCenter
             $statement = self::$dbConn->prepare(
                 "SELECT event_name,nu_email 
                 FROM committeeattendance
-                WHERE quarter=:quarter");
-            $statement->bindValue(":quarter", self::$quarter);
+                WHERE qtr=:qtr");
+            $statement->bindValue(":qtr", self::$qtr);
             $statement->execute();
             $committee_attendance = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
         } catch (PDOException $e) {
@@ -216,9 +229,9 @@ class PointsCenter
             $statement = self::$dbConn->prepare(
                 "SELECT events.type,events.event_name,events.committee 
                 FROM points INNER JOIN events ON points.event_name=events.event_name 
-                WHERE events.quarter=:quarter AND points.nu_email=:nu_email AND events.date BETWEEN :start AND :end 
+                WHERE events.qtr=:qtr AND points.nu_email=:nu_email AND events.date BETWEEN :start AND :end 
                 ORDER BY events.date");
-            $statement->bindValue(":quarter", self::$quarter);
+            $statement->bindValue(":qtr", self::$qtr);
             $statement->bindValue(":nu_email", $nu_email, PDO::PARAM_STR);
             $statement->bindValue(":start", $start, PDO::PARAM_STR);
             $statement->bindValue(":end", $end, PDO::PARAM_STR);
@@ -251,8 +264,8 @@ class PointsCenter
             $statement = self::$dbConn->prepare(
                 "SELECT nu_email,committee,other1_name,other1,other2_name,other2,other3_name,other3 
                 FROM bonuspoints 
-                WHERE quarter=:quarter");
-            $statement->bindValue(":quarter", self::$quarter);
+                WHERE qtr=:qtr");
+            $statement->bindValue(":qtr", self::$qtr);
             $statement->execute();
             $bonus_points = $statement->fetchAll(PDO::FETCH_ASSOC|PDO::FETCH_GROUP);
         } catch (PDOException $e) {

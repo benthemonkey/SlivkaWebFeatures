@@ -4,7 +4,8 @@
   <?php include('header.html'); ?>
   <title>Breakdown - Slivka Points Center</title>
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-  <script type="text/javascript" src="js/pointsBreakdown.js"></script>
+  <script type="text/javascript">google.load("visualization", "1", {packages:["corechart"]});</script>
+  <!--<script type="text/javascript" src="js/pointsBreakdown.js"></script>-->
   <style type="text/css">
   table{
   	font-size: 12px;
@@ -33,19 +34,19 @@
 							<fieldset>
 								<div class="control-group">
 									<label class="control-label">Slivkan:</label>
-									<select id="slivkan" style="width: 100%" onchange="getSlivkanPoints()">
+									<select id="slivkan" style="width: 100%">
 										<option value="">Select One</option>
 									</select>
 								</div>
 								<div class="control-group">
-						            <label for="start" class="control-label" onclick="$('#start').datepicker('show');">From:</label>
+						            <label for="start" id="start-label" class="control-label">From:</label>
 						            <input type="text" id="start-val" style="display: none">
 						            <div class="input-append">
 						              	<input type="text" id="start" name="start" class="input text-center" style="position: relative; z-index: 10; color: #000000; width: 50px;" disabled>
 						            </div>
 						        </div>
 						        <div class="control-group">
-						            <label for="end" class="control-label" onclick="$('#end').datepicker('show');">To:</label>
+						            <label for="end" id="end-label" class="control-label">To:</label>
 						            <input type="text" id="end-val" style="display: none">
 						            <div class="input-append">
 						              	<input type="text" id="end" name="end" class="input text-center" style="position: relative; z-index: 10; color: #000000; width: 50px;" disabled>
@@ -99,5 +100,8 @@
 			</div>
 		</div>
 	</div>
+	<script type="text/javascript">
+		$(document).ready(function(){ pointsCenter.breakdown.init(); });
+	</script>
 </body>
 </html>

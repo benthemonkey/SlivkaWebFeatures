@@ -2,13 +2,13 @@
 header('Content-type: text/html; charset=utf-8');
 require_once "./PointsCenter.php";
 $points_center = new PointsCenter();
+$quarter_info = $points_center->getQuarterInfo();
 $slivkans = $points_center->getSlivkans();
-$events = $points_center->getEvents();
+$events = $points_center->getEvents($quarter_info->start_date,$quarter_info->end_date);
 $points = $points_center->getPoints();
 $helperpoints = $points_center->getHelperPoints();
 $committeeattendance = $points_center->getCommitteeAttendance();
 $bonuspoints = $points_center->getBonusPoints();
-$p2p_days = $points_center->getP2PDays();
 
 $points_table = array(); #table that is slivkan count by event count + 6
 
@@ -34,11 +34,11 @@ for($s=0; $s < count($slivkans['full_name']); $s++){
 			$event_points_tmp = 0;
 		}
 
-		if(in_array($nu_email, $helperpoints[$event_name])){
-			$event_points_tmp .= "h";
+		if(in_array($nu_email, $helperpoints[$event_name])){   # Add .1 for helper point
+			$event_points_tmp += 0.1;
 			$helper_points++;
-		}elseif(in_array($nu_email, $committeeattendance[$event_name])){
-			#$event_points_tmp .= "c";										#####NOT NOTING COMMITTEES#######
+		}elseif(in_array($nu_email, $committeeattendance[$event_name])){ # Add .2 for committee point
+			$event_points_tmp += 0.2;										#####NOT NOTING COMMITTEES#######
 		}
 
 		$event_points[] = $event_points_tmp;

@@ -3,7 +3,7 @@
 <head>
   <?php include('header.html'); ?>
   <title>Submission - Slivka Points Center</title>
-  <script type="text/javascript" src="js/pointsSubmission.js"></script>
+  <!--<script type="text/javascript" src="js/pointsSubmission.js"></script>-->
   <style type="text/css">
     #slivkan-entry-tab-buttons{
       margin-bottom: 10px;
@@ -23,10 +23,6 @@
     .btn-group{
       padding-bottom: 10px;
     }
-
-    /*.control-group{
-      margin-bottom: 10px;
-    }*/
   </style>
 </head>
 <body>
@@ -203,5 +199,8 @@
       </div>
     </div>
   </div>
+  <script type="text/javascript"> 
+    $(document).ready(function(){ pointsCenter.submission.init() });
+  </script>
 </body>
 </html>

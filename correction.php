@@ -3,7 +3,7 @@
 <head>
 	<?php include('header.html'); ?>
 	<title>Points Correction - Slivka RC</title>
-	<script type="text/javascript" src="js/pointsCorrection.js"></script>
+	<!--<script type="text/javascript" src="js/pointsCorrection.js"></script>-->
 </head>
 <body>
 	<div class="container-fluid">
@@ -18,7 +18,7 @@
 							<div class="control-group filled-by-control">
 								<label class="control-label" for="filled-by">Your Name:</label>
 								<div class="controls">
-									<input type="text" name="filled-by" id="filled-by" class="input" onfocus="$('.filled-by-control').addClass('warning')" onfocusout="validateFilledBy()">
+									<input type="text" name="filled-by" id="filled-by" class="input" onfocus="$('.filled-by-control').addClass('warning')">
 								</div>
 							</div>
 							<div class="control-group event-control">
@@ -37,8 +37,8 @@
 								</div>
 							</div>
 							<div class="controls">
-								<button type="submit" class="btn btn-primary" onclick="validatePointsCorrectionForm()" >Submit</button>
-								<button type="button" class="btn" onclick="resetForm()">Reset</button>
+								<button type="submit" class="btn btn-primary" id="submit">Submit</button>
+								<button type="button" class="btn" id="reset">Reset</button>
 								<span class="help-inline hide" id="submit-error"></span>
 							</div>
 							<div class="controls" id="response"></div>
@@ -48,5 +48,8 @@
 			</div>
 		</div>
 	</div>
+	<script type="text/javascript"> 
+	    $(document).ready(function(){ pointsCenter.correction.init() });
+	</script>
 </body>
 </html>

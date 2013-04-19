@@ -46,7 +46,7 @@ if (!mysql_query($sql)){
 $event_name .= " " . $date;
 $num_attendees = count($attendees);
 
-$sql = "INSERT INTO events (event_name, date, quarter, filled_by, committee, description, type, attendees) VALUES ('$event_name','$date', '$qtr', '$filled_by','$committee','$description','$type','$num_attendees')";
+$sql = "INSERT INTO events (event_name, date, qtr, filled_by, committee, description, type, attendees) VALUES ('$event_name','$date', '$qtr', '$filled_by','$committee','$description','$type','$num_attendees')";
 
 if (!mysql_query($sql)){
 	echo json_encode(array(receipt => $receipt,error => mysql_error(),step => "2"));
@@ -54,7 +54,7 @@ if (!mysql_query($sql)){
 }
 
 foreach($attendees as $s){
-	$sql = "INSERT INTO points (nu_email,event_name,quarter) VALUES ('$s','$event_name','$qtr')";
+	$sql = "INSERT INTO points (nu_email,event_name,qtr) VALUES ('$s','$event_name','$qtr')";
 	if (!mysql_query($sql)){
 	  	echo json_encode(array(receipt => $receipt,error => mysql_error(),step => "3"));
 		die();
@@ -62,7 +62,7 @@ foreach($attendees as $s){
 }
 
 foreach($helper_points as $s){
-	$sql = "INSERT INTO helperpoints (nu_email,event_name,quarter) VALUES ('$s','$event_name','$qtr')";
+	$sql = "INSERT INTO helperpoints (nu_email,event_name,qtr) VALUES ('$s','$event_name','$qtr')";
 	if(!mysql_query($sql)){
 		echo json_encode(array(receipt => $receipt,error => mysql_error(),step => "4"));
 		die();
@@ -70,7 +70,7 @@ foreach($helper_points as $s){
 }
 
 foreach($committee_members as $s){
-	$sql = "INSERT INTO committeeattendance (nu_email,event_name,quarter) VALUES ('$s','$event_name','$qtr')";
+	$sql = "INSERT INTO committeeattendance (nu_email,event_name,qtr) VALUES ('$s','$event_name','$qtr')";
 	if (!mysql_query($sql)){
 	  	echo json_encode(array(receipt => $receipt,error => mysql_error(),step => "5"));
 		die();
@@ -78,7 +78,7 @@ foreach($committee_members as $s){
 }
 
 foreach($fellows as $s){
-	$sql = "INSERT INTO fellowattendance (fellow,event_name,quarter) VALUES ('$s','$event_name','$qtr')";
+	$sql = "INSERT INTO fellowattendance (fellow,event_name,qtr) VALUES ('$s','$event_name','$qtr')";
 	if (!mysql_query($sql)){
 	  	echo json_encode(array(receipt => $receipt,error => mysql_error(),step => "6"));
 		die();
