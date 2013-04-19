@@ -203,7 +203,7 @@ var pointsCenter = (function($){
 				var table = $("#table").dataTable({
 					"aaData": aDataSet,
 					"aoColumnDefs": [
-					{ aTargets: [0], sTitle: "Name", sWidth: "130px", sClass: "name"},
+					{ aTargets: [0], sTitle: "Name", sWidth: "120px", sClass: "name"},
 					{ aTargets: [1], bVisible: false },
 					{ aTargets: event_targets, asSorting: ['desc','asc']},
 					{ aTargets: event_targets.concat(totals_targets), sTitle: '', sWidth: "14px"},
@@ -226,7 +226,7 @@ var pointsCenter = (function($){
 					table.fnFilter(option,1);
 				});
 
-				var cols_width = 130+14*(event_targets.length + totals_targets.length)+100;
+				var cols_width = 120+14*(event_targets.length + totals_targets.length)+100;
 
 				$('body').css("min-width",cols_width+"px");
 				$('.header-row').attr('id','columns');
