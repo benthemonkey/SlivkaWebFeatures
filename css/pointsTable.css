@@ -8,11 +8,13 @@ table.dataTable .name{
 }
 
 .col{
-  font-size: 12px;
+  font-size: 10px;
   line-height: 14px;
   margin: 0 10px;
 }
-
+.nolabel{
+  color: #000000;
+}
 .header-row{
   font-weight: bold;
   padding-left: 122px; /*193*/
@@ -22,14 +24,13 @@ table.dataTable .name{
   position: relative;
   display: block;
 }
-
 .header-row li{
   text-align: left;
   float: left;
   width: 16px; /*42*/
   display: block;
   position: relative;
-  -webkit-transform: rotate(-55deg);
+  -webkit-transform: rotate(-55deg); /*-10, 10 */
      -moz-transform: rotate(-55deg);
       -ms-transform: rotate(-55deg);
        -o-transform: rotate(-55deg);
