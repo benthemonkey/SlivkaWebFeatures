@@ -211,10 +211,11 @@ var pointsCenter = (function($){
 					],
 					"bPaginate": false,
 					"bAutoWidth": false,
+					"oLanguage": {
+						"sSearch": "Filter by Name:<br/>"
+					},
 					"sDom": '<"row-fluid"<"span3 table-info"><"span3"f><"span3 filter"i>><"row-fluid"<"header-row">><"row-fluid"<"span12"rt>>'
 				});
-
-				$('#table_filter').html('<label>Filter by Name:</label><input type="text" aria-controls="table">');
 				/*jshint multistr: true */
 				$('<label>Filter by Gender:</label><select id="gender-filter">\
 						<option value="">All</option>\
@@ -260,10 +261,11 @@ var pointsCenter = (function($){
 				$('td').each(function(){
 					var self = $(this);
 					if(!self.hasClass('totals')){
-						if(self.html() == "1"){self.addClass("green");}
-						else if(self.html() == "0"){self.addClass("red");}
-						else if(self.html() == "1.1" || self.html() == "0.1"){self.addClass("gold"); self.html("1");}
-						else if(self.html() == "1.2" || self.html() == "0.2"){self.addClass("blue"); self.html("1");}
+						var html = self.html();
+						if(html == "1"){self.addClass("green");}
+						else if(html == "0"){self.addClass("red");}
+						else if(html == "1.1" || html == "0.1"){self.addClass("gold"); self.html(html.substr(0,1));}
+						else if(html == "1.2" || html == "0.2"){self.addClass("blue"); self.html(html.substr(0,1));}
 					}
 				});
 
@@ -347,7 +349,6 @@ var pointsCenter = (function($){
 			$('#response').fadeOut();
 
 			$.getJSON('./ajax/sendPointsCorrection.php',data,function(response){
-				console.log(response);
 				$('#response').html("<p>Response: "+response.message+"</p>");
 				$('<a href="table.php" class="btn btn-primary">View Points</a>').appendTo('#response');
 				$('<a class="btn" href="correction.php">Submit Another</a>').appendTo('#response');
@@ -520,7 +521,9 @@ var pointsCenter = (function($){
 			}else if(type == "IM"){
 				$("#committee").val("Social");
 				$('#event').val($('#im-team').val()+' 1');
-				$('#description').val($('#im-team').val());
+
+				var sport = $('#im-team').val().split(" ");
+				$('#description').val(sport[1]);
 			}else if(type == "House Meeting"){
 				$("#committee").val("Exec");
 				$("#event").val("House Meeting");
@@ -542,7 +545,7 @@ var pointsCenter = (function($){
 				$(".description-control").slideDown();
 				$("#committee").removeAttr("disabled");
 			}else{
-				$(".description-control").slideUp();
+				//$(".description-control").slideUp();
 				$("#committee").attr("disabled","disabled");
 			}
 		},
@@ -629,7 +632,8 @@ var pointsCenter = (function($){
 		},
 		validateIMTeam: function(){
 			$('#event').val($('#im-team').val()+' 1');
-			$('#description').val($('#im-team').val());
+			var sport = $('#im-team').val().split(" ");
+			$('#description').val(sport[1]);
 			submission.validateEventName();
 		},
 		validateCommittee: function(){
@@ -989,7 +993,7 @@ var pointsCenter = (function($){
 			});
 
 
-			console.log(JSON.stringify(data));
+			//console.log(JSON.stringify(data));
 
 			//clear receipt:
 			$('.results-row').remove();
