@@ -545,7 +545,7 @@ var pointsCenter = (function($){
 				$(".description-control").slideDown();
 				$("#committee").removeAttr("disabled");
 			}else{
-				//$(".description-control").slideUp();
+				$(".description-control").slideUp();
 				$("#committee").attr("disabled","disabled");
 			}
 		},
