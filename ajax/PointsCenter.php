@@ -135,7 +135,7 @@ class PointsCenter
                 "SELECT event_name,date,type,attendees,committee,description
                 FROM events 
                 WHERE qtr=:qtr AND date BETWEEN :start AND :end
-                ORDER BY date");
+                ORDER BY date, id");
             $statement->bindValue(":qtr", self::$qtr);
             $statement->bindValue(":start", $start);
             $statement->bindValue(":end", $end);
@@ -232,7 +232,7 @@ class PointsCenter
                 "SELECT events.type,events.event_name,events.committee 
                 FROM points INNER JOIN events ON points.event_name=events.event_name 
                 WHERE events.qtr=:qtr AND points.nu_email=:nu_email AND events.date BETWEEN :start AND :end 
-                ORDER BY events.date");
+                ORDER BY events.date, events.id");
             $statement->bindValue(":qtr", self::$qtr);
             $statement->bindValue(":nu_email", $nu_email);
             $statement->bindValue(":start", $start);

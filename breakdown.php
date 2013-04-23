@@ -39,6 +39,13 @@
 									</select>
 								</div>
 								<div class="control-group">
+									<div class="btn-group">
+										<div class="btn btn-small" id="today">Today</div>
+										<div class="btn btn-small" id="week">Past Week</div>
+										<div class="btn btn-small" id="month">Past Month</div>
+									</div>
+								</div>
+								<div class="control-group">
 						            <label for="start" id="start-label" class="control-label">From:</label>
 						            <input type="text" id="start-val" style="display: none">
 						            <div class="input-append">

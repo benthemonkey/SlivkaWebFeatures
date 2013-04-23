@@ -75,7 +75,15 @@ var pointsCenter = (function($){
 			$('#slivkan')		.on('change',function(){ breakdown.getSlivkanPoints(); });
 			$('#start-label')	.on('click',function(){ $('#start').datepicker('show'); });
 			$('#end-label')		.on('click',function(){ $('#end').datepicker('show'); });
+			$('#today')			.on('click',function(){ breakdown.dateRange("0d"); });
+			$('#week')			.on('click',function(){ breakdown.dateRange("-1w"); });
+			$('#month')			.on('click',function(){ breakdown.dateRange("-1m"); });
 			$('#showUnattended').on('click',function(event){ breakdown.toggleShowUnattended(event); });
+		},
+		dateRange: function(rng){
+			$('#start').datepicker("setDate", rng);
+			$('#end').datepicker("setDate", quarter_end);
+			breakdown.getSlivkanPoints();
 		},
 		fixDateButtons: function(){
 			$('button.ui-datepicker-trigger').each(function(){
@@ -179,7 +187,9 @@ var pointsCenter = (function($){
 				events = data.events;
 
 				for(var row in data.points_table){
-					aDataSet.push([row].concat(data.points_table[row]));
+					if(Math.max.apply(null,data.points_table[row].slice(1)) > 0){
+						aDataSet.push([row].concat(data.points_table[row]));
+					}
 				}
 
 				for(var i=0;i<events.event_name.length;i++){
