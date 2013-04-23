@@ -8,17 +8,17 @@
   <!--<script type="text/javascript" src="js/pointsBreakdown.js"></script>-->
   <style type="text/css">
   table{
-  	font-size: 12px;
+	font-size: 12px;
   }
 
   .chartWrapper{
-  	overflow: hidden;
+	overflow: hidden;
   }
 
   .chart{
-  	margin: 0 auto;
-  	height: 270px;
-  	width: 270px;
+	margin: 0 auto;
+	height: 270px;
+	width: 270px;
   }
   </style>
 </head>
@@ -39,32 +39,33 @@
 									</select>
 								</div>
 								<div class="control-group">
-									<div class="btn-group">
-										<div class="btn btn-small" id="today">Today</div>
-										<div class="btn btn-small" id="week">Past Week</div>
-										<div class="btn btn-small" id="month">Past Month</div>
+									<div class="btn-group" data-toggle="buttons-radio">
+										<div class="range btn btn-small" id="today">Today</div>
+										<div class="range btn btn-small" id="week">Week</div>
+										<div class="range btn btn-small" id="month">Month</div>
+										<div class="range btn btn-small active" id="quarter">All</div>
 									</div>
 								</div>
 								<div class="control-group">
-						            <label for="start" id="start-label" class="control-label">From:</label>
-						            <input type="text" id="start-val" style="display: none">
-						            <div class="input-append">
-						              	<input type="text" id="start" name="start" class="input text-center" style="position: relative; z-index: 10; color: #000000; width: 50px;" disabled>
-						            </div>
-						        </div>
-						        <div class="control-group">
-						            <label for="end" id="end-label" class="control-label">To:</label>
-						            <input type="text" id="end-val" style="display: none">
-						            <div class="input-append">
-						              	<input type="text" id="end" name="end" class="input text-center" style="position: relative; z-index: 10; color: #000000; width: 50px;" disabled>
-						            </div>
-						        </div>
-						        <div class="control-group">
-						        	Other:
-						        	<label for="showUnattended" class="checkbox">
-						        		<input type="checkbox" name="showUnattended" id="showUnattended" checked> Show Unattended
-						        	</label>
-						        </div>
+									<label for="start" id="start-label" class="control-label">From:</label>
+									<input type="text" id="start-val" style="display: none">
+									<div class="input-append">
+										<input type="text" id="start" name="start" class="input text-center" style="position: relative; z-index: 10; color: #000000; width: 50px;" disabled>
+									</div>
+								</div>
+								<div class="control-group">
+									<label for="end" id="end-label" class="control-label">To:</label>
+									<input type="text" id="end-val" style="display: none">
+									<div class="input-append">
+										<input type="text" id="end" name="end" class="input text-center" style="position: relative; z-index: 10; color: #000000; width: 50px;" disabled>
+									</div>
+								</div>
+								<div class="control-group">
+									Other:
+									<label for="showUnattended" class="checkbox">
+										<input type="checkbox" name="showUnattended" id="showUnattended" checked> Show Unattended
+									</label>
+								</div>
 							</fieldset>
 						</form>
 					</div>

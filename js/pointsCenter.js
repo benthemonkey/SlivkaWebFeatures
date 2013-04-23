@@ -4,6 +4,7 @@ var pointsCenter = (function($){
 	//Quarter-related variables:
 	quarter_start = "4/1", //first day of classes
 	quarter_end = "6/7", //last day of reading week
+	im_teams = ["Co-Rec Soccer","Co-Rec Softball","Co-Rec Ultimate","White Soccer","White Softball","White Ultimate"],
 
 	//jQuery selectors
 
@@ -46,6 +47,7 @@ var pointsCenter = (function($){
 				minDate: quarter_start,
 				maxDate: localStorage.spc_brk_end || quarter_end,
 				onSelect: function( selectedDate ) {
+					$('.range').removeClass("active");
 					$( "#end" ).datepicker( "option", "minDate", selectedDate );
 					localStorage.spc_brk_start = selectedDate;
 					breakdown.fixDateButtons();
@@ -60,6 +62,7 @@ var pointsCenter = (function($){
 				minDate: localStorage.spc_brk_start || quarter_start,
 				maxDate: quarter_end,
 				onSelect: function( selectedDate ) {
+					$('.range').removeClass("active");
 					$('#start').datepicker( "option", "maxDate", selectedDate );
 					localStorage.spc_brk_end = selectedDate;
 					breakdown.fixDateButtons();
@@ -78,6 +81,7 @@ var pointsCenter = (function($){
 			$('#today')			.on('click',function(){ breakdown.dateRange("0d"); });
 			$('#week')			.on('click',function(){ breakdown.dateRange("-1w"); });
 			$('#month')			.on('click',function(){ breakdown.dateRange("-1m"); });
+			$('#quarter')		.on('click',function(){ breakdown.dateRange(quarter_start); });
 			$('#showUnattended').on('click',function(event){ breakdown.toggleShowUnattended(event); });
 		},
 		dateRange: function(rng){
@@ -187,9 +191,9 @@ var pointsCenter = (function($){
 				events = data.events;
 
 				for(var row in data.points_table){
-					if(Math.max.apply(null,data.points_table[row].slice(1)) > 0){
+					//if(Math.max.apply(null,data.points_table[row].slice(1)) > 0){
 						aDataSet.push([row].concat(data.points_table[row]));
-					}
+					//}
 				}
 
 				for(var i=0;i<events.event_name.length;i++){
@@ -213,35 +217,68 @@ var pointsCenter = (function($){
 				var table = $("#table").dataTable({
 					"aaData": aDataSet,
 					"aoColumnDefs": [
-					{ aTargets: [0], sTitle: "Name", sWidth: "120px", sClass: "name"},
+					{ aTargets: [0], sTitle: "Name", sWidth: "130px", sClass: "name"},
 					{ aTargets: [1], bVisible: false },
-					{ aTargets: event_targets, asSorting: ['desc','asc']},
-					{ aTargets: event_targets.concat(totals_targets), sTitle: '', sWidth: "14px"},
-					{ aTargets: totals_targets, sClass: 'totals', asSorting: ['desc','asc']}
+					{ aTargets: event_targets, sWidth: "14px"},
+					{ aTargets: event_targets.concat(totals_targets), sTitle: '', asSorting: ['desc','asc']},
+					{ aTargets: totals_targets, sClass: 'totals', sWidth: "18px"}
 					],
 					"bPaginate": false,
 					"bAutoWidth": false,
 					"oLanguage": {
 						"sSearch": "Filter by Name:<br/>"
 					},
-					"sDom": '<"row-fluid"<"span3 table-info"><"span3"f><"span3 filter"i>><"row-fluid"<"header-row">><"row-fluid"<"span12"rt>>'
+					"sDom": '<"row-fluid"<"span3 table-info"i><"span3"f><"span3 filter1"><"span3 filter2"><"row-fluid"<"header-row">><"row-fluid"<"span12"rt>>'
 				});
+				//table info
+				$('<div />').text('Hover over column labels to view event information, click to sort.')
+				.css({fontSize: '14px'}).addClass('alert alert-info').prependTo('.table-info');
+
+				//name filter
+				$("#table_filter input").addClass("input-medium");
+
 				/*jshint multistr: true */
-				$('<label>Filter by Gender:</label><select id="gender-filter">\
+				$('<label>Filter by Gender:<br/><select class="input-medium" id="gender-filter">\
 						<option value="">All</option>\
 						<option value="m">Male</option>\
 						<option value="f">Female</option>\
-					</select>').prependTo('.filter');
+					</select></label>').appendTo('.filter1');
 				$('#gender-filter').on('change',function(){
 					var option = $('#gender-filter').val();
 					table.fnFilter(option,1);
 				});
 
-				var cols_width = 120+14*(event_targets.length + totals_targets.length)+100;
+				$('<label>Limit Columns:<br/><select class="input-medium" id="count-filter">\
+					<option value="-1">All</option>\
+					<option value="30">30</option>\
+					<option value="20">20</option>\
+					<option value="10">10</option>\
+					</select></label>').appendTo('.filter2');
+				$('#count-filter').on('change',function(event){
+					var count = event.target.value,
+					table = $("#table").dataTable(),
+					columns = $("#columns").find("li");
+
+					for(var i=0; i<event_targets.length; i++){
+						if(i < count || count == -1){
+							table.fnSetColumnVis(event_targets.length - i + 2, true);
+							columns.eq(event_targets.length - i).show();
+						}else{
+							table.fnSetColumnVis(event_targets.length - i + 2, false);
+							columns.eq(event_targets.length - i).hide();
+						}
+					}
+
+					var cols_width = 130 + 16*(count == -1 ? event_targets.length : count) + 20*totals_targets.length + 100;
+					$('body').css("min-width", cols_width);
+
+				});
+
+				var cols_width = 130+16*event_targets.length + 20*totals_targets.length+100;
 
 				$('body').css("min-width",cols_width+"px");
 				$('.header-row').attr('id','columns');
-				var columns = $('.header-row');
+				//var columns = $('.header-row');
 
 				for(i=0; i<event_names.length; i++){
 					$('<li />').html(event_names[i]).popover({
@@ -278,9 +315,6 @@ var pointsCenter = (function($){
 						else if(html == "1.2" || html == "0.2"){self.addClass("blue"); self.html(html.substr(0,1));}
 					}
 				});
-
-				$('<div />').text('Hover over column labels to view event information, click to sort.')
-				.css({fontSize: '14px'}).addClass('alert alert-info').prependTo('.table-info');
 			});
 		}
 	},
@@ -444,6 +478,11 @@ var pointsCenter = (function($){
 			});
 			$("#date").datepicker("setDate", new Date());
 			$('button.ui-datepicker-trigger').addClass("btn").html('<i class="icon-calendar"></i>');
+
+			//im teams
+			for(var i=0; i<im_teams.length; i++){
+				$("<option />").text(im_teams[i]).appendTo("#im-team");
+			}
 
 			//event handlers for inputs
 			$('.type-btn')        .on('click',function(event){ submission.toggleType(event); });

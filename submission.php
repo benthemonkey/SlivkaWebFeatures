@@ -51,14 +51,7 @@
 
               <div class="control-group im-team-control hide">
                 <label class="control-label" for="im-team">Team:</label>
-                <select id="im-team" class="input span4">Soccer Softball Ultimate
-                  <option>Co-Rec Soccer</option>
-                  <option>Co-Rec Softball</option>
-                  <option>Co-Rec Ultimate</option>
-                  <option>White Soccer</option>
-                  <option>White Softball</option>
-                  <option>White Ultimate</option>
-                </select>
+                <select id="im-team" class="input span4"></select>
               </div>
 
               <div class="control-group event-control">

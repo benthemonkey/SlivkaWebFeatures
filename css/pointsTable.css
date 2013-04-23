@@ -9,22 +9,24 @@ table.dataTable .name{
 }
 
 .col{
-  font-size: 10px;
-  line-height: 14px;
+  font-size: 12px;
+  line-height: 16px;
   margin: 0 10px;
 }
 .nolabel{
   color: #000000;
 }
+
 .header-row{
   font-weight: bold;
-  padding-left: 122px; /*193*/
+  padding-left: 137px; /*193*/
   list-style: none;
-  margin-top: 100px;
+  margin-top: 120px;
   padding-top: 0;
   position: relative;
   display: block;
 }
+
 .header-row li{
   text-align: left;
   float: left;
@@ -39,6 +41,11 @@ table.dataTable .name{
   white-space: nowrap;
   cursor: pointer;
 }
+
+.header-row li.totals-label{
+  width: 20px;
+}
+
 
 tr.even{ background-color: #FFFFFE; }
 tr.odd { background-color: #F9F9F9; }
