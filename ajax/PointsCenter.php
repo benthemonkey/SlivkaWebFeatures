@@ -505,7 +505,7 @@ class PointsCenter
 
         }else{
             echo "You already responded to this request.";
-            #die();
+            die();
         }
 
         if($code == 1){
