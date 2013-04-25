@@ -214,12 +214,17 @@ var pointsCenter = (function($){
 					totals_targets.push(first_totals_target + i);
 				}
 
-				var table = $("#table").dataTable({
+				var oTable = $("#table").dataTable({
 					"aaData": aDataSet,
 					"aoColumnDefs": [
 					{ aTargets: [0], sTitle: "Name", sWidth: "130px", sClass: "name"},
 					{ aTargets: [1], bVisible: false },
-					{ aTargets: event_targets, sWidth: "14px"},
+					{ aTargets: event_targets, sWidth: "14px", fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
+						if(sData == "1"){$(nTd).addClass("green");}
+						//else if(sData == "0"){$(nTd).addClass("red");}
+						else if(sData == "1.1" || sData == "0.1"){$(nTd).addClass("gold"); $(nTd).html($(nTd).html().substr(0,1));}
+						else if(sData == "1.2" || sData == "0.2"){$(nTd).addClass("blue"); $(nTd).html($(nTd).html().substr(0,1));}
+					}},
 					{ aTargets: event_targets.concat(totals_targets), sTitle: '', asSorting: ['desc','asc']},
 					{ aTargets: totals_targets, sClass: 'totals', sWidth: "18px"}
 					],
@@ -228,32 +233,42 @@ var pointsCenter = (function($){
 					"oLanguage": {
 						"sSearch": "Filter by Name:<br/>"
 					},
-					"sDom": '<"row-fluid"<"span3 table-info"i><"span3"f><"span3 filter1"><"span3 filter2"><"row-fluid"<"header-row">><"row-fluid"<"span12"rt>>'
+					"sDom": '<"row-fluid"<"span5 table-info"i><"span3"f><"span2 filter1"><"span2 filter2">><"header-row"><"row-fluid"<"span12"rt>>'
 				});
+
 				//table info
-				$('<div />').text('Hover over column labels to view event information, click to sort.')
-				.css({fontSize: '14px'}).addClass('alert alert-info').prependTo('.table-info');
+				$('#table_info').wrap('<div class="alert alert-info" />');
+				$('<div />').text('Hover over event names for info, click to sort.').prependTo('.alert-info');
+				/*jshint multistr: true */
+				$('<table id="legend" class="legend"><tr class="odd">\
+					<td style="background-color: white;">Colors: </td>\
+					<td class="green">Point</td>\
+					<td class="blue">Committee</td>\
+					<td class="gold">Helper</td>\
+					<td style="background-color: #FF8F8F;">None</td>\
+					</tr></table>').appendTo('.table-info');
 
 				//name filter
 				$("#table_filter input").addClass("input-medium");
 
 				/*jshint multistr: true */
-				$('<label>Filter by Gender:<br/><select class="input-medium" id="gender-filter">\
+				$('<label>Filter by Gender:<br/><select class="input-small" id="gender-filter">\
 						<option value="">All</option>\
 						<option value="m">Male</option>\
 						<option value="f">Female</option>\
 					</select></label>').appendTo('.filter1');
 				$('#gender-filter').on('change',function(){
 					var option = $('#gender-filter').val();
-					table.fnFilter(option,1);
+					oTable.fnFilter(option,1);
 				});
 
-				$('<label>Limit Columns:<br/><select class="input-medium" id="count-filter">\
+				$('<label>Limit Columns:<br/><select class="input-small" id="count-filter">\
 					<option value="-1">All</option>\
 					<option value="30">30</option>\
 					<option value="20">20</option>\
 					<option value="10">10</option>\
 					</select></label>').appendTo('.filter2');
+
 				$('#count-filter').on('change',function(event){
 					var count = event.target.value,
 					table = $("#table").dataTable(),
@@ -261,20 +276,35 @@ var pointsCenter = (function($){
 
 					for(var i=0; i<event_targets.length; i++){
 						if(i < count || count == -1){
-							table.fnSetColumnVis(event_targets.length - i + 2, true);
+							table.fnSetColumnVis(event_targets.length - i + 2, true, false);
 							columns.eq(event_targets.length - i).show();
 						}else{
-							table.fnSetColumnVis(event_targets.length - i + 2, false);
+							table.fnSetColumnVis(event_targets.length - i + 2, false, false);
 							columns.eq(event_targets.length - i).hide();
 						}
 					}
 
-					var cols_width = 130 + 16*(count == -1 ? event_targets.length : count) + 20*totals_targets.length + 100;
+					table.fnDraw();/*
+					n = event_targets.length;
+
+					for(var i=0; i<n; i++){
+						if(i > n-count || count == -1){
+							table.animationQueue.show.push(event_targets[i]);
+						}else{
+							table.animationQueue.hide.push(event_targets[i]);
+						}
+					}
+
+					table.animationQueue.show.reverse();
+
+					table.processAnimationQueue();*/
+
+					var cols_width = 200 + 16*(count == -1 ? event_targets.length : count) + 20*totals_targets.length;// + 100;
 					$('body').css("min-width", cols_width);
 
 				});
 
-				var cols_width = 130+16*event_targets.length + 20*totals_targets.length+100;
+				var cols_width = 200+16*event_targets.length + 20*totals_targets.length;//130+16*event_targets.length + 20*totals_targets.length+100;
 
 				$('body').css("min-width",cols_width+"px");
 				$('.header-row').attr('id','columns');
@@ -304,19 +334,33 @@ var pointsCenter = (function($){
 				$('#columns').find('li').each(function(index){
 					$(this).on('click',function(){headers.eq(index+1).click();});
 				});
+			});
+		}/*,
+		animationQueue: { show: [], hide: [] },
+		processAnimationQueue: function(){
+			var oTable = $("#table").dataTable(),
+			columns = $("#columns").find("li");
 
-				$('td').each(function(){
-					var self = $(this);
-					if(!self.hasClass('totals')){
-						var html = self.html();
-						if(html == "1"){self.addClass("green");}
-						else if(html == "0"){self.addClass("red");}
-						else if(html == "1.1" || html == "0.1"){self.addClass("gold"); self.html(html.substr(0,1));}
-						else if(html == "1.2" || html == "0.2"){self.addClass("blue"); self.html(html.substr(0,1));}
+			if(table.animationQueue.show.length > 0){
+				ind = table.animationQueue.show.shift();
+				oTable.fnSetColumnVis(ind, true);
+				columns.eq(ind-2).show({
+					duration: 600,
+					complete: function(){
+						table.processAnimationQueue();
 					}
 				});
-			});
-		}
+			}else if(table.animationQueue.hide.length > 0){
+				ind = table.animationQueue.hide.shift();
+				oTable.fnSetColumnVis(ind, false);
+				columns.eq(ind-2).hide({
+					duration: 600,
+					complete: function(){
+						table.processAnimationQueue();
+					}
+				});
+			}
+		}*/
 	},
 
 	correction = {

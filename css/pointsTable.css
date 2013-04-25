@@ -3,6 +3,7 @@ table.dataTable td{
   text-align: center;
   border-top: 1px solid gray;
 }
+
 table.dataTable .name{
   text-align: left;
   padding-left: 5px;
@@ -13,8 +14,10 @@ table.dataTable .name{
   line-height: 16px;
   margin: 0 10px;
 }
-.nolabel{
-  color: #000000;
+
+/*overriding default style*/
+.alert{
+  margin-bottom: 0;
 }
 
 .header-row{
@@ -22,7 +25,7 @@ table.dataTable .name{
   padding-left: 137px; /*193*/
   list-style: none;
   margin-top: 120px;
-  padding-top: 0;
+  height: 20px;
   position: relative;
   display: block;
 }
@@ -30,7 +33,7 @@ table.dataTable .name{
 .header-row li{
   text-align: left;
   float: left;
-  width: 16px; /*42*/
+  width: 16px;
   display: block;
   position: relative;
   -webkit-transform: rotate(-55deg); /*-10, 10 */
@@ -42,22 +45,32 @@ table.dataTable .name{
   cursor: pointer;
 }
 
-.header-row li.totals-label{
+li.totals-label{
   width: 20px;
 }
 
+.legend{
+  color: black;
+  border-collapse: separate;
+  border-spacing: 3px;
+}
 
-tr.even{ background-color: #FFFFFE; }
-tr.odd { background-color: #F9F9F9; }
+.legend td{
+  padding: 5px;
+  border-radius: 5px;
+}
 
-tr.even td.sorting_1 { background-color: #EFEFEF; }
-tr.odd  td.sorting_1 { background-color: #D0D0D0; }
+tr.even td.name, tr.even td.totals{ background-color: #FFFFFE; }
+tr.odd  td.name, tr.odd  td.totals{ background-color: #F9F9F9; }
 
-tr.even td.red { background-color: #FFA1A1; }
-tr.odd  td.red { background-color: #FF8F8F; }
+tr.even td.name.sorting_1, tr.even td.totals.sorting_1 { background-color: #EFEFEF; }
+tr.odd  td.name.sorting_1, tr.odd  td.totals.sorting_1 { background-color: #D0D0D0; }
 
-tr.even td.red.sorting_1 { background-color: #FF7070; }
-tr.odd  td.red.sorting_1 { background-color: #FF5050; }
+#table tr.even { background-color: #FFA1A1; }
+#table tr.odd  { background-color: #FF8F8F; }
+
+tr.even td.sorting_1 { background-color: #FF7070; }
+tr.odd  td.sorting_1 { background-color: #FF5050; }
 
 tr.even td.green { background-color: #00D10E; }
 tr.odd  td.green { background-color: #00BF0D; }
