@@ -6,6 +6,7 @@
   <title>Table - Slivka Points Center</title>
   <link rel="stylesheet" href="css/pointsTable.css" />
   <script type="text/javascript" src="DataTables/media/js/jquery.dataTables.min.js"></script>
+  <!--<script type="text/javascript" src="js/pointsTable.js"></script>-->
 </head>
 <body>
 	<div class="container-fluid">
