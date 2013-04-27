@@ -455,7 +455,7 @@ class PointsCenter
         <p style=\"padding: 10; width: 70%\">" . $get['name'] . " has submitted a points correction for the 
         event, " . $get['event_name'] . ", for which you took points. Please click one of the following links 
         to respond to this request. Please do so within 2 days of receiving this email.</p>
-        <p style=\"padding: 10; width: 70%\">" . $get['name'] . "'s comment: " . $get['comment'] . "</p>
+        <p style=\"padding: 10; width: 70%\">" . $get['name'] . "'s comment: " . $get['comments'] . "</p>
         <ul>
             <li><a href=\"http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php?key=$key&reply=$enc1\">" . $get['name'] . " was at " . $get['event_name'] . "</a></li><br/>
             <li><a href=\"http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php?key=$key&reply=$enc2\">" . $get['name'] . " was NOT at " . $get['event_name'] . "</a></li><br/>
