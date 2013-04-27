@@ -464,7 +464,7 @@ class PointsCenter
 
         <p style=\"padding: 10; width: 70%\">If you received this email in error, please contact BenSRothman@gmail.com</p>";
 
-        return self::sendEmail($get['sender_email'],"Slivka Points Correction (Automated)",$html);
+        return self::sendEmail($filled_by,"Slivka Points Correction (Automated)",$html);
     }
 
     public function pointsCorrectionReply($get)
