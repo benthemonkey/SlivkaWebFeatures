@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en">
+<html lang="en" manifest="pointscenter.appcache">
 <head>
   <?php include('header.html'); ?>
   <title>FAQ - Slivka Points Center</title>
