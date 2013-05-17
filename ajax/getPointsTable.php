@@ -54,6 +54,7 @@ for($s=0; $s < count($slivkans['full_name']); $s++){
 	foreach($im_points as $im){
 		if($im >= 3){ $im_points_actual += $im; }
 	}
+	if($im_points_actual > 15){ $im_points_actual = 15; }
 
 	#handling bonus points:
 	$bonus_points = 0;
