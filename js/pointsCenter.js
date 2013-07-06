@@ -2,9 +2,9 @@ var pointsCenter = (function($){
 	var slivkans, nicknames, fellows, type = "Other", valid_event_name = false,
 
 	//Quarter-related variables:
-	quarter_start = "4/1", //first day of classes
-	quarter_end = "6/7", //last day of reading week
-	im_teams = ["Co-Rec Soccer","Co-Rec Softball","Co-Rec Ultimate","White Soccer","White Softball","White Ultimate"],
+	quarter_start = "9/24", //first day of classes
+	quarter_end = "12/6", //last day of reading week
+	im_teams = ["Co-Rec Dodgeball","Co-Rec Football","Co-Rec Volleyball","White Dodgeball","White Football","White Volleyball"],
 
 	//jQuery selectors
 

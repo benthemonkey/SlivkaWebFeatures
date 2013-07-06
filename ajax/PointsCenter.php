@@ -4,7 +4,7 @@ include_once "./swift/swift_required.php";
 
 class PointsCenter
 {
-    private static $qtr = 1302;
+    private static $qtr = 1303;
 
     private static $dbConn = null;
     public function __construct ()
@@ -36,6 +36,25 @@ class PointsCenter
             die();
         }
         return $quarter_info;
+    }
+
+    public function getDirectory ()
+    {
+        self::initializeConnection();
+        $directory = array();
+        try {
+            $statement = self::$dbConn->prepare(
+                "SELECT first_name,last_name,year,major,suite,photo
+                FROM directory
+                WHERE qtr_final IS NULL
+                ORDER BY first_name");
+            $statement->execute();
+            $directory = $statement->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            die();
+        }
+        return $directory;
     }
     
     public function getSlivkans ()
