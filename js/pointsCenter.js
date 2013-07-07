@@ -23,6 +23,8 @@ var pointsCenter = (function($){
 		init: function(){
 			//nav
 			$('.nav li').eq(0).addClass('active');
+			//mobile app support
+			$.stayInWebApp();
 
 			$.getJSON('ajax/getSlivkans.php',function(data){
 				slivkans = data.slivkans;
@@ -180,6 +182,8 @@ var pointsCenter = (function($){
 		init: function(){
 			//nav
 			$('.nav li').eq(1).addClass('active');
+			//mobile app support
+			$.stayInWebApp();
 
 			var aDataSet = [],
 			event_names = [],
@@ -368,6 +372,8 @@ var pointsCenter = (function($){
 		init: function(){
 			//nav
 			$('.nav li').eq(2).addClass('active');
+			//mobile app support
+			$.stayInWebApp();
 
 			$.getJSON("ajax/getSlivkans.php",function(data){
 				slivkans = data.slivkans;
@@ -450,6 +456,8 @@ var pointsCenter = (function($){
 		init: function(){
 			//nav
 			$('.nav li').eq(3).addClass('active');
+			//mobile app support
+			$.stayInWebApp();
 
 			$.getJSON("ajax/getSlivkans.php",function(data){
 				slivkans = data.slivkans;

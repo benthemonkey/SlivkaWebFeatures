@@ -283,7 +283,7 @@ class PointsCenter
         $bonus_points = array();
         try {
             $statement = self::$dbConn->prepare(
-                "SELECT nu_email,committee,other1_name,other1,other2_name,other2,other3_name,other3 
+                "SELECT nu_email,helper,committee,other1_name,other1,other2_name,other2,other3_name,other3 
                 FROM bonuspoints 
                 WHERE qtr=:qtr");
             $statement->bindValue(":qtr", self::$qtr);
