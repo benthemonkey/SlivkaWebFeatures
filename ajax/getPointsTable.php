@@ -44,6 +44,8 @@ for($s=0; $s < count($slivkans['full_name']); $s++){
 		$event_points[] = $event_points_tmp;
 	}
 
+	$helper_points += $bonuspoints[$nu_email][0]['helper']; #bonus helper points
+
 	#handling helper points max
 	if($helper_points > 5){
 		$helper_points = 5;
@@ -54,6 +56,7 @@ for($s=0; $s < count($slivkans['full_name']); $s++){
 	foreach($im_points as $im){
 		if($im >= 3){ $im_points_actual += $im; }
 	}
+	if($im_points_actual > 15){ $im_points_actual = 15; }
 
 	#handling bonus points:
 	$bonus_points = 0;
