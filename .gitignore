@@ -1,5 +1,6 @@
 .DS_Store
-img/slivkans/*.jpg
+img/slivkans/*
+pointscenter.appcache
 
 ajax/datastoreVars.php
 ajax/DatabasePDO.php
