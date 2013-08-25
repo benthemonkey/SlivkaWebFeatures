@@ -1,4 +1,5 @@
-var pointsCenter = (function($){
+var pointsCenter = (function ($) {
+	"use strict";
 	var slivkans, nicknames, fellows, type = "Other", valid_event_name = false,
 
 	//Quarter-related variables:
@@ -10,35 +11,35 @@ var pointsCenter = (function($){
 
 	//functions used by multiple pages
 	common = {
-		updateValidity: function(element,valid){
+		updateValidity: function (element,valid){
 			if (valid){
-				element.addClass("success").removeClass("error");
+				element.addClass("has-success").removeClass("has-error");
 			}else{
-				element.removeClass("success").addClass("error");
+				element.removeClass("has-success").addClass("has-error");
 			}
 		}
 	},
 
 	breakdown = {
-		init: function(){
+		init: function () {
 			//nav
-			$('.nav li').eq(0).addClass('active');
+			$(".nav li").eq(0).addClass("active");
 			//mobile app support
 			$.stayInWebApp();
 
-			$.getJSON('ajax/getSlivkans.php',function(data){
+			$.getJSON("ajax/getSlivkans.php",function (data){
 				slivkans = data.slivkans;
 
 				for(var i=0; i<slivkans.full_name.length; i++){
-					$('<option />').attr("value",slivkans.nu_email[i]).text(slivkans.full_name[i]).appendTo('#slivkan');
+					$("<option />").attr("value",slivkans.nu_email[i]).text(slivkans.full_name[i]).appendTo("#slivkan");
 				}
 
 				if(localStorage.spc_brk_slivkan){
-					$('#slivkan').val(localStorage.spc_brk_slivkan);
+					$("#slivkan").val(localStorage.spc_brk_slivkan);
 					breakdown.getSlivkanPoints();
 				}
 
-				if(!localStorage.spc_brk_showUnattended){ $('#showUnattended').click(); }
+				if(!localStorage.spc_brk_showUnattended){ $("#showUnattended").click(); }
 			});
 
 			$( "#start" ).datepicker({
@@ -49,7 +50,7 @@ var pointsCenter = (function($){
 				minDate: quarter_start,
 				maxDate: localStorage.spc_brk_end || quarter_end,
 				onSelect: function( selectedDate ) {
-					$('.range').removeClass("active");
+					$(".range").removeClass("active");
 					$( "#end" ).datepicker( "option", "minDate", selectedDate );
 					localStorage.spc_brk_start = selectedDate;
 					breakdown.fixDateButtons();
@@ -64,8 +65,8 @@ var pointsCenter = (function($){
 				minDate: localStorage.spc_brk_start || quarter_start,
 				maxDate: quarter_end,
 				onSelect: function( selectedDate ) {
-					$('.range').removeClass("active");
-					$('#start').datepicker( "option", "maxDate", selectedDate );
+					$(".range").removeClass("active");
+					$("#start").datepicker( "option", "maxDate", selectedDate );
 					localStorage.spc_brk_end = selectedDate;
 					breakdown.fixDateButtons();
 					breakdown.getSlivkanPoints();
@@ -77,82 +78,82 @@ var pointsCenter = (function($){
 
 			breakdown.fixDateButtons();
 
-			$('#slivkan')		.on('change',function(){ breakdown.getSlivkanPoints(); });
-			$('#start-label')	.on('click',function(){ $('#start').datepicker('show'); });
-			$('#end-label')		.on('click',function(){ $('#end').datepicker('show'); });
-			$('#today')			.on('click',function(){ breakdown.dateRange("0d"); });
-			$('#week')			.on('click',function(){ breakdown.dateRange("-1w"); });
-			$('#month')			.on('click',function(){ breakdown.dateRange("-1m"); });
-			$('#quarter')		.on('click',function(){ breakdown.dateRange(quarter_start); });
-			$('#showUnattended').on('click',function(event){ breakdown.toggleShowUnattended(event); });
+			$("#slivkan")		.on("change",function(){ breakdown.getSlivkanPoints(); });
+			$("#start-label")	.on("click",function(){ $("#start").datepicker("show"); });
+			$("#end-label")		.on("click",function(){ $("#end").datepicker("show"); });
+			$("#today")			.on("click",function(){ breakdown.dateRange("0d"); });
+			$("#week")			.on("click",function(){ breakdown.dateRange("-1w"); });
+			$("#month")			.on("click",function(){ breakdown.dateRange("-1m"); });
+			$("#quarter")		.on("click",function(){ breakdown.dateRange(quarter_start); });
+			$("#showUnattended").on("click",function(event){ breakdown.toggleShowUnattended(event); });
 		},
 		dateRange: function(rng){
-			$('#start').datepicker("setDate", rng);
-			$('#end').datepicker("setDate", quarter_end);
+			$("#start").datepicker("setDate", rng);
+			$("#end").datepicker("setDate", quarter_end);
 			breakdown.getSlivkanPoints();
 		},
 		fixDateButtons: function(){
-			$('button.ui-datepicker-trigger').each(function(){
+			$("button.ui-datepicker-trigger").each(function(){
 				if(!$(this).hasClass("btn")){
-					$(this).addClass("btn").html('<i class="icon-calendar"></i>');
+					$(this).addClass("btn btn-default").html("<i class=\"glyphicon glyphicon-calendar\"></i>").wrap("<span class=\"input-group-btn\"></span>");
 				}
 			});
 		},
 		toggleShowUnattended: function(event){
 			if(event.target.checked){
-				$('#unattended-col').show('slideup');//,{direction: 'up'});
+				$("#unattended-col").show("slideup");//,{direction: "up"});
 				localStorage.spc_brk_showUnattended = 1;
 			}else{
-				$('#unattended-col').hide('slideup');//,{direction: 'up'});
+				$("#unattended-col").hide("slideup");//,{direction: "up"});
 				localStorage.spc_brk_showUnattended = "";
 			}
 		},
 		getSlivkanPoints: function(){
-			var nu_email = $('#slivkan').val(),
-			start = $('#start-val').val(),
-			end = $('#end-val').val();
+			var nu_email = $("#slivkan").val(),
+			start = $("#start-val").val(),
+			end = $("#end-val").val();
 
-			localStorage.spc_brk_slivkan = $('#slivkan').val();
+			localStorage.spc_brk_slivkan = $("#slivkan").val();
 
-			$('.slivkan-submit').html($('#slivkan option:selected').html());
+			$(".slivkan-submit").html($("#slivkan option:selected").html());
 
-			$('#breakdown').hide('slideup',function(){
-				$('#attended').empty();
-				$('#unattended').empty();
-				$.getJSON('ajax/getPointsBreakdown.php',{nu_email: nu_email,start: start,end: end},function(data){
+			$("#breakdown").hide("slideup",function(){
+				$("#attended").empty();
+				$("#unattended").empty();
+				$.getJSON("ajax/getPointsBreakdown.php",{nu_email: nu_email,start: start,end: end},function(data){
 					var events = data.attended.events;
 					if(events.event_name.length > 0){
 						for(var i=events.event_name.length-1; 0<=i; i--){
-							$('<tr />').appendTo('#attended');
-							$('<td />').html(events.event_name[i]).appendTo('#attended tr:last');
+							$("<tr />").appendTo("#attended");
+							$("<td />").html(events.event_name[i]).appendTo("#attended tr:last");
 						}
 					}else{
-						$('<tr />').appendTo('#attended');
-						$('<td />').html("None :(").appendTo('#attended tr:last');
+						$("<tr />").appendTo("#attended");
+						$("<td />").html("None :(").appendTo("#attended tr:last");
 					}
 
 					events = data.unattended.events;
 					if(events.event_name.length > 0){
 						for(var j=events.event_name.length-1; 0<=j; j--){
-							$('<tr />').appendTo('#unattended');
-							$('<td />').html(events.event_name[j]).appendTo('#unattended tr:last');
+							$("<tr />").appendTo("#unattended");
+							$("<td />").html(events.event_name[j]).appendTo("#unattended tr:last");
 						}
 					}else{
-						$('<tr />').appendTo('#unattended');
-						$('<td />').html("None :D").appendTo('#unattended tr:last');
+						$("<tr />").appendTo("#unattended");
+						$("<td />").html("None :D").appendTo("#unattended tr:last");
 					}
 
-					$('#breakdown').show('slidedown');
+					$("#breakdown").show("slidedown");
 
 					//Google Chart:
-					var tableData = [['Committee','Events Attended']];
+					var tableData = [["Committee","Events Attended"]];
 					for(var c in data.attended.committees){
 						tableData.push([c,data.attended.committees[c]]);
 					}
 
 					breakdown.drawChart(tableData,"Attended Events Committee Distribution","attendedByCommittee");
 
-					tableData = [['Committee','Events Unattended']];
+					tableData = [["Committee","Events Unattended"]];
 					for(c in data.unattended.committees){
 						tableData.push([c,data.unattended.committees[c]]);
 					}
@@ -181,7 +182,7 @@ var pointsCenter = (function($){
 	table = {
 		init: function(){
 			//nav
-			$('.nav li').eq(1).addClass('active');
+			$(".nav li").eq(1).addClass("active");
 			//mobile app support
 			$.stayInWebApp();
 
@@ -223,57 +224,57 @@ var pointsCenter = (function($){
 					"aoColumnDefs": [
 					{ aTargets: [0], sTitle: "Name", sWidth: "130px", sClass: "name"},
 					{ aTargets: [1], bVisible: false },
-					{ aTargets: event_targets, sWidth: "14px", fnCreatedCell: function(nTd, sData, oData, iRow, iCol){
+					{ aTargets: event_targets, sWidth: "14px", fnCreatedCell: function(nTd, sData){
 						if(sData == "1"){$(nTd).addClass("green");}
 						//else if(sData == "0"){$(nTd).addClass("red");}
 						else if(sData == "1.1" || sData == "0.1"){$(nTd).addClass("gold"); $(nTd).html($(nTd).html().substr(0,1));}
 						else if(sData == "1.2" || sData == "0.2"){$(nTd).addClass("blue"); $(nTd).html($(nTd).html().substr(0,1));}
 					}},
-					{ aTargets: event_targets.concat(totals_targets), sTitle: '', asSorting: ['desc','asc']},
-					{ aTargets: totals_targets, sClass: 'totals', sWidth: "18px"}
+					{ aTargets: event_targets.concat(totals_targets), sTitle: "", asSorting: ["desc","asc"]},
+					{ aTargets: totals_targets, sClass: "totals", sWidth: "18px"}
 					],
 					"bPaginate": false,
 					"bAutoWidth": false,
 					"oLanguage": {
 						"sSearch": "Filter by Name:<br/>"
 					},
-					"sDom": '<"row-fluid"<"span5 table-info"i><"span3"f><"span2 filter1"><"span2 filter2">><"header-row"><"row-fluid"<"span12"rt>>'
+					"sDom": "<'row'<'col-md-5 table-info'i><'col-md-3'f><'col-md-2 filter1'><'col-md-2 filter2'>><'header-row'><'row'<'col-md-12'rt>>"
 				});
 
 				//table info
-				$('#table_info').wrap('<div class="alert alert-info" />');
-				$('<div />').text('Hover over event names for info, click to sort.').prependTo('.alert-info');
+				$("#table_info").wrap("<div class=\"alert alert-info\" />");
+				$("<div />").text("Hover over event names for info, click to sort.").prependTo(".alert-info");
 				/*jshint multistr: true */
-				$('<table id="legend" class="legend"><tr class="odd">\
-					<td style="background-color: white;">Colors: </td>\
-					<td class="green">Point</td>\
-					<td class="blue">Committee</td>\
-					<td class="gold">Helper</td>\
-					<td style="background-color: #FF8F8F;">None</td>\
-					</tr></table>').appendTo('.table-info');
+				$("<table id=\"legend\" class=\"legend\"><tr class=\"odd\">\
+					<td style=\"background-color: white;\">Colors: </td>\
+					<td class=\"green\">Point</td>\
+					<td class=\"blue\">Committee</td>\
+					<td class=\"gold\">Helper</td>\
+					<td style=\"background-color: #FF8F8F;\">None</td>\
+					</tr></table>").appendTo(".table-info");
 
 				//name filter
-				$("#table_filter input").addClass("input-medium");
+				$("#table_filter input").addClass("input-md");
 
 				/*jshint multistr: true */
-				$('<label>Filter by Gender:<br/><select class="input-small" id="gender-filter">\
-						<option value="">All</option>\
-						<option value="m">Male</option>\
-						<option value="f">Female</option>\
-					</select></label>').appendTo('.filter1');
-				$('#gender-filter').on('change',function(){
-					var option = $('#gender-filter').val();
+				$("<label>Filter by Gender:<br/><select class=\"input-sm\" id=\"gender-filter\">\
+						<option value=\"\">All</option>\
+						<option value=\"m\">Male</option>\
+						<option value=\"f\">Female</option>\
+					</select></label>").appendTo(".filter1");
+				$("#gender-filter").on("change",function(){
+					var option = $("#gender-filter").val();
 					oTable.fnFilter(option,1);
 				});
 
-				$('<label>Limit Columns:<br/><select class="input-small" id="count-filter">\
-					<option value="-1">All</option>\
-					<option value="30">30</option>\
-					<option value="20">20</option>\
-					<option value="10">10</option>\
-					</select></label>').appendTo('.filter2');
+				$("<label>Limit Columns:<br/><select class=\"input-sm\" id=\"count-filter\">\
+					<option value=\"-1\">All</option>\
+					<option value=\"30\">30</option>\
+					<option value=\"20\">20</option>\
+					<option value=\"10\">10</option>\
+					</select></label>").appendTo(".filter2");
 
-				$('#count-filter').on('change',function(event){
+				$("#count-filter").on("change",function(event){
 					var count = event.target.value,
 					table = $("#table").dataTable(),
 					columns = $("#columns").find("li");
@@ -304,40 +305,40 @@ var pointsCenter = (function($){
 					table.processAnimationQueue();*/
 
 					var cols_width = 200 + 16*(count == -1 ? event_targets.length : count) + 20*totals_targets.length;// + 100;
-					$('body').css("min-width", cols_width);
+					$("body").css("min-width", cols_width);
 
 				});
 
 				var cols_width = 200+(16+1)*event_targets.length + (20+1)*totals_targets.length;//130+16*event_targets.length + 20*totals_targets.length+100;
 
-				$('.container-fluid').css("min-width",cols_width+"px");
-				if(cols_width > 1000){ $('.container-fluid').css("max-width","none"); }
-				$('.header-row').attr('id','columns');
-				//var columns = $('.header-row');
+				$(".container").css("min-width",cols_width+"px");
+				if(cols_width > 1000){ $(".container").css("max-width","none"); }
+				$(".header-row").attr("id","columns");
+				//var columns = $(".header-row");
 
 				for(i=0; i<event_names.length; i++){
-					$('<li />').html(event_names[i]).popover({
-						trigger: 'hover',
+					$("<li />").html(event_names[i]).popover({
+						trigger: "hover",
 						html: true,
 						title: event_names[i],
 						content: "Date: "+event_dates[i]+"<br/>Attendees: "+events.attendees[i]+(events.description[i].length > 0 ? "<br/>Description: "+events.description[i] : ""),
-						placement: 'bottom',
-						container: '#table'
-					}).appendTo('#columns');
+						placement: "bottom",
+						container: "#table"
+					}).appendTo("#columns");
 				}
 
 				//Append "totals" column labels
-				$('<li />').addClass('totals-label').html("Events Total").appendTo('#columns');
-				$('<li />').addClass('totals-label').html("Helper Points").appendTo('#columns');
-				$('<li />').addClass('totals-label').html("IM Sports").appendTo('#columns');
-				$('<li />').addClass('totals-label').html("Standing Committees").appendTo('#columns');
-				$('<li />').addClass('totals-label').html("Position-Related").appendTo('#columns');
-				$('<li />').addClass('totals-label').html("Total").appendTo('#columns');
+				$("<li />").addClass("totals-label").html("Events Total").appendTo("#columns");
+				$("<li />").addClass("totals-label").html("Helper Points").appendTo("#columns");
+				$("<li />").addClass("totals-label").html("IM Sports").appendTo("#columns");
+				$("<li />").addClass("totals-label").html("Standing Committees").appendTo("#columns");
+				$("<li />").addClass("totals-label").html("Position-Related").appendTo("#columns");
+				$("<li />").addClass("totals-label").html("Total").appendTo("#columns");
 
 				//event handler for column labels
-				var headers = $('#table').find('th');
-				$('#columns').find('li').each(function(index){
-					$(this).on('click',function(){headers.eq(index+1).click();});
+				var headers = $("#table").find("th");
+				$("#columns").find("li").each(function(index){
+					$(this).on("click",function(){headers.eq(index+1).click();});
 				});
 			});
 		}/*,
@@ -371,7 +372,7 @@ var pointsCenter = (function($){
 	correction = {
 		init: function(){
 			//nav
-			$('.nav li').eq(2).addClass('active');
+			$(".nav li").eq(2).addClass("active");
 			//mobile app support
 			$.stayInWebApp();
 
@@ -379,28 +380,28 @@ var pointsCenter = (function($){
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 
-				$('#filled-by').typeahead({source: slivkans.full_name.concat(nicknames.nickname)});
+				$("#filled-by").typeahead({source: slivkans.full_name.concat(nicknames.nickname)});
 			});
 
 			$.getJSON("ajax/getEvents.php",function(data){
-				event_name = data.event_name;
+				var event_name = data.event_name;
 
 				for(var i=0; i<event_name.length; i++){
-					$('<option></option>').text(event_name[i]).appendTo('#event-name');
+					$("<option></option>").text(event_name[i]).appendTo("#event-name");
 				}
 			});
 
 			//event handlers
-			$('#filled-by').on('focusout',function(){ correction.validateFilledBy(); });
-			$('#submit').on('click',function(){ correction.validatePointsCorrectionForm(); });
-			$('#reset').on('click',function(){ correction.resetForm(); });
+			$("#filled-by").on("focusout",function(){ correction.validateFilledBy(); });
+			$("#submit").on("click",function(){ correction.validatePointsCorrectionForm(); });
+			$("#reset").on("click",function(){ correction.resetForm(); });
 		},
 		validatePointsCorrectionForm: function(){
 			var valid = true,
 			errors = [];
 
 			if(!correction.validateFilledBy()){ valid = false; errors.push("Your Name"); }
-			if($('#event-name').val() == 'Select One'){ valid = false; errors.push("Event Name"); }
+			if($("#event-name").val() == "Select One"){ valid = false; errors.push("Event Name"); }
 
 			if(valid){
 				correction.submitPointsCorrection();
@@ -409,45 +410,45 @@ var pointsCenter = (function($){
 			}
 		},
 		validateFilledBy: function(){
-			var valid, name = $('#filled-by').val();
+			var valid, name = $("#filled-by").val();
 
 			if (nicknames.nickname.indexOf(name) != -1){
 				name = nicknames.full_name[nicknames.nickname.indexOf(name)];
-				$('#filled-by').val(name);
+				$("#filled-by").val(name);
 			}
 
-			$('.filled-by-control').removeClass("warning");
+			$(".filled-by-control").removeClass("has-warning");
 
 			if(name.length > 0){
 				valid = slivkans.full_name.indexOf(name) != -1;
-				common.updateValidity($('.filled-by-control'),valid);
+				common.updateValidity($(".filled-by-control"),valid);
 			}else{
-				$('.filled-by-control').addClass('error');
+				$(".filled-by-control").addClass("error");
 				valid = false;
 			}
 
 			return valid;
 		},
 		resetForm: function(){
-			$("#filled-by").val(""); $('.filled-by-control').removeClass("success").removeClass("error");
+			$("#filled-by").val(""); $(".filled-by-control").removeClass("has-success").removeClass("has-error");
 			$("#event-name").val("Select One");
 			$("#comments").val("");
 			$("#submit-error").fadeOut();
 		},
 		submitPointsCorrection: function(){
 			var data = {
-				event_name: $('#event-name').val(),
-				name: $('#filled-by').val(),
-				sender_email: slivkans.nu_email[slivkans.full_name.indexOf($('#filled-by').val())],
-				comments: $('#comments').val()
+				event_name: $("#event-name").val(),
+				name: $("#filled-by").val(),
+				sender_email: slivkans.nu_email[slivkans.full_name.indexOf($("#filled-by").val())],
+				comments: $("#comments").val()
 			};
-			$('#response').fadeOut();
+			$("#response").fadeOut();
 
-			$.getJSON('./ajax/sendPointsCorrection.php',data,function(response){
-				$('#response').html("<p>Response: "+response.message+"</p>");
-				$('<a href="table.php" class="btn btn-primary">View Points</a>').appendTo('#response');
-				$('<a class="btn" href="correction.php">Submit Another</a>').appendTo('#response');
-				$('#response').fadeIn();
+			$.getJSON("./ajax/sendPointsCorrection.php",data,function(response){
+				$("#response").html("<p>Response: "+response.message+"</p>");
+				$("<a href=\"table.php\" class=\"btn btn-primary\">View Points</a>").appendTo("#response");
+				$("<a class=\"btn btn-default\" href=\"correction.php\">Submit Another</a>").appendTo("#response");
+				$("#response").fadeIn();
 			});
 		}
 	},
@@ -455,7 +456,7 @@ var pointsCenter = (function($){
 	submission = {
 		init: function(){
 			//nav
-			$('.nav li').eq(3).addClass('active');
+			$(".nav li").eq(3).addClass("active");
 			//mobile app support
 			$.stayInWebApp();
 
@@ -472,7 +473,7 @@ var pointsCenter = (function($){
 
 				//loading saved values
 				if(localStorage.spc_sub_committee){
-					$('#committee').val(localStorage.spc_sub_committee);
+					$("#committee").val(localStorage.spc_sub_committee);
 					//submission.validateCommittee();
 				}
 				if(localStorage.spc_sub_attendees){
@@ -482,38 +483,32 @@ var pointsCenter = (function($){
 					submission.addSlivkans(attendees);
 				}
 				if(localStorage.spc_sub_filledby){
-					$('#filled-by').val(localStorage.spc_sub_filledby);
+					$("#filled-by").val(localStorage.spc_sub_filledby);
 					submission.validateFilledBy();
 				}
 				if(localStorage.spc_sub_type && localStorage.spc_sub_type != "Other"){
-					$('.type-btn[value="'+localStorage.spc_sub_type+'"]').click();
+					$("input[value=\""+localStorage.spc_sub_type+"\"]:radio").parent().click();
 				}
 				if(localStorage.spc_sub_date){
 					$("#date").datepicker("setDate", localStorage.spc_sub_date);
 				}
 				if(localStorage.spc_sub_name){
-					$('#event').val(localStorage.spc_sub_name);
+					$("#event").val(localStorage.spc_sub_name);
 					submission.validateEventName();
 				}
 				if(localStorage.spc_sub_comments){
-					$('#comments').val(localStorage.spc_sub_comments);
+					$("#comments").val(localStorage.spc_sub_comments);
 				}
 
-				//autocomplete and other events
-				$('#event').on('focus',submission.makeHandler.addClassWarning())
-				.on('focusout',function(){ submission.validateEventName(); });
+				//autocomplete and events for slivkan/fellow inputs
+				$("#filled-by").typeahead({source: slivkans.autocomplete});
+				$("#slivkan-entry-tab")	.on("focus",".slivkan-entry",submission.makeHandler.addClassWarning())
+										.on("focusout",".slivkan-entry",submission.makeHandler.validateSlivkanName())
+										.on("click",".helper-point",submission.makeHandler.toggleActive())
+										.on("click",".committee-point",submission.makeHandler.toggleActive());
 
-				$('#filled-by').typeahead({source: slivkans.autocomplete})
-				.on('focus',submission.makeHandler.addClassWarning())
-				.on('focusout',function(){ submission.validateFilledBy(); });
-
-				$('#slivkan-entry-tab').on('focus','.slivkan-entry',submission.makeHandler.addClassWarning())
-				.on('focusout','.slivkan-entry',submission.makeHandler.validateSlivkanName())
-				.on('click','.helper-point',submission.makeHandler.toggleActive())
-				.on('click','.committee-point',submission.makeHandler.toggleActive());
-
-				$('#fellow-entry-tab').find('.fellow-entry').on('focus',submission.makeHandler.addClassWarning())
-				.on('focusout',submission.makeHandler.validateFellowName());
+				$("#fellow-entry-tab")	.on("focus",".fellow-entry",submission.makeHandler.addClassWarning())
+										.on("focusout",".fellow-entry",submission.makeHandler.validateFellowName());
 			});
 
 			$("#date").datepicker({
@@ -530,7 +525,7 @@ var pointsCenter = (function($){
 				}
 			});
 			$("#date").datepicker("setDate", new Date());
-			$('button.ui-datepicker-trigger').addClass("btn").html('<i class="icon-calendar"></i>');
+			$("button.ui-datepicker-trigger").addClass("btn btn-default").html("<i class=\"glyphicon glyphicon-calendar\"></i>").wrap("<span class=\"input-group-btn\"></span>");
 
 			//im teams
 			for(var i=0; i<im_teams.length; i++){
@@ -538,25 +533,29 @@ var pointsCenter = (function($){
 			}
 
 			//event handlers for inputs
-			$('.type-btn')        .on('click',function(event){ submission.toggleType(event); });
-			$('#date-label')      .on('click',function(){ $('#date').datepicker('show'); });
-			$('#im-team')         .on('change',function(){ submission.validateIMTeam(); });
-			$('#committee')       .on('change',function(){ submission.validateCommittee(); });
-			$('#description')     .on('focusout',function(){ submission.validateDescription(); });
-			$('#comments')        .on('focusout',function(){ localStorage.spc_sub_comments = $('#comments').val(); });
-			$('#close-sort-alert').on('click',function(){ $('#sort-alert').slideUp(); });
-			$('#close-dupe-alert').on('click',function(){ $('#duplicate-alert').slideUp(); });
-			$('#sort-entries')    .on('click',function(){ submission.sortEntries(); });
-			$('#submit')          .on('click',function(){ submission.validatePointsForm(); });
-			$('#reset')           .on('click',function(){ submission.resetForm(); });
-			$('#bulk-names')      .on('keyup',function(){ submission.processBulkNames(); });
-			$('#add-bulk-names')  .on('click',function(){ submission.addBulkNames(); });
+			$("#filled-by")			.on("focus",	submission.makeHandler.addClassWarning())
+									.on("focusout",	submission.validateFilledBy);
+			$("#type")				.on("click",	submission.toggleType);
+			$("#event")				.on("focus",	submission.makeHandler.addClassWarning())
+									.on("focusout",	submission.validateEventName);
+			$("#date-label")		.on("click",	function(){ $("#date").datepicker("show"); });
+			$("#im-team")			.on("change",	submission.validateIMTeam);
+			$("#committee")			.on("change",	submission.validateCommittee);
+			$("#description")		.on("focusout",	submission.validateDescription);
+			$("#comments")			.on("focusout",	function(){ localStorage.spc_sub_comments = $("#comments").val(); });
+			$("#close-sort-alert")	.on("click",	function(){ $("#sort-alert").slideUp(); });
+			$("#close-dupe-alert")	.on("click",	function(){ $("#duplicate-alert").slideUp(); });
+			$("#sort-entries")		.on("click",	submission.sortEntries);
+			$("#submit")			.on("click",	submission.validatePointsForm);
+			$("#reset")				.on("click",	submission.resetForm);
+			$("#bulk-names")		.on("keyup",	submission.processBulkNames);
+			$("#add-bulk-names")	.on("click",	submission.addBulkNames);
 
-			$('#tabs a:first').tab('show');
+			$("#tabs a:first").tab("show");
 		},
 		makeHandler: {
 			addClassWarning : function(){
-				return function(){ $(this).parent().addClass("warning"); };
+				return function(){ $(this).parent().addClass("has-warning"); };
 			},
 			validateSlivkanName : function(){
 				return function(){ submission.validateSlivkanName($(this).parent()); };
@@ -570,50 +569,50 @@ var pointsCenter = (function($){
 		},
 		appendNameInputs: function(n){
 			//2-4ms per insertion. Slow but acceptable.
-			var cloned = $('#slivkan-entry-tab').find('.slivkan-entry-control').last(),
-			start = parseInt(cloned.find('.add-on').text(),10);
+			var cloned = $("#slivkan-entry-tab").find(".slivkan-entry-control").last(),
+			start = parseInt(cloned.find(".input-group-addon").text(),10);
 			for (var i=0; i<n; i++){
-				next = cloned.clone().appendTo('#slivkan-entry-tab')
-				.removeClass("warning")
-				.find('.add-on').text(start+i+1);
+				cloned.clone().appendTo("#slivkan-entry-tab")
+				.removeClass("has-warning")
+				.find(".input-group-addon").text(start+i+1);
 			}
 
-			$('#slivkan-entry-tab').find('.slivkan-entry').typeahead({source:slivkans.autocomplete});
+			$("#slivkan-entry-tab").find(".slivkan-entry").typeahead({source:slivkans.autocomplete});
 
-			$('#slivkan-entry-tab').find('.slivkan-entry').last().on('focus',function(){
-				$(this).parent().addClass("warning");
-				var num_inputs = $('#slivkan-entry-tab').find('.slivkan-entry').length;
-				$(this).off('focus');
+			$("#slivkan-entry-tab").find(".slivkan-entry").last().on("focus",function(){
+				$(this).parent().addClass("has-warning");
+				var num_inputs = $("#slivkan-entry-tab").find(".slivkan-entry").length;
+				$(this).off("focus");
 				if(num_inputs < 120){ submission.appendNameInputs(1); }
 			});
 		},
 		appendFellowInputs: function(n){
-			var cloned = $('#fellow-entry-tab').find('.fellow-entry-control').last(),
-			start = parseInt(cloned.find('.add-on').text(),10);
+			var cloned = $("#fellow-entry-tab").find(".fellow-entry-control").last(),
+			start = parseInt(cloned.find(".input-group-addon").text(),10);
 			for (var i=0; i<n; i++){
-				next = cloned.clone().appendTo('#fellow-entry-tab')
-				.removeClass("warning")
-				.find('.add-on').text(start+i+1);
+				cloned.clone().appendTo("#fellow-entry-tab")
+				.removeClass("has-warning")
+				.find(".input-group-addon").text(start+i+1);
 			}
 
-			$('#fellow-entry-tab').find('.fellow-entry').typeahead({source: fellows});
+			$("#fellow-entry-tab").find(".fellow-entry").typeahead({source: fellows});
 
-			$('.fellow-entry').last().on('focus',function(){
-				$(this).parent().addClass("warning");
-				var num_inputs = $('.fellow-entry').length;
-				$(this).off('focus');
+			$(".fellow-entry").last().on("focus",function(){
+				$(this).parent().addClass("has-warning");
+				var num_inputs = $(".fellow-entry").length;
+				$(this).off("focus");
 				if(num_inputs < 20){ submission.appendFellowInputs(1); }
 			});
 		},
 		toggleType: function(event){
-			type = event.target.value;
+			type = event.target.children[0].value;
 
 			//store value
 			localStorage.spc_sub_type = type;
 
 			//clear description if **previous** type was IM
-			if($('.type-btn.active').val() == "IM"){
-				$('#description').val("");
+			if($(".type-btn.active").val() == "IM"){
+				$("#description").val("");
 				submission.validateDescription();
 			}
 
@@ -622,10 +621,10 @@ var pointsCenter = (function($){
 				$("#event").val("P2P");
 			}else if(type == "IM"){
 				$("#committee").val("Social");
-				$('#event').val($('#im-team').val()+' 1');
+				$("#event").val($("#im-team").val()+" 1");
 
-				var sport = $('#im-team').val().split(" ");
-				$('#description').val(sport[1]);
+				var sport = $("#im-team").val().split(" ");
+				$("#description").val(sport[1]);
 			}else if(type == "House Meeting"){
 				$("#committee").val("Exec");
 				$("#event").val("House Meeting");
@@ -662,7 +661,7 @@ var pointsCenter = (function($){
 
 			var valid_slivkans = true;
 
-			$('.slivkan-entry-control').each(function(index){
+			$(".slivkan-entry-control").each(function(index){
 				if(!submission.validateSlivkanName($(this),(index !== 0))){ valid_slivkans = false; }
 			});
 
@@ -671,7 +670,7 @@ var pointsCenter = (function($){
 
 			var valid_fellows = true;
 
-			$('.fellow-entry-control').each(function(){
+			$(".fellow-entry-control").each(function(){
 				if(!submission.validateFellowName($(this))){ valid_fellows = false; }
 			});
 
@@ -679,7 +678,7 @@ var pointsCenter = (function($){
 
 
 			if(valid){
-				$('#submit-error').fadeOut();
+				$("#submit-error").fadeOut();
 				submission.submitPointsForm();
 			}else{
 				$("#submit-error").text("Validation errors in: "+errors.join(", ")).fadeIn();
@@ -688,7 +687,7 @@ var pointsCenter = (function($){
 			return valid;
 		},
 		validateEventName: function(){
-			var valid = false, event_name = $('#event').val(), event_names = [];
+			var valid = false, event_name = $("#event").val(), event_names = [];
 
 			//store value
 			localStorage.spc_sub_name = event_name;
@@ -696,19 +695,19 @@ var pointsCenter = (function($){
 			valid_event_name = false;
 
 			if((event_name.length <= 40 && event_name.length >= 8) || event_name == "P2P"){
-				event_name += ' '+$("#date-val").val();
+				event_name += " "+$("#date-val").val();
 
 				$.getJSON("ajax/getEvents.php",function(data){
-					$(".event-control").removeClass("warning");
+					$(".event-control").removeClass("has-warning");
 
 					if(data.event_name.length > 0){
 						event_names = data.event_name;
 
 						if(event_names.indexOf(event_name) != -1){
-							if(type == 'IM'){
-								var last = parseInt($('#event').val().slice(-1),10);
-								$('#event').val($('#event').val().slice(0,-1) + (last+1).toString());
-								validateEventName();
+							if(type == "IM"){
+								var last = parseInt($("#event").val().slice(-1),10);
+								$("#event").val($("#event").val().slice(0,-1) + (last+1).toString());
+								submission.validateEventName();
 							}else{
 								valid_event_name = false;
 								$("#event-name-error").fadeIn();
@@ -721,31 +720,31 @@ var pointsCenter = (function($){
 					}else{
 						valid_event_name = true;
 					}
-					$('#event-name-length-error').fadeOut();
+					$("#event-name-length-error").fadeOut();
 					common.updateValidity($(".event-control"),valid_event_name);
 				});
 			}else{
-				$('#event-name-length-error-count').html("Currently "+event_name.length+" characters");
-				$('#event-name-length-error').fadeIn();
+				$("#event-name-length-error-count").html("Currently "+event_name.length+" characters");
+				$("#event-name-length-error").fadeIn();
 				common.updateValidity($(".event-control"),valid_event_name);
 			}
 
 			return valid;
 		},
 		validateIMTeam: function(){
-			$('#event').val($('#im-team').val()+' 1');
-			var sport = $('#im-team').val().split(" ");
-			$('#description').val(sport[1]);
+			$("#event").val($("#im-team").val()+" 1");
+			var sport = $("#im-team").val().split(" ");
+			$("#description").val(sport[1]);
 			submission.validateEventName();
 		},
 		validateCommittee: function(){
-			var valid, committee = $('#committee').val();
+			var valid, committee = $("#committee").val();
 
 			valid = committee != "Select One";
 
-			common.updateValidity($('.committee-control'),valid);
+			common.updateValidity($(".committee-control"),valid);
 
-			$('.slivkan-entry-control').each(function(){
+			$(".slivkan-entry-control").each(function(){
 				submission.validateSlivkanName($(this),true);
 			});
 
@@ -773,23 +772,23 @@ var pointsCenter = (function($){
 			return valid;
 		},
 		validateFilledBy: function(){
-			var valid = true, name = $('#filled-by').val();
+			var valid = true, name = $("#filled-by").val();
 
 			//store value
 			localStorage.spc_sub_filledby = name;
 
 			if (nicknames.nickname.indexOf(name) != -1){
 				name = nicknames.full_name[nicknames.nickname.indexOf(name)];
-				$('#filled-by').val(name);
+				$("#filled-by").val(name);
 			}
 
-			$('.filled-by-control').removeClass("warning");
+			$(".filled-by-control").removeClass("has-warning");
 
 			if(name.length > 0){
 				valid = slivkans.full_name.indexOf(name) != -1;
-				common.updateValidity($('.filled-by-control'),valid);
+				common.updateValidity($(".filled-by-control"),valid);
 			}else{
-				$('.filled-by-control').addClass('error');
+				$(".filled-by-control").addClass("error");
 				valid = false;
 			}
 
@@ -797,9 +796,9 @@ var pointsCenter = (function($){
 		},
 		validateSlivkanName: function(entry,inBulk){
 			var valid = true,
-			slivkan_entry = entry.find('.slivkan-entry'),
-			helper = entry.find('.helper-point'),
-			committee = entry.find('.committee-point'),
+			slivkan_entry = entry.find(".slivkan-entry"),
+			helper = entry.find(".helper-point").parent(),
+			committee = entry.find(".committee-point").parent(),
 			name = slivkan_entry.val();
 
 			if (nicknames.nickname.indexOf(name) != -1){
@@ -812,14 +811,14 @@ var pointsCenter = (function($){
 				var nameArray = [];
 
 				//clear duplicates
-				$('#slivkan-entry-tab').find('.slivkan-entry').each(function(index){
+				$("#slivkan-entry-tab").find(".slivkan-entry").each(function(){
 					var self = $(this);
 					if (self.val().length > 0){
 						if (nameArray.indexOf(self.val()) == -1){
 							nameArray.push(self.val());
 						}else{
-							self.val('');
-							$('#duplicate-alert').slideDown();
+							self.val("");
+							$("#duplicate-alert").slideDown();
 							submission.validateSlivkanName(self.parent(),true);
 						}
 					}
@@ -835,14 +834,14 @@ var pointsCenter = (function($){
 				name = slivkan_entry.val();
 			}
 
-			entry.removeClass("warning");
+			entry.removeClass("has-warning");
 
 			if (name.length > 0){
-				name_ind = slivkans.full_name.indexOf(name);
+				var name_ind = slivkans.full_name.indexOf(name);
 				if(name_ind != -1){
-					if(slivkans.committee[name_ind] == $('#committee').val() && type != 'IM'){
+					if(slivkans.committee[name_ind] == $("#committee").val() && type != "IM"){
 						submission.showCommitteeMember(helper,committee,inBulk);
-					}else if(type == 'IM' || slivkans.committee[name_ind] == 'Facilities' || slivkans.committee[name_ind] == 'Exec'){
+					}else if(type == "IM" || slivkans.committee[name_ind] == "Facilities" || slivkans.committee[name_ind] == "Exec"){
 						submission.hideButtons(helper,committee,inBulk);
 					}else{
 						submission.showHelperPoint(helper,committee,inBulk);
@@ -850,7 +849,7 @@ var pointsCenter = (function($){
 				}else{ valid=false; }
 				common.updateValidity(entry,valid);
 			}else{
-				entry.removeClass("success").removeClass("error");
+				entry.removeClass("has-success").removeClass("has-error");
 				submission.hideButtons(helper,committee,inBulk);
 			}
 
@@ -858,78 +857,87 @@ var pointsCenter = (function($){
 		},
 		showHelperPoint: function(helper,committee,inBulk){ //quick: 46.15
 			if(helper.css("display") == "none"){
-				committee.removeClass('active');
+				committee.children().removeClass("active");
 				if(inBulk){
 					committee.hide();
 					helper.show();
 				}else{
-					committee.hide('slide',function(){
-						helper.show('slide');
+					committee.hide("slide",function(){
+						helper.show("slide");
 					});
 				}
 			}
 		},
 		showCommitteeMember: function(helper,committee,inBulk){
 			if(committee.css("display") == "none"){
-				helper.removeClass('active');
+				helper.children().removeClass("active");
 				if(inBulk){
 					helper.hide();
 					committee.show();
 				}else{
-					helper.hide('slide',function(){
-						committee.show('slide');
+					helper.hide("slide",function(){
+						committee.show("slide");
 					});
 				}
-				committee.addClass('active');
+				committee.children().addClass("active");
 			}
 		},
 		hideButtons: function(helper,committee,inBulk){
-			helper.removeClass('active');
-			committee.removeClass('active');
+			helper.children().removeClass("active");
+			committee.children().removeClass("active");
 			if(inBulk){
 				helper.hide();
 				committee.hide();
 			}else{
-				helper.hide('slide');
-				committee.hide('slide');
+				helper.hide("slide");
+				committee.hide("slide");
 			}
 		},
 		validateFellowName: function(entry){
 			var valid = true,
 			nameArray = [],
-			fellow_entry = entry.find('.fellow-entry'),
+			fellow_entry = entry.find(".fellow-entry"),
 			name = fellow_entry.val();
 
 			//clear duplicates
-			$('.fellow-entry').each(function(index){
-				if (nameArray.indexOf($(this).val()) != -1){ $(this).val(''); name=''; $('#duplicate-alert').slideDown(); }
-				if ($(this).val().length > 0){ nameArray.push($(this).val()); }
+			$(".fellow-entry").each(function(){
+				if (nameArray.indexOf($(this).val()) != -1){
+					$(this).val("");
+					name="";
+					$("#duplicate-alert").slideDown();
+				}
+
+				if ($(this).val().length > 0){
+					nameArray.push($(this).val());
+				}
 			});
 
-			entry.removeClass("warning");
+			entry.removeClass("has-warning");
 
 			if (name.length > 0){
 				valid = fellows.indexOf(name) != -1;
 				common.updateValidity(entry,valid);
 			}else{
-				entry.removeClass("success").removeClass("error");
+				entry.removeClass("has-success").removeClass("has-error");
 			}
 
 			return valid;
 		},
 		processBulkNames: function(){
-			names = $('#bulk-names').val();
+			var names = $("#bulk-names").val();
 
 			//remove "__ mins ago" and blank lines
 			names = names.replace(/(\d+ .+ago[\r\n]?$)|(^[\r\n])/gm,"");
 
-			$('#bulk-names').val(names);
+			$("#bulk-names").val(names);
 		},
 		addBulkNames: function(){
 			var slots = [],
-			free_slots = 0;
+			free_slots = 0,
+			names = $("#bulk-names").val(),
+			nameArray;
 
-			$('#slivkan-entry-tab').find('.slivkan-entry').each(function(){
+			$("#slivkan-entry-tab").find(".slivkan-entry").each(function(){
 				if($(this).val().length > 0){
 					slots.push(1);
 				}else{
@@ -938,9 +946,7 @@ var pointsCenter = (function($){
 				}
 			});
 
-			names = $('#bulk-names').val();
-
-			//if there's a hanging newline, remove it for adding but leave it in the textarea
+			//if there"s a hanging newline, remove it for adding but leave it in the textarea
 			if (names[names.length-1] == "\r" || names[names.length-1] == "\n"){
 				names = names.slice(0,names.length-1);
 			}
@@ -948,23 +954,25 @@ var pointsCenter = (function($){
 			nameArray = names.split(/[\r\n]/gm);
 
 			if(nameArray.length >= free_slots){
-				n = nameArray.length-free_slots+1;
+				var n = nameArray.length - free_slots + 1;
 				submission.appendNameInputs(n);
-				for(var k=0; k<n; k++){slots.push(0);}
+				for(var k=0; k<n; k++){
+					slots.push(0);
+				}
 			}
 
-			var slivkan_entries = $('#slivkan-entry-tab').find('.slivkan-entry'),
+			var slivkan_entries = $("#slivkan-entry-tab").find(".slivkan-entry"),
 			len = nameArray.length;
 			for(var i=0; i<len; i++){
 				var name = nameArray[i];
 
 				//check if wildcard
-				wildcardInd = slivkans.wildcard.indexOf(name);
+				var wildcardInd = slivkans.wildcard.indexOf(name);
 				if(wildcardInd != -1){
 					name = slivkans.full_name[wildcardInd];
 				}
 
-				ind = slots.indexOf(0);
+				var ind = slots.indexOf(0);
 				slots[ind] = 1;
 				slivkan_entries.eq(ind).val(name);
 				submission.validateSlivkanName(slivkan_entries.eq(ind).parent(),(i < len-1));
@@ -976,28 +984,28 @@ var pointsCenter = (function($){
 			nameArray = submission.saveSlivkans();
 
 			//clear slivkans
-			$('#slivkan-entry-tab').find('.slivkan-entry').val("");
+			$("#slivkan-entry-tab").find(".slivkan-entry").val("");
 
 			//reset buttons
-			$('.committee-point').removeClass('active');
-			$('.helper-point').removeClass('active');
+			$(".committee-point").removeClass("active");
+			$(".helper-point").removeClass("active");
 
 			nameArray = nameArray.sort();
 
 			submission.addSlivkans(nameArray);
 
-			$('#sort-alert').slideDown();
+			$("#sort-alert").slideDown();
 		},
 		saveSlivkans: function(){
 			var nameArray = [];
 
 			//forming name array, but appending values corresponding to the helper/committee buttons:
 			//0 - unpressed, 1 - pressed
-			$('#slivkan-entry-tab').find('.slivkan-entry-control').each(function(){
-				var self = $(this), name = self.find('.slivkan-entry').val();
+			$("#slivkan-entry-tab").find(".slivkan-entry-control").each(function(){
+				var self = $(this), name = self.find(".slivkan-entry").val();
 				if(name.length > 0){
-					h = (self.find('.helper-point').hasClass("active")) ? "1" : "0";
-					c = (self.find('.committee-point').hasClass("active")) ? "1" : "0";
+					var h = (self.find(".helper-point").hasClass("active")) ? "1" : "0",
+					c = (self.find(".committee-point").hasClass("active")) ? "1" : "0";
 
 					nameArray.push(name+h+c);
 				}
@@ -1008,19 +1016,19 @@ var pointsCenter = (function($){
 			return nameArray;
 		},
 		addSlivkans: function(nameArray){
-			var entries = $('#slivkan-entry-tab').find('.slivkan-entry-control'),
+			var entries = $("#slivkan-entry-tab").find(".slivkan-entry-control"),
 			len = nameArray.length;
 
 			for(var i=0; i<len; i++){
-				var name = nameArray[i].slice(0,nameArray[i].length-2);
-				h = nameArray[i].slice(nameArray[i].length-2,nameArray[i].length-1);
+				var name = nameArray[i].slice(0,nameArray[i].length-2),
+				h = nameArray[i].slice(nameArray[i].length-2,nameArray[i].length-1),
 				c = nameArray[i].slice(nameArray[i].length-1);
 
-				entry = entries.eq(i);
-				entry.find('.slivkan-entry').val(name);
+				var entry = entries.eq(i);
+				entry.find(".slivkan-entry").val(name);
 				submission.validateSlivkanName(entry,(i < len-1));
-				if(h=="1"){ entry.find('.helper-point').addClass("active"); }
-				if(c=="0"){ entry.find('.committee-point').removeClass("active"); }
+				if(h=="1"){ entry.find(".helper-point").addClass("active"); }
+				if(c=="0"){ entry.find(".committee-point").removeClass("active"); }
 			}
 
 			for(i; i<entries.length; i++){
@@ -1028,32 +1036,32 @@ var pointsCenter = (function($){
 			}
 		},
 		resetForm: function(force){
-			if(force || confirm("Reset form?")){
-				$('.type-btn').last().click();
-				$('#event').val(""); $('.event-control').removeClass("success").removeClass("error");
-				$('#description').val(""); $('.description-control').removeClass("success").removeClass("error");
-				$('#committee').val("Select One"); $('.committee-control').removeClass("success").removeClass("error");
-				$('#filled-by').val(""); $('.filled-by-control').removeClass("success").removeClass("error");
-				$('#comments').val("");
+			if(force === "force" || confirm("Reset form?")){
+				$(".type-btn:last").click();
+				$("#event").val(""); $(".event-control").removeClass("has-success").removeClass("has-error");
+				$("#description").val(""); $(".description-control").removeClass("has-success").removeClass("has-error");
+				$("#committee").val("Select One"); $(".committee-control").removeClass("has-success").removeClass("has-error");
+				$("#filled-by").val(""); $(".filled-by-control").removeClass("has-success").removeClass("has-error");
+				$("#comments").val("");
 
-				$('#slivkan-entry-tab').find('.slivkan-entry-control').slice(15).remove();
+				$("#slivkan-entry-tab").find(".slivkan-entry-control").slice(15).remove();
 
-				$('#slivkan-entry-tab').find('.slivkan-entry-control').each(function(){
-					$(this).find('.slivkan-entry').val("");
+				$("#slivkan-entry-tab").find(".slivkan-entry-control").each(function(){
+					$(this).find(".slivkan-entry").val("");
 					submission.validateSlivkanName($(this),true);
 				});
-				submission.validateSlivkanName($('.slivkan-entry-control').last());
+				submission.validateSlivkanName($(".slivkan-entry-control").last());
 
-				$('.fellow-entry').each(function(index){
+				$(".fellow-entry").each(function(){
 					$(this).val("");
 					submission.validateFellowName($(this).parent());
 				});
 
-				$('#event-name-error').fadeOut();
-				$('#event-name-length-error').fadeOut();
-				$('#description-length-error').fadeOut();
-				$('#duplicate-error').fadeOut();
-				$('#submit-error').fadeOut();
+				$("#event-name-error").fadeOut();
+				$("#event-name-length-error").fadeOut();
+				$("#description-length-error").fadeOut();
+				$("#duplicate-error").fadeOut();
+				$("#submit-error").fadeOut();
 
 				localStorage.spc_sub_filledby = "";
 				localStorage.spc_sub_type = "";
@@ -1065,33 +1073,33 @@ var pointsCenter = (function($){
 		},
 		submitPointsForm: function(){
 			var data = {
-				date: $('#date-val').val(),
+				date: $("#date-val").val(),
 				type: type.toLowerCase().replace(" ","_"),
-				committee: $('#committee').val(),
-				event_name: $('#event').val(),
-				description: $('#description').val(),
-				filled_by: slivkans.nu_email[slivkans.full_name.indexOf($('#filled-by').val())],
-				comments: $('#comments').val(),
+				committee: $("#committee").val(),
+				event_name: $("#event").val(),
+				description: $("#description").val(),
+				filled_by: slivkans.nu_email[slivkans.full_name.indexOf($("#filled-by").val())],
+				comments: $("#comments").val(),
 				attendees: [],
 				helper_points: [],
 				committee_members: [],
 				fellows: []
 			};
 
-			$('#slivkan-entry-tab').find('.slivkan-entry').each(function(index){
+			$("#slivkan-entry-tab").find(".slivkan-entry").each(function(){
 				var name = $(this).val();
 				if(name.length > 0){
-					name_ind = slivkans.full_name.indexOf(name);
+					var name_ind = slivkans.full_name.indexOf(name);
 					data.attendees.push(slivkans.nu_email[name_ind]);
-					if($(this).parent().find('.helper-point').hasClass("active")){
+					if($(this).parent().find(".helper-point").hasClass("active")){
 						data.helper_points.push(slivkans.nu_email[name_ind]);
-					}else if($(this).parent().find('.committee-point').hasClass("active")){
+					}else if($(this).parent().find(".committee-point").hasClass("active")){
 						data.committee_members.push(slivkans.nu_email[name_ind]);
 					}
 				}
 			});
 
-			$('.fellow-entry').each(function(index){
+			$(".fellow-entry").each(function(){
 				if($(this).val().length > 0){
 					data.fellows.push($(this).val());
 				}
@@ -1101,7 +1109,9 @@ var pointsCenter = (function($){
 			//console.log(JSON.stringify(data));
 
 			//clear receipt:
-			$('.results-row').remove();
+			$(".results-row").remove();
+
+			var val;
 
 			for(var obj in data){
 				if(obj == "attendees" || obj == "helper_points" || obj == "committee_members" || obj == "fellows"){
@@ -1110,32 +1120,28 @@ var pointsCenter = (function($){
 					val = data[obj];
 				}
 
-				$('<tr class="results-row" />').append(
-					$('<td class="results-label" />').html(obj)
+				$("<tr class=\"results-row\" />").append(
+					$("<td class=\"results-label\" />").html(obj)
 				).append(
-					$('<td class="results" />').html(val)
+					$("<td class=\"results\" />").html(val)
 				).appendTo("#receipt tbody");
 			}
 
-			$('#submit-results').modal({
+			$("#submit-results").modal({
 				/*backdrop: "static",
 				keyboard: false,*/
 				show: true
-			}).on('shown', function(){
-				$('body').css('overflow', 'hidden');
-			}).on('hidden', function(){
-				$('body').css('overflow', 'auto');
 			});
 
-			$('#real-submit').off('click');
-			$('#real-submit').on('click',function(){
-				$.getJSON('./ajax/submitPointsForm.php',data,function(data_in){
-					$('#results-status').parent().removeClass("warning");
+			$("#real-submit").off("click");
+			$("#real-submit").on("click",function(){
+				$.getJSON("./ajax/submitPointsForm.php",data,function(data_in){
+					$("#results-status").parent().removeClass("has-warning");
 					if(data_in.error){
-						$('#results-status').html("Error in Step "+data_in.step).parent().addClass("error");
+						$("#results-status").html("Error in Step "+data_in.step).parent().addClass("has-error");
 					}else{
-						$('#unconfirmed').fadeOut({complete: function(){$('#confirmed').fadeIn();}});
-						$('#results-status').html("Success!").parent().addClass("success");
+						$("#unconfirmed").fadeOut({complete: function(){$("#confirmed").fadeIn();}});
+						$("#results-status").html("Success!").parent().addClass("has-success");
 
 						submission.resetForm("force");
 					}

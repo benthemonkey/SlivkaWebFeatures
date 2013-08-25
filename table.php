@@ -5,10 +5,9 @@
   <meta name="viewport" content="user-scalable=yes">
   <title>Table - Slivka Points Center</title>
   <link rel="stylesheet" href="css/pointsTable.css" />
-  <script type="text/javascript" src="DataTables/media/js/jquery.dataTables.min.js"></script>
 </head>
 <body>
-	<div class="container-fluid">
+	<div class="container">
     <div class="content">
       <?php include('nav.html'); ?>
       <div class="col">
@@ -16,6 +15,8 @@
       </div>
     </div>
 	</div>
+  <?php include('footer.html'); ?>
+  <script type="text/javascript" src="DataTables/media/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function(){ pointsCenter.table.init(); });
   </script>

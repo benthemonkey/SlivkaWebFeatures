@@ -3,11 +3,6 @@ body{
   background-clip: border-box;
 }
 
-.container-fluid{
-  margin: 0 auto;
-  max-width: 1000px; 
-}
-
 .content{
   background-color: #FFFFFF;
   -webkit-border-radius: 4px;
@@ -23,16 +18,12 @@ body{
 }
 
 @media (max-width: 767px){
-	.navbar-inner, body{
+	/*.navbar-inner, body{
 		padding-left: 10px;
 		padding-right: 10px;
 	}
 
   .col{
     padding: 10px;
-  }
-
-	.modal-body {
-      max-height: 250px;
-    }
+  }*/
 }

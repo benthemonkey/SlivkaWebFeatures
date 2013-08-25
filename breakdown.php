@@ -23,58 +23,66 @@
   </style>
 </head>
 <body>
-	<div class="container-fluid">
+	<div class="container">
 		<div class="content">
 			<?php include('nav.html'); ?>
-			<div class="row-fluid">
-				<div class="span3">
+			<div class="row">
+				<div class="col-md-3">
 					<legend>&nbsp;&nbsp;Filters</legend>
 					<div class="col">
 						<form>
 							<fieldset>
-								<div class="control-group">
-									<label class="control-label">Slivkan:</label>
-									<select id="slivkan" style="width: 100%">
-										<option value="">Select One</option>
-									</select>
-								</div>
-								<div class="control-group">
-									<div class="btn-group" data-toggle="buttons-radio">
-										<div class="range btn btn-small" id="today">Today</div>
-										<div class="range btn btn-small" id="week">Week</div>
-										<div class="range btn btn-small" id="month">Month</div>
-										<div class="range btn btn-small active" id="quarter">All</div>
+								<div class="row">
+									<div class="form-group col-md-12">
+										<label class="control-label">Slivkan:</label>
+										<select id="slivkan" class="form-control">
+											<option value="">Select One</option>
+										</select>
 									</div>
 								</div>
-								<div class="control-group">
-									<label for="start" id="start-label" class="control-label">From:</label>
-									<input type="text" id="start-val" style="display: none">
-									<div class="input-append">
-										<input type="text" id="start" name="start" class="input text-center" style="position: relative; z-index: 10; color: #000000; width: 50px;" disabled>
+								<div class="row">
+									<div class="form-group col-md-12">
+										<div class="btn-group" data-toggle="buttons-radio">
+											<div class="range btn btn-default btn-sm" id="today">Today</div>
+											<div class="range btn btn-default btn-sm" id="week">Week</div>
+											<div class="range btn btn-default btn-sm" id="month">Month</div>
+											<div class="range btn btn-default btn-sm active" id="quarter">All</div>
+										</div>
 									</div>
 								</div>
-								<div class="control-group">
-									<label for="end" id="end-label" class="control-label">To:</label>
-									<input type="text" id="end-val" style="display: none">
-									<div class="input-append">
-										<input type="text" id="end" name="end" class="input text-center" style="position: relative; z-index: 10; color: #000000; width: 50px;" disabled>
+								<div class="row">
+									<div class="form-group col-md-6">
+										<label for="start" id="start-label" class="control-label">From:</label>
+										<input type="text" id="start-val" style="display: none">
+										<div class="input-group">
+											<input type="text" id="start" name="start" class="form-control text-center" style="position: relative; z-index: 10; color: #000000;" disabled>
+										</div>
+									</div>
+									<div class="form-group col-md-6">
+										<label for="end" id="end-label" class="control-label">To:</label>
+										<input type="text" id="end-val" style="display: none">
+										<div class="input-group">
+											<input type="text" id="end" name="end" class="form-control text-center" style="position: relative; z-index: 10; color: #000000;" disabled>
+										</div>
 									</div>
 								</div>
-								<div class="control-group">
-									Other:
-									<label for="showUnattended" class="checkbox">
-										<input type="checkbox" name="showUnattended" id="showUnattended" checked> Show Unattended
-									</label>
+								<div class="row">
+									<div class="form-group col-md-12">
+										Other:
+										<label for="showUnattended" class="checkbox">
+											<input type="checkbox" name="showUnattended" id="showUnattended" checked> Show Unattended
+										</label>
+									</div>
 								</div>
 							</fieldset>
 						</form>
 					</div>
 				</div>
-				<div class="span9">
+				<div class="col-md-9">
 					<legend>&nbsp;&nbsp;Points Breakdown</legend>
 					<div class="col">
-						<div class="row-fluid hide" id="breakdown">
-							<div class="span6">
+						<div class="row" id="breakdown" style="display: none	">
+							<div class="col-md-6">
 								<table class="table table-bordered table-condensed table-striped">
 									<thead>
 										<tr>
@@ -88,7 +96,7 @@
 									<div id="attendedByCommittee" class="chart"></div>
 								</div>
 							</div>
-							<div class="span6" id="unattended-col">
+							<div class="col-md-6" id="unattended-col">
 								<table class="table table-bordered table-condensed table-striped">
 									<thead>
 										<tr>
@@ -102,12 +110,13 @@
 									<div id="unattendedByCommittee" class="chart"></div>
 								</div>
 							</div>
-						</div><!-- row-fluid -->
+						</div><!-- row -->
 					</div><!--col-->
 				</div>
 			</div>
 		</div>
 	</div>
+	<?php include('footer.html'); ?>
 	<script type="text/javascript">
 		$(document).ready(function(){ pointsCenter.breakdown.init(); });
 	</script>

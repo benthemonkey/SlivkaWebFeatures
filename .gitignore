@@ -12,3 +12,4 @@ ajax/tmp.php
 header.html
 
 ajax/sendPointsCorrection.php
+bower_components/*

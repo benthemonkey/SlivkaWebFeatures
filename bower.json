@@ -1,0 +1,13 @@
+{
+	"name": "Slivka Points Center",
+	"dependencies": {
+		"jquery": "1.9.x",
+		"jquery-ui": "*",
+		"bootstrap": "3.x",
+		"stayInWebApp": "mrmoses/jQuery.stayInWebApp",
+		"datatables": "*",
+		"typeahead.js": "0.9.x"
+	},
+	"devDependencies": {
+	}
+}
