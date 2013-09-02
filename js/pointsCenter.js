@@ -3,8 +3,8 @@ var pointsCenter = (function ($) {
 	var slivkans, nicknames, fellows, type = "Other", valid_event_name = false,
 
 	//Quarter-related variables:
-	quarter_start = "9/24", //first day of classes
-	quarter_end = "12/6", //last day of reading week
+	quarter_start = "4/1",//"9/24", //first day of classes
+	quarter_end = "6/7",//"12/6", //last day of reading week
 	im_teams = ["Co-Rec Dodgeball","Co-Rec Football","Co-Rec Volleyball","White Dodgeball","White Football","White Volleyball"],
 
 	//jQuery selectors
@@ -27,38 +27,46 @@ var pointsCenter = (function ($) {
 			//mobile app support
 			$.stayInWebApp();
 
-			$.getJSON("ajax/getSlivkans.php",function (data){
-				slivkans = data.slivkans;
+			$.ajax({
+				async: true,
+				dataType: "json",
+				url: "ajax/getSlivkans.php",
+				success: function (data) {
+					slivkans = data.slivkans;
 
-				for(var i=0; i<slivkans.full_name.length; i++){
-					$("<option />").attr("value",slivkans.nu_email[i]).text(slivkans.full_name[i]).appendTo("#slivkan");
+					for(var i=0; i<slivkans.full_name.length; i++){
+						$("<option />").attr("value",slivkans.nu_email[i]).text(slivkans.full_name[i]).appendTo("#slivkan");
+					}
+
+					if(localStorage.spc_brk_slivkan){
+						$("#slivkan").val(localStorage.spc_brk_slivkan);
+						breakdown.getSlivkanPoints();
+					}
+
+					if(!localStorage.spc_brk_showUnattended){ $("#showUnattended").click(); }
 				}
-
-				if(localStorage.spc_brk_slivkan){
-					$("#slivkan").val(localStorage.spc_brk_slivkan);
-					breakdown.getSlivkanPoints();
-				}
-
-				if(!localStorage.spc_brk_showUnattended){ $("#showUnattended").click(); }
 			});
 
 			$( "#start" ).datepicker({
-				showOn: "button",
+				//showOn: "button",
 				dateFormat: "m/d",
 				altField: "#start-val",
 				altFormat: "yy-mm-dd",
 				minDate: quarter_start,
 				maxDate: localStorage.spc_brk_end || quarter_end,
-				onSelect: function( selectedDate ) {
+				onSelect: function (selectedDate) {
 					$(".range").removeClass("active");
 					$( "#end" ).datepicker( "option", "minDate", selectedDate );
 					localStorage.spc_brk_start = selectedDate;
-					breakdown.fixDateButtons();
+					//breakdown.fixDateButtons();
 					breakdown.getSlivkanPoints();
+				},
+				beforeShow: function(input, inst) {
+					inst.dpDiv.css({marginTop: input.offsetHeight + "px", marginLeft: input.offsetWidth + "px"});
 				}
 			});
 			$( "#end" ).datepicker({
-				showOn: "button",
+				//showOn: "button",
 				dateFormat: "m/d",
 				altField: "#end-val",
 				altFormat: "yy-mm-dd",
@@ -68,7 +76,7 @@ var pointsCenter = (function ($) {
 					$(".range").removeClass("active");
 					$("#start").datepicker( "option", "maxDate", selectedDate );
 					localStorage.spc_brk_end = selectedDate;
-					breakdown.fixDateButtons();
+					//breakdown.fixDateButtons();
 					breakdown.getSlivkanPoints();
 				}
 			});
@@ -78,9 +86,9 @@ var pointsCenter = (function ($) {
 
 			breakdown.fixDateButtons();
 
-			$("#slivkan")		.on("change",function(){ breakdown.getSlivkanPoints(); });
-			$("#start-label")	.on("click",function(){ $("#start").datepicker("show"); });
-			$("#end-label")		.on("click",function(){ $("#end").datepicker("show"); });
+			$("#slivkan")		.on("change", breakdown.getSlivkanPoints);
+			$(".start-btn")		.on("click",function(){ $("#start").datepicker("show"); });
+			$(".end-btn")		.on("click",function(){ $("#end").datepicker("show"); });
 			$("#today")			.on("click",function(){ breakdown.dateRange("0d"); });
 			$("#week")			.on("click",function(){ breakdown.dateRange("-1w"); });
 			$("#month")			.on("click",function(){ breakdown.dateRange("-1m"); });
@@ -94,8 +102,8 @@ var pointsCenter = (function ($) {
 		},
 		fixDateButtons: function(){
 			$("button.ui-datepicker-trigger").each(function(){
-				if(!$(this).hasClass("btn")){
-					$(this).addClass("btn btn-default").html("<i class=\"glyphicon glyphicon-calendar\"></i>").wrap("<span class=\"input-group-btn\"></span>");
+				if(!$(this).hasClass("input-group-btn")){
+					$(this).addClass("input-group-btn").html("<a class=\"btn btn-default\"><i class=\"glyphicon glyphicon-calendar\"></i></a>");
 				}
 			});
 		},
@@ -120,44 +128,50 @@ var pointsCenter = (function ($) {
 			$("#breakdown").hide("slideup",function(){
 				$("#attended").empty();
 				$("#unattended").empty();
-				$.getJSON("ajax/getPointsBreakdown.php",{nu_email: nu_email,start: start,end: end},function(data){
-					var events = data.attended.events;
-					if(events.event_name.length > 0){
-						for(var i=events.event_name.length-1; 0<=i; i--){
+				$.ajax({
+					async: true,
+					dataType: "json",
+					url: "ajax/getPointsBreakdown.php",
+					data: {nu_email: nu_email,start: start,end: end},
+					success: function(data){
+						var events = data.attended.events;
+						if(events.event_name.length > 0){
+							for(var i=events.event_name.length-1; 0<=i; i--){
+								$("<tr />").appendTo("#attended");
+								$("<td />").html(events.event_name[i]).appendTo("#attended tr:last");
+							}
+						}else{
 							$("<tr />").appendTo("#attended");
-							$("<td />").html(events.event_name[i]).appendTo("#attended tr:last");
+							$("<td />").html("None :(").appendTo("#attended tr:last");
 						}
-					}else{
-						$("<tr />").appendTo("#attended");
-						$("<td />").html("None :(").appendTo("#attended tr:last");
-					}
 
-					events = data.unattended.events;
-					if(events.event_name.length > 0){
-						for(var j=events.event_name.length-1; 0<=j; j--){
+						events = data.unattended.events;
+						if(events.event_name.length > 0){
+							for(var j=events.event_name.length-1; 0<=j; j--){
+								$("<tr />").appendTo("#unattended");
+								$("<td />").html(events.event_name[j]).appendTo("#unattended tr:last");
+							}
+						}else{
 							$("<tr />").appendTo("#unattended");
-							$("<td />").html(events.event_name[j]).appendTo("#unattended tr:last");
+							$("<td />").html("None :D").appendTo("#unattended tr:last");
 						}
-					}else{
-						$("<tr />").appendTo("#unattended");
-						$("<td />").html("None :D").appendTo("#unattended tr:last");
+
+						$("#breakdown").show("slidedown");
+
+						//Google Chart:
+						var tableData = [["Committee","Events Attended"]];
+						for(var c in data.attended.committees){
+							tableData.push([c,data.attended.committees[c]]);
+						}
+
+						breakdown.drawChart(tableData,"Attended Events Committee Distribution","attendedByCommittee");
+
+						tableData = [["Committee","Events Unattended"]];
+						for(c in data.unattended.committees){
+							tableData.push([c,data.unattended.committees[c]]);
+						}
+						breakdown.drawChart(tableData,"Unattended Events Committee Distribution","unattendedByCommittee");
 					}
-
-					$("#breakdown").show("slidedown");
-
-					//Google Chart:
-					var tableData = [["Committee","Events Attended"]];
-					for(var c in data.attended.committees){
-						tableData.push([c,data.attended.committees[c]]);
-					}
-
-					breakdown.drawChart(tableData,"Attended Events Committee Distribution","attendedByCommittee");
-
-					tableData = [["Committee","Events Unattended"]];
-					for(c in data.unattended.committees){
-						tableData.push([c,data.unattended.committees[c]]);
-					}
-					breakdown.drawChart(tableData,"Unattended Events Committee Distribution","unattendedByCommittee");
 				});
 			});
 		},
@@ -192,154 +206,159 @@ var pointsCenter = (function ($) {
 			event_targets = [],
 			events = [];
 
-			$.getJSON("ajax/getPointsTable.php",function(data){
-				events = data.events;
+			$.ajax({
+				async: true,
+				dataType: "json",
+				url: "ajax/getPointsTable.php",
+				success: function(data){
+					events = data.events;
 
-				for(var row in data.points_table){
-					//if(Math.max.apply(null,data.points_table[row].slice(1)) > 0){
-						aDataSet.push([row].concat(data.points_table[row]));
-					//}
-				}
-
-				for(var i=0;i<events.event_name.length;i++){
-					var en = events.event_name[i],
-					name = en.substr(0,en.length-11),
-					date = en.substr(en.length-5);
-
-					event_targets.push(i+2);
-
-					event_names.push(name);
-					event_dates.push(date);
-				}
-
-				var totals_targets = [],
-				first_totals_target = data.events.event_name.length+2;
-
-				for(i=0; i<6; i++){
-					totals_targets.push(first_totals_target + i);
-				}
-
-				var oTable = $("#table").dataTable({
-					"aaData": aDataSet,
-					"aoColumnDefs": [
-					{ aTargets: [0], sTitle: "Name", sWidth: "130px", sClass: "name"},
-					{ aTargets: [1], bVisible: false },
-					{ aTargets: event_targets, sWidth: "14px", fnCreatedCell: function(nTd, sData){
-						if(sData == "1"){$(nTd).addClass("green");}
-						//else if(sData == "0"){$(nTd).addClass("red");}
-						else if(sData == "1.1" || sData == "0.1"){$(nTd).addClass("gold"); $(nTd).html($(nTd).html().substr(0,1));}
-						else if(sData == "1.2" || sData == "0.2"){$(nTd).addClass("blue"); $(nTd).html($(nTd).html().substr(0,1));}
-					}},
-					{ aTargets: event_targets.concat(totals_targets), sTitle: "", asSorting: ["desc","asc"]},
-					{ aTargets: totals_targets, sClass: "totals", sWidth: "18px"}
-					],
-					"bPaginate": false,
-					"bAutoWidth": false,
-					"oLanguage": {
-						"sSearch": "Filter by Name:<br/>"
-					},
-					"sDom": "<'row'<'col-md-5 table-info'i><'col-md-3'f><'col-md-2 filter1'><'col-md-2 filter2'>><'header-row'><'row'<'col-md-12'rt>>"
-				});
-
-				//table info
-				$("#table_info").wrap("<div class=\"alert alert-info\" />");
-				$("<div />").text("Hover over event names for info, click to sort.").prependTo(".alert-info");
-				/*jshint multistr: true */
-				$("<table id=\"legend\" class=\"legend\"><tr class=\"odd\">\
-					<td style=\"background-color: white;\">Colors: </td>\
-					<td class=\"green\">Point</td>\
-					<td class=\"blue\">Committee</td>\
-					<td class=\"gold\">Helper</td>\
-					<td style=\"background-color: #FF8F8F;\">None</td>\
-					</tr></table>").appendTo(".table-info");
-
-				//name filter
-				$("#table_filter input").addClass("input-md");
-
-				/*jshint multistr: true */
-				$("<label>Filter by Gender:<br/><select class=\"input-sm\" id=\"gender-filter\">\
-						<option value=\"\">All</option>\
-						<option value=\"m\">Male</option>\
-						<option value=\"f\">Female</option>\
-					</select></label>").appendTo(".filter1");
-				$("#gender-filter").on("change",function(){
-					var option = $("#gender-filter").val();
-					oTable.fnFilter(option,1);
-				});
-
-				$("<label>Limit Columns:<br/><select class=\"input-sm\" id=\"count-filter\">\
-					<option value=\"-1\">All</option>\
-					<option value=\"30\">30</option>\
-					<option value=\"20\">20</option>\
-					<option value=\"10\">10</option>\
-					</select></label>").appendTo(".filter2");
-
-				$("#count-filter").on("change",function(event){
-					var count = event.target.value,
-					table = $("#table").dataTable(),
-					columns = $("#columns").find("li");
-
-					for(var i=0; i<event_targets.length; i++){
-						if(i < count || count == -1){
-							table.fnSetColumnVis(event_targets.length - i + 2, true, false);
-							columns.eq(event_targets.length - i).show();
-						}else{
-							table.fnSetColumnVis(event_targets.length - i + 2, false, false);
-							columns.eq(event_targets.length - i).hide();
-						}
+					for(var row in data.points_table){
+						//if(Math.max.apply(null,data.points_table[row].slice(1)) > 0){
+							aDataSet.push([row].concat(data.points_table[row]));
+						//}
 					}
 
-					table.fnDraw();/*
-					n = event_targets.length;
+					for(var i=0;i<events.event_name.length;i++){
+						var en = events.event_name[i],
+						name = en.substr(0,en.length-11),
+						date = en.substr(en.length-5);
 
-					for(var i=0; i<n; i++){
-						if(i > n-count || count == -1){
-							table.animationQueue.show.push(event_targets[i]);
-						}else{
-							table.animationQueue.hide.push(event_targets[i]);
-						}
+						event_targets.push(i+2);
+
+						event_names.push(name);
+						event_dates.push(date);
 					}
 
-					table.animationQueue.show.reverse();
+					var totals_targets = [],
+					first_totals_target = data.events.event_name.length+2;
 
-					table.processAnimationQueue();*/
+					for(i=0; i<6; i++){
+						totals_targets.push(first_totals_target + i);
+					}
 
-					var cols_width = 200 + 16*(count == -1 ? event_targets.length : count) + 20*totals_targets.length;// + 100;
-					$("body").css("min-width", cols_width);
+					var oTable = $("#table").dataTable({
+						"aaData": aDataSet,
+						"aoColumnDefs": [
+						{ aTargets: [0], sTitle: "Name", sWidth: "130px", sClass: "name"},
+						{ aTargets: [1], bVisible: false },
+						{ aTargets: event_targets, sWidth: "14px", fnCreatedCell: function(nTd, sData){
+							if(sData == "1"){$(nTd).addClass("green");}
+							//else if(sData == "0"){$(nTd).addClass("red");}
+							else if(sData == "1.1" || sData == "0.1"){$(nTd).addClass("gold"); $(nTd).html($(nTd).html().substr(0,1));}
+							else if(sData == "1.2" || sData == "0.2"){$(nTd).addClass("blue"); $(nTd).html($(nTd).html().substr(0,1));}
+						}},
+						{ aTargets: event_targets.concat(totals_targets), sTitle: "", asSorting: ["desc","asc"]},
+						{ aTargets: totals_targets, sClass: "totals", sWidth: "18px"}
+						],
+						"bPaginate": false,
+						"bAutoWidth": false,
+						"oLanguage": {
+							"sSearch": "Filter by Name:<br/>"
+						},
+						"sDom": "<'row'<'col-md-5 table-info'i><'col-md-3'f><'col-md-2 filter1'><'col-md-2 filter2'>><'header-row'><'row'<'col-md-12'rt>>"
+					});
 
-				});
+					//table info
+					$("#table_info").wrap("<div class=\"alert alert-info\" />");
+					$("<div />").text("Hover over event names for info, click to sort.").prependTo(".alert-info");
+					/*jshint multistr: true */
+					$("<table id=\"legend\" class=\"legend\"><tr class=\"odd\">\
+						<td style=\"background-color: white;\">Colors: </td>\
+						<td class=\"green\">Point</td>\
+						<td class=\"blue\">Committee</td>\
+						<td class=\"gold\">Helper</td>\
+						<td style=\"background-color: #FF8F8F;\">None</td>\
+						</tr></table>").appendTo(".table-info");
 
-				var cols_width = 200+(16+1)*event_targets.length + (20+1)*totals_targets.length;//130+16*event_targets.length + 20*totals_targets.length+100;
+					//name filter
+					$("#table_filter input").addClass("input-md");
 
-				$(".container").css("min-width",cols_width+"px");
-				if(cols_width > 1000){ $(".container").css("max-width","none"); }
-				$(".header-row").attr("id","columns");
-				//var columns = $(".header-row");
+					/*jshint multistr: true */
+					$("<label>Filter by Gender:<br/><select class=\"input-sm\" id=\"gender-filter\">\
+							<option value=\"\">All</option>\
+							<option value=\"m\">Male</option>\
+							<option value=\"f\">Female</option>\
+						</select></label>").appendTo(".filter1");
+					$("#gender-filter").on("change",function(){
+						var option = $("#gender-filter").val();
+						oTable.fnFilter(option,1);
+					});
 
-				for(i=0; i<event_names.length; i++){
-					$("<li />").html(event_names[i]).popover({
-						trigger: "hover",
-						html: true,
-						title: event_names[i],
-						content: "Date: "+event_dates[i]+"<br/>Attendees: "+events.attendees[i]+(events.description[i].length > 0 ? "<br/>Description: "+events.description[i] : ""),
-						placement: "bottom",
-						container: "#table"
-					}).appendTo("#columns");
+					$("<label>Limit Columns:<br/><select class=\"input-sm\" id=\"count-filter\">\
+						<option value=\"-1\">All</option>\
+						<option value=\"30\">30</option>\
+						<option value=\"20\">20</option>\
+						<option value=\"10\">10</option>\
+						</select></label>").appendTo(".filter2");
+
+					$("#count-filter").on("change",function(event){
+						var count = event.target.value,
+						table = $("#table").dataTable(),
+						columns = $("#columns").find("li");
+
+						for(var i=0; i<event_targets.length; i++){
+							if(i < count || count == -1){
+								table.fnSetColumnVis(event_targets.length - i + 2, true, false);
+								columns.eq(event_targets.length - i).show();
+							}else{
+								table.fnSetColumnVis(event_targets.length - i + 2, false, false);
+								columns.eq(event_targets.length - i).hide();
+							}
+						}
+
+						table.fnDraw();/*
+						n = event_targets.length;
+
+						for(var i=0; i<n; i++){
+							if(i > n-count || count == -1){
+								table.animationQueue.show.push(event_targets[i]);
+							}else{
+								table.animationQueue.hide.push(event_targets[i]);
+							}
+						}
+
+						table.animationQueue.show.reverse();
+
+						table.processAnimationQueue();*/
+
+						var cols_width = 200 + 16*(count == -1 ? event_targets.length : count) + 20*totals_targets.length;// + 100;
+						$("body").css("min-width", cols_width);
+
+					});
+
+					var cols_width = 200+(16+1)*event_targets.length + (20+1)*totals_targets.length;//130+16*event_targets.length + 20*totals_targets.length+100;
+
+					$(".container").css("min-width",cols_width+"px");
+					if(cols_width > 1000){ $(".container").css("max-width","none"); }
+					$(".header-row").attr("id","columns");
+					//var columns = $(".header-row");
+
+					for(i=0; i<event_names.length; i++){
+						$("<li />").html(event_names[i]).popover({
+							trigger: "hover",
+							html: true,
+							title: event_names[i],
+							content: "Date: "+event_dates[i]+"<br/>Attendees: "+events.attendees[i]+(events.description[i].length > 0 ? "<br/>Description: "+events.description[i] : ""),
+							placement: "bottom",
+							container: "#table"
+						}).appendTo("#columns");
+					}
+
+					//Append "totals" column labels
+					$("<li />").addClass("totals-label").html("Events Total").appendTo("#columns");
+					$("<li />").addClass("totals-label").html("Helper Points").appendTo("#columns");
+					$("<li />").addClass("totals-label").html("IM Sports").appendTo("#columns");
+					$("<li />").addClass("totals-label").html("Standing Committees").appendTo("#columns");
+					$("<li />").addClass("totals-label").html("Position-Related").appendTo("#columns");
+					$("<li />").addClass("totals-label").html("Total").appendTo("#columns");
+
+					//event handler for column labels
+					var headers = $("#table").find("th");
+					$("#columns").find("li").each(function(index){
+						$(this).on("click",function(){headers.eq(index+1).click();});
+					});
 				}
-
-				//Append "totals" column labels
-				$("<li />").addClass("totals-label").html("Events Total").appendTo("#columns");
-				$("<li />").addClass("totals-label").html("Helper Points").appendTo("#columns");
-				$("<li />").addClass("totals-label").html("IM Sports").appendTo("#columns");
-				$("<li />").addClass("totals-label").html("Standing Committees").appendTo("#columns");
-				$("<li />").addClass("totals-label").html("Position-Related").appendTo("#columns");
-				$("<li />").addClass("totals-label").html("Total").appendTo("#columns");
-
-				//event handler for column labels
-				var headers = $("#table").find("th");
-				$("#columns").find("li").each(function(index){
-					$(this).on("click",function(){headers.eq(index+1).click();});
-				});
 			});
 		}/*,
 		animationQueue: { show: [], hide: [] },
@@ -1136,12 +1155,12 @@ var pointsCenter = (function ($) {
 			$("#real-submit").off("click");
 			$("#real-submit").on("click",function(){
 				$.getJSON("./ajax/submitPointsForm.php",data,function(data_in){
-					$("#results-status").parent().removeClass("has-warning");
+					$("#results-status").parent().removeClass("warning");
 					if(data_in.error){
-						$("#results-status").html("Error in Step "+data_in.step).parent().addClass("has-error");
+						$("#results-status").html("Error in Step "+data_in.step).parent().addClass("error");
 					}else{
 						$("#unconfirmed").fadeOut({complete: function(){$("#confirmed").fadeIn();}});
-						$("#results-status").html("Success!").parent().addClass("has-success");
+						$("#results-status").html("Success!").parent().addClass("success");
 
 						submission.resetForm("force");
 					}

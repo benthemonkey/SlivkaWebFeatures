@@ -3,8 +3,6 @@
 <head>
   <?php include('header.html'); ?>
   <title>Breakdown - Slivka Points Center</title>
-  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-  <script type="text/javascript">google.load("visualization", "1", {packages:["corechart"]});</script>
   <!--<script type="text/javascript" src="js/pointsBreakdown.js"></script>-->
   <style type="text/css">
   table{
@@ -41,28 +39,42 @@
 									</div>
 								</div>
 								<div class="row">
-									<div class="form-group col-md-12">
-										<div class="btn-group" data-toggle="buttons-radio">
-											<div class="range btn btn-default btn-sm" id="today">Today</div>
-											<div class="range btn btn-default btn-sm" id="week">Week</div>
-											<div class="range btn btn-default btn-sm" id="month">Month</div>
-											<div class="range btn btn-default btn-sm active" id="quarter">All</div>
+									<div class="form-group col-xs-6">
+										<label for="start" class="control-label">From:</label>
+										<input type="text" id="start-val" style="display: none">
+										<div class="input-group">
+											<input type="text" id="start" class="form-control text-center" style="position: relative; z-index: 10; color: #000000;" disabled>
+											<div class="input-group-btn start-btn">
+												<button type="button" name="start" class="btn btn-default"><i class="glyphicon glyphicon-calendar"></i></button>
+											</div>
+										</div>
+									</div>
+									<div class="form-group col-xs-6">
+										<label for="end" class="control-label">To:</label>
+										<input type="text" id="end-val" style="display: none">
+										<div class="input-group">
+											<input type="text" id="end" name="end" class="form-control text-center" style="position: relative; z-index: 10; color: #000000;" disabled>
+											<div class="input-group-btn end-btn">
+												<button type="button" name="end" class="btn btn-default"><i class="glyphicon glyphicon-calendar"></i></button>
+											</div>
 										</div>
 									</div>
 								</div>
 								<div class="row">
-									<div class="form-group col-md-6">
-										<label for="start" id="start-label" class="control-label">From:</label>
-										<input type="text" id="start-val" style="display: none">
-										<div class="input-group">
-											<input type="text" id="start" name="start" class="form-control text-center" style="position: relative; z-index: 10; color: #000000;" disabled>
-										</div>
-									</div>
-									<div class="form-group col-md-6">
-										<label for="end" id="end-label" class="control-label">To:</label>
-										<input type="text" id="end-val" style="display: none">
-										<div class="input-group">
-											<input type="text" id="end" name="end" class="form-control text-center" style="position: relative; z-index: 10; color: #000000;" disabled>
+									<div class="form-group col-md-12">
+										<div class="btn-group btn-group-justified" data-toggle="buttons">
+											<label class="range btn btn-default btn-sm" id="today">
+												<input type="radio" name="range"> Today
+											</label>
+											<label class="range btn btn-default btn-sm" id="week">
+												<input type="radio" name="range"> Week
+											</label>
+											<label class="range btn btn-default btn-sm" id="month">
+												<input type="radio" name="range"> Month
+											</label>
+											<label class="range btn btn-default btn-sm" id="quarter">
+												<input type="radio" name="range"> All
+											</label>
 										</div>
 									</div>
 								</div>
@@ -117,6 +129,8 @@
 		</div>
 	</div>
 	<?php include('footer.html'); ?>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  	<script type="text/javascript">google.load("visualization", "1", {packages:["corechart"]});</script>
 	<script type="text/javascript">
 		$(document).ready(function(){ pointsCenter.breakdown.init(); });
 	</script>

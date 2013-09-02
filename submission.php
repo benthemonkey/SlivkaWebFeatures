@@ -110,7 +110,7 @@
 							<div class="form-group description-control col-md-12">
 								<label class="control-label" for="description">Description:</label>
 								<textarea rows="3" name="description" id="description" class="form-control"></textarea>
-								<div class="help-block hide" id="description-length-error">Be enthusiastic and descriptive!</div>
+								<div class="help-block" id="description-length-error" style="display: none;">Be enthusiastic and descriptive!</div>
 							</div>
 
 							<div class="form-group col-md-12">
@@ -126,7 +126,7 @@
 							</ul>
 
 							<div class="tab-content">
-								<div class="tab-pane active" id="slivkan-entry-tab" >
+								<div class="tab-pane active col-md-12" id="slivkan-entry-tab" >
 									<div class="alert alert-success" id="sort-alert" style="display: none;">
 										<button type="button" class="close" id="close-sort-alert">&times;</button>
 										<small>Sorted names!</small>

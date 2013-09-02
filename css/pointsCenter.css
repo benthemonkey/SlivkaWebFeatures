@@ -16,14 +16,3 @@ body{
 .col{
   padding: 10px 20px;
 }
-
-@media (max-width: 767px){
-	/*.navbar-inner, body{
-		padding-left: 10px;
-		padding-right: 10px;
-	}
-
-  .col{
-    padding: 10px;
-  }*/
-}

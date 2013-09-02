@@ -6,7 +6,8 @@
 		"bootstrap": "3.x",
 		"stayInWebApp": "mrmoses/jQuery.stayInWebApp",
 		"datatables": "*",
-		"typeahead.js": "0.9.x"
+		"typeahead.js": "0.9.x",
+		"nprogress": "*"
 	},
 	"devDependencies": {
 	}

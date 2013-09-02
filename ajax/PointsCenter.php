@@ -4,14 +4,14 @@ include_once "./swift/swift_required.php";
 
 class PointsCenter
 {
-    private static $qtr = 1303;
+    private static $qtr = 1302;
 
     private static $dbConn = null;
     public function __construct ()
     {
         self::initializeConnection();
     }
-    
+
     private static function initializeConnection ()
     {
         if (is_null(self::$dbConn)) {
@@ -56,16 +56,16 @@ class PointsCenter
         }
         return $directory;
     }
-    
+
     public function getSlivkans ()
     {
         self::initializeConnection();
         $slivkans = array();
         try {
             $statement = self::$dbConn->prepare(
-                "SELECT full_name,nu_email,gender,wildcard,committee 
-                FROM directory 
-                WHERE qtr_final IS NULL 
+                "SELECT full_name,nu_email,gender,wildcard,committee
+                FROM directory
+                WHERE qtr_final IS NULL
                 ORDER BY first_name");
             $statement->execute();
             $slivkans = $statement->fetchAll();
@@ -98,7 +98,7 @@ class PointsCenter
         $nicknames = array();
         try {
             $statement = self::$dbConn->prepare(
-                "SELECT nicknames.nickname,directory.full_name 
+                "SELECT nicknames.nickname,directory.full_name
                 FROM nicknames INNER JOIN directory ON nicknames.nu_email=directory.nu_email");
             $statement->execute();
             $nicknames = $statement->fetchAll();
@@ -111,7 +111,7 @@ class PointsCenter
                 $full_name[] = $n['full_name'];
             }
             $nicknames = array('nickname'=>$nickname,'full_name'=>$full_name);
-            
+
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
             die();
@@ -125,8 +125,8 @@ class PointsCenter
         $fellows = array();
         try {
             $statement = self::$dbConn->prepare(
-                "SELECT full_name 
-                FROM fellows 
+                "SELECT full_name
+                FROM fellows
                 WHERE qtr_final IS NULL");
             $statement->execute();
             $fellows = $statement->fetchAll(PDO::FETCH_COLUMN,0);
@@ -152,7 +152,7 @@ class PointsCenter
         try {
             $statement = self::$dbConn->prepare(
                 "SELECT event_name,date,type,attendees,committee,description
-                FROM events 
+                FROM events
                 WHERE qtr=:qtr AND date BETWEEN :start AND :end
                 ORDER BY date, id");
             $statement->bindValue(":qtr", self::$qtr);
@@ -176,7 +176,7 @@ class PointsCenter
                 $committee[]   = $e['committee'];
                 $description[] = $e['description'];
             }
-            
+
             $events = array('event_name'=>$event_name,'date'=>$date,'type'=>$type,'attendees'=>$attendees,'committee'=>$committee,'description'=>$description);
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
@@ -191,7 +191,7 @@ class PointsCenter
         $points = array();
         try {
             $statement = self::$dbConn->prepare(
-                "SELECT event_name,nu_email 
+                "SELECT event_name,nu_email
                 FROM points
                 WHERE qtr=:qtr");
             $statement->bindValue(":qtr", self::$qtr);
@@ -210,7 +210,7 @@ class PointsCenter
         $helper_points = array();
         try {
             $statement = self::$dbConn->prepare(
-                "SELECT event_name,nu_email 
+                "SELECT event_name,nu_email
                 FROM helperpoints
                 WHERE qtr=:qtr");
             $statement->bindValue(":qtr", self::$qtr);
@@ -222,14 +222,14 @@ class PointsCenter
         }
         return $helper_points;
     }
-    
+
     public function getCommitteeAttendance ()
     {
         self::initializeConnection();
         $committee_attendance = array();
         try {
             $statement = self::$dbConn->prepare(
-                "SELECT event_name,nu_email 
+                "SELECT event_name,nu_email
                 FROM committeeattendance
                 WHERE qtr=:qtr");
             $statement->bindValue(":qtr", self::$qtr);
@@ -248,9 +248,9 @@ class PointsCenter
         $events = array();
         try {
             $statement = self::$dbConn->prepare(
-                "SELECT events.type,events.event_name,events.committee 
-                FROM points INNER JOIN events ON points.event_name=events.event_name 
-                WHERE events.qtr=:qtr AND points.nu_email=:nu_email AND events.date BETWEEN :start AND :end 
+                "SELECT events.type,events.event_name,events.committee
+                FROM points INNER JOIN events ON points.event_name=events.event_name
+                WHERE events.qtr=:qtr AND points.nu_email=:nu_email AND events.date BETWEEN :start AND :end
                 ORDER BY events.date, events.id");
             $statement->bindValue(":qtr", self::$qtr);
             $statement->bindValue(":nu_email", $nu_email);
@@ -283,8 +283,8 @@ class PointsCenter
         $bonus_points = array();
         try {
             $statement = self::$dbConn->prepare(
-                "SELECT nu_email,helper,committee,other1_name,other1,other2_name,other2,other3_name,other3 
-                FROM bonuspoints 
+                "SELECT nu_email,helper,committee,other1_name,other1,other2_name,other2,other3_name,other3
+                FROM bonuspoints
                 WHERE qtr=:qtr");
             $statement->bindValue(":qtr", self::$qtr);
             $statement->execute();
@@ -313,7 +313,7 @@ class PointsCenter
         try {
             $statement = self::$dbConn->prepare(
                 "INSERT INTO `pointsform` SET
-                date=:date, type=:type, committee=:committee, event_name=:event_name, description=:description, 
+                date=:date, type=:type, committee=:committee, event_name=:event_name, description=:description,
                 filled_by=:filled_by, comments=:comments, attendees=:attendees, helper_points=:helper_points,
                 committee_members=:committee_members, fellows=:fellows");
             $statement->bindValue(":date", $get['date']);
@@ -336,7 +336,7 @@ class PointsCenter
 
         try {
             $statement = self::$dbConn->prepare(
-                "INSERT INTO events SET event_name=:event_name, date=:date, qtr=:qtr, 
+                "INSERT INTO events SET event_name=:event_name, date=:date, qtr=:qtr,
                 filled_by=:filled_by, committee=:committee, description=:description, type=:type, attendees=:attendees");
             $statement->bindValue(":event_name", $real_event_name);
             $statement->bindValue(":date", $get['date']);
@@ -416,8 +416,8 @@ class PointsCenter
 
         try {
             $statement = self::$dbConn->prepare(
-                "SELECT * 
-                FROM points 
+                "SELECT *
+                FROM points
                 WHERE event_name=:event_name AND nu_email=:nu_email");
             $statement->bindValue(":event_name", $get['event_name']);
             $statement->bindValue(":nu_email", $get['sender_email']);
@@ -435,8 +435,8 @@ class PointsCenter
 
         try {
             $statement = self::$dbConn->prepare(
-                "SELECT filled_by 
-                FROM events 
+                "SELECT filled_by
+                FROM events
                 WHERE event_name=:event_name");
             $statement->bindValue(":event_name", $get['event_name']);
             $statement->execute();
@@ -471,8 +471,8 @@ class PointsCenter
 
         $html = "<h2>Slivka Points Correction</h2>
         <h3>Automated Email</h3>
-        <p style=\"padding: 10; width: 70%\">" . $get['name'] . " has submitted a points correction for the 
-        event, " . $get['event_name'] . ", for which you took points. Please click one of the following links 
+        <p style=\"padding: 10; width: 70%\">" . $get['name'] . " has submitted a points correction for the
+        event, " . $get['event_name'] . ", for which you took points. Please click one of the following links
         to respond to this request. Please do so within 2 days of receiving this email.</p>
         <p style=\"padding: 10; width: 70%\">" . $get['name'] . "'s comment: " . $get['comments'] . "</p>
         <ul>
@@ -497,8 +497,8 @@ class PointsCenter
 
         try {
             $statement = self::$dbConn->prepare(
-                "SELECT * 
-                FROM pointscorrection 
+                "SELECT *
+                FROM pointscorrection
                 WHERE message_key=:key");
             $statement->bindValue(":key", $get['key']);
             $statement->execute();
@@ -511,8 +511,8 @@ class PointsCenter
         if($result['response'] == "0"){
             try {
                 $statement = self::$dbConn->prepare(
-                    "UPDATE pointscorrection 
-                    SET response=:code 
+                    "UPDATE pointscorrection
+                    SET response=:code
                     WHERE message_key=:key");
                 $statement->bindValue(":code", $code);
                 $statement->bindValue(":key", $get['key']);
@@ -530,7 +530,7 @@ class PointsCenter
         if($code == 1){
             try {
                 $statement = self::$dbConn->prepare(
-                    "INSERT INTO points (nu_email,event_name,qtr) 
+                    "INSERT INTO points (nu_email,event_name,qtr)
                     VALUES (:nu_email,:event_name,:qtr)");
                 $statement->bindValue(":nu_email", $result['nu_email']);
                 $statement->bindValue(":event_name", $result['event_name']);
@@ -543,8 +543,8 @@ class PointsCenter
 
             try {
                 $statement = self::$dbConn->prepare(
-                    "UPDATE events 
-                    SET attendees = attendees+1 
+                    "UPDATE events
+                    SET attendees = attendees+1
                     WHERE event_name=:event_name");
                 $statement->bindValue(":event_name", $result['event_name']);
                 $statement->execute();
