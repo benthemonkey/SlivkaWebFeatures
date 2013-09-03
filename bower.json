@@ -4,11 +4,14 @@
 		"jquery": "1.9.x",
 		"jquery-ui": "*",
 		"bootstrap": "3.x",
+		"bootstrap-daterangepicker": "*",
 		"stayInWebApp": "mrmoses/jQuery.stayInWebApp",
 		"datatables": "*",
 		"typeahead.js": "0.9.x",
+		"hogan": "*",
 		"nprogress": "*"
 	},
 	"devDependencies": {
+		"qunit": "*"
 	}
 }

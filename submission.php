@@ -154,7 +154,7 @@
 									</div>
 								</div>
 
-								<div class="tab-pane" id="fellow-entry-tab">
+								<div class="tab-pane col-md-12" id="fellow-entry-tab">
 									<div class="form-group input-group fellow-entry-control">
 										<div class="input-group-addon">1</div>
 										<input type="text" class="fellow-entry form-control" name="fellow-entry" placeholder="Fellow">

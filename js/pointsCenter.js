@@ -1,16 +1,25 @@
-var pointsCenter = (function ($) {
+window.pointsCenter = (function ($) {
 	"use strict";
 	var slivkans, nicknames, fellows, type = "Other", valid_event_name = false,
 
 	//Quarter-related variables:
 	quarter_start = "4/1",//"9/24", //first day of classes
 	quarter_end = "6/7",//"12/6", //last day of reading week
-	im_teams = ["Co-Rec Dodgeball","Co-Rec Football","Co-Rec Volleyball","White Dodgeball","White Football","White Volleyball"],
+	im_teams = ["Co-Rec Dodgeball","Co-Rec Football","Co-Rec Volleyball","White Dodgeball","White Football","White Volleyball"];
 
-	//jQuery selectors
+	//add indexOfKey (useful: http://jsperf.com/js-for-loop-vs-array-indexof)
+	Array.prototype.indexOfKey = function (key, value) {
+		for(var i=0; i < this.length; i++){
+			if(this[i][key] === value){
+				return i;
+			}
+		}
+
+		return -1;
+	};
 
 	//functions used by multiple pages
-	common = {
+	var common = {
 		updateValidity: function (element,valid){
 			if (valid){
 				element.addClass("has-success").removeClass("has-error");
@@ -35,7 +44,7 @@ var pointsCenter = (function ($) {
 					slivkans = data.slivkans;
 
 					for(var i=0; i<slivkans.full_name.length; i++){
-						$("<option />").attr("value",slivkans.nu_email[i]).text(slivkans.full_name[i]).appendTo("#slivkan");
+						$("<option />").attr("value",slivkans[i].nu_email).text(slivkans[i].full_name).appendTo("#slivkan");
 					}
 
 					if(localStorage.spc_brk_slivkan){
@@ -399,7 +408,11 @@ var pointsCenter = (function ($) {
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 
-				$("#filled-by").typeahead({source: slivkans.full_name.concat(nicknames.nickname)});
+				$("#filled-by").typeahead({
+					name: "slivkans",
+					valueKey: "full_name",
+					local: slivkans
+				});
 			});
 
 			$.getJSON("ajax/getEvents.php",function(data){
@@ -439,7 +452,7 @@ var pointsCenter = (function ($) {
 			$(".filled-by-control").removeClass("has-warning");
 
 			if(name.length > 0){
-				valid = slivkans.full_name.indexOf(name) != -1;
+				valid = slivkans.indexOfKey("full_name",name) != -1;
 				common.updateValidity($(".filled-by-control"),valid);
 			}else{
 				$(".filled-by-control").addClass("error");
@@ -458,7 +471,7 @@ var pointsCenter = (function ($) {
 			var data = {
 				event_name: $("#event-name").val(),
 				name: $("#filled-by").val(),
-				sender_email: slivkans.nu_email[slivkans.full_name.indexOf($("#filled-by").val())],
+				sender_email: slivkans[slivkans.indexOfKey("full_name", $("#filled-by").val())].nu_email,
 				comments: $("#comments").val()
 			};
 			$("#response").fadeOut();
@@ -483,8 +496,6 @@ var pointsCenter = (function ($) {
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 				fellows = data.fellows;
-
-				slivkans.autocomplete = slivkans.full_name.concat(nicknames.nickname);
 
 				//initialization
 				submission.appendNameInputs(14);
@@ -520,14 +531,22 @@ var pointsCenter = (function ($) {
 				}
 
 				//autocomplete and events for slivkan/fellow inputs
-				$("#filled-by").typeahead({source: slivkans.autocomplete});
-				$("#slivkan-entry-tab")	.on("focus",".slivkan-entry",submission.makeHandler.addClassWarning())
-										.on("focusout",".slivkan-entry",submission.makeHandler.validateSlivkanName())
-										.on("click",".helper-point",submission.makeHandler.toggleActive())
-										.on("click",".committee-point",submission.makeHandler.toggleActive());
+				$("#filled-by").typeahead({
+					name: "slivkanq",
+					valueKey: "full_name",
+					local: slivkans,
+					template: ["<div class='media'>",
+					"{{#photo}}<img class='media-object pull-right' data-src='holder.js/64x64' src='img/slivkans/{{photo}}.jpg' style='height: 64px;' />{{/photo}}",
+					"<div class='media-body' style='padding-top: 22px;'>{{full_name}}</div></div>"].join(""),
+					engine: Hogan});
 
-				$("#fellow-entry-tab")	.on("focus",".fellow-entry",submission.makeHandler.addClassWarning())
-										.on("focusout",".fellow-entry",submission.makeHandler.validateFellowName());
+				$("#slivkan-entry-tab")	.on("focus",".slivkan-entry",submission.handlers.addClassWarning)
+										.on("focusout",".slivkan-entry",submission.handlers.validateSlivkanName)
+										.on("click",".helper-point",submission.handlers.toggleActive)
+										.on("click",".committee-point",submission.handlers.toggleActive);
+
+				$("#fellow-entry-tab")	.on("focus",".fellow-entry",submission.handlers.addClassWarning)
+										.on("focusout",".fellow-entry",submission.handlers.validateFellowName);
 			});
 
 			$("#date").datepicker({
@@ -552,10 +571,10 @@ var pointsCenter = (function ($) {
 			}
 
 			//event handlers for inputs
-			$("#filled-by")			.on("focus",	submission.makeHandler.addClassWarning())
+			$("#filled-by")			.on("focus",	submission.handlers.addClassWarning)
 									.on("focusout",	submission.validateFilledBy);
 			$("#type")				.on("click",	submission.toggleType);
-			$("#event")				.on("focus",	submission.makeHandler.addClassWarning())
+			$("#event")				.on("focus",	submission.handlers.addClassWarning)
 									.on("focusout",	submission.validateEventName);
 			$("#date-label")		.on("click",	function(){ $("#date").datepicker("show"); });
 			$("#im-team")			.on("change",	submission.validateIMTeam);
@@ -572,18 +591,18 @@ var pointsCenter = (function ($) {
 
 			$("#tabs a:first").tab("show");
 		},
-		makeHandler: {
+		handlers: {
 			addClassWarning : function(){
-				return function(){ $(this).parent().addClass("has-warning"); };
+				$(this).closest(".form-group").addClass("has-warning");
 			},
 			validateSlivkanName : function(){
-				return function(){ submission.validateSlivkanName($(this).parent()); };
+				submission.validateSlivkanName($(this).closest(".form-group"));
 			},
 			validateFellowName : function(){
-				return function(){ submission.validateFellowName($(this).parent()); };
+				submission.validateFellowName($(this).closest(".form-group"));
 			},
 			toggleActive : function(){
-				return function(){ $(this).toggleClass("active"); submission.saveSlivkans(); };
+				$(this).toggleClass("active"); submission.saveSlivkans();
 			}
 		},
 		appendNameInputs: function(n){
@@ -596,10 +615,16 @@ var pointsCenter = (function ($) {
 				.find(".input-group-addon").text(start+i+1);
 			}
 
-			$("#slivkan-entry-tab").find(".slivkan-entry").typeahead({source:slivkans.autocomplete});
+			var slivkan_entries = $("#slivkan-entry-tab").find(".slivkan-entry");
 
-			$("#slivkan-entry-tab").find(".slivkan-entry").last().on("focus",function(){
-				$(this).parent().addClass("has-warning");
+			slivkan_entries.typeahead({
+					name: "slivkans",
+					valueKey: "full_name",
+					local: slivkans
+				});
+
+			slivkan_entries.last().on("focus",function(){
+				$(this).closest(".form-group").addClass("has-warning");
 				var num_inputs = $("#slivkan-entry-tab").find(".slivkan-entry").length;
 				$(this).off("focus");
 				if(num_inputs < 120){ submission.appendNameInputs(1); }
@@ -614,7 +639,12 @@ var pointsCenter = (function ($) {
 				.find(".input-group-addon").text(start+i+1);
 			}
 
-			$("#fellow-entry-tab").find(".fellow-entry").typeahead({source: fellows});
+			$("#fellow-entry-tab").find(".fellow-entry")
+				.typeahead({
+					name: "fellows",
+					valueKey: "full_name",
+					local: fellows
+				});
 
 			$(".fellow-entry").last().on("focus",function(){
 				$(this).parent().addClass("has-warning");
@@ -804,7 +834,7 @@ var pointsCenter = (function ($) {
 			$(".filled-by-control").removeClass("has-warning");
 
 			if(name.length > 0){
-				valid = slivkans.full_name.indexOf(name) != -1;
+				valid = slivkans.indexOfKey("full_name",name) != -1;
 				common.updateValidity($(".filled-by-control"),valid);
 			}else{
 				$(".filled-by-control").addClass("error");
@@ -856,11 +886,11 @@ var pointsCenter = (function ($) {
 			entry.removeClass("has-warning");
 
 			if (name.length > 0){
-				var name_ind = slivkans.full_name.indexOf(name);
+				var name_ind = slivkans.indexOfKey("full_name",name);
 				if(name_ind != -1){
-					if(slivkans.committee[name_ind] == $("#committee").val() && type != "IM"){
+					if(slivkans[name_ind].committee == $("#committee").val() && type != "IM"){
 						submission.showCommitteeMember(helper,committee,inBulk);
-					}else if(type == "IM" || slivkans.committee[name_ind] == "Facilities" || slivkans.committee[name_ind] == "Exec"){
+					}else if(type == "IM" || slivkans[name_ind].committee == "Facilities" || slivkans[name_ind].committee == "Exec"){
 						submission.hideButtons(helper,committee,inBulk);
 					}else{
 						submission.showHelperPoint(helper,committee,inBulk);
@@ -986,15 +1016,15 @@ var pointsCenter = (function ($) {
 				var name = nameArray[i];
 
 				//check if wildcard
-				var wildcardInd = slivkans.wildcard.indexOf(name);
+				var wildcardInd = slivkans.indexOfKey("wildcard",name);
 				if(wildcardInd != -1){
-					name = slivkans.full_name[wildcardInd];
+					name = slivkans[wildcardInd].full_name;
 				}
 
 				var ind = slots.indexOf(0);
 				slots[ind] = 1;
 				slivkan_entries.eq(ind).val(name);
-				submission.validateSlivkanName(slivkan_entries.eq(ind).parent(),(i < len-1));
+				submission.validateSlivkanName(slivkan_entries.eq(ind).closest(".slivkan-entry-control"),(i < len-1));
 			}
 		},
 		sortEntries: function(){
@@ -1055,7 +1085,7 @@ var pointsCenter = (function ($) {
 			}
 		},
 		resetForm: function(force){
-			if(force === "force" || confirm("Reset form?")){
+			if(force === "force" || window.confirm("Reset form?")){
 				$(".type-btn:last").click();
 				$("#event").val(""); $(".event-control").removeClass("has-success").removeClass("has-error");
 				$("#description").val(""); $(".description-control").removeClass("has-success").removeClass("has-error");
@@ -1097,7 +1127,7 @@ var pointsCenter = (function ($) {
 				committee: $("#committee").val(),
 				event_name: $("#event").val(),
 				description: $("#description").val(),
-				filled_by: slivkans.nu_email[slivkans.full_name.indexOf($("#filled-by").val())],
+				filled_by: slivkans[slivkans.indexOfKey("full_name",$("#filled-by").val())].nu_email,
 				comments: $("#comments").val(),
 				attendees: [],
 				helper_points: [],
@@ -1108,12 +1138,12 @@ var pointsCenter = (function ($) {
 			$("#slivkan-entry-tab").find(".slivkan-entry").each(function(){
 				var name = $(this).val();
 				if(name.length > 0){
-					var name_ind = slivkans.full_name.indexOf(name);
-					data.attendees.push(slivkans.nu_email[name_ind]);
+					var name_ind = slivkans.indexOfKey("full_name",name);
+					data.attendees.push(slivkans[name_ind].nu_email);
 					if($(this).parent().find(".helper-point").hasClass("active")){
-						data.helper_points.push(slivkans.nu_email[name_ind]);
+						data.helper_points.push(slivkans[name_ind].nu_email);
 					}else if($(this).parent().find(".committee-point").hasClass("active")){
-						data.committee_members.push(slivkans.nu_email[name_ind]);
+						data.committee_members.push(slivkans[name_ind].nu_email);
 					}
 				}
 			});
@@ -1146,11 +1176,7 @@ var pointsCenter = (function ($) {
 				).appendTo("#receipt tbody");
 			}
 
-			$("#submit-results").modal({
-				/*backdrop: "static",
-				keyboard: false,*/
-				show: true
-			});
+			$("#submit-results").modal("show");
 
 			$("#real-submit").off("click");
 			$("#real-submit").on("click",function(){
@@ -1170,6 +1196,7 @@ var pointsCenter = (function ($) {
 	};
 
 	return {
+	//var pointsCenter = {
 		breakdown: breakdown,
 		table: table,
 		correction: correction,

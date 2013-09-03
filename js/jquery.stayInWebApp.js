@@ -1,0 +1,1 @@
+../bower_components/stayInWebApp/jquery.stayInWebApp.js
