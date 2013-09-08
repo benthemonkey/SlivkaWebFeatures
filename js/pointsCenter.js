@@ -120,60 +120,62 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			start = localStorage.spc_brk_start || quarter_start,
 			end = localStorage.spc_brk_end || quarter_end;
 
-			localStorage.spc_brk_slivkan = $("#slivkan").val();
+			if(nu_email.length > 0){
+				localStorage.spc_brk_slivkan = $("#slivkan").val();
 
-			$(".slivkan-submit").html($("#slivkan option:selected").html());
+				$(".slivkan-submit").html($("#slivkan option:selected").html());
 
-			$("#breakdown").fadeOut(function(){
-				$("#attended").empty();
-				$("#unattended").empty();
+				$("#breakdown").fadeOut(function(){
+					$("#attended").empty();
+					$("#unattended").empty();
 
-				$.ajax({
-					async: true,
-					dataType: "json",
-					url: "ajax/getPointsBreakdown.php",
-					data: {nu_email: nu_email, start: start, end: end},
-					success: function(data){
-						var events = data.attended.events;
-						if(events.event_name.length > 0){
-							for(var i=events.event_name.length-1; 0<=i; i--){
+					$.ajax({
+						async: true,
+						dataType: "json",
+						url: "ajax/getPointsBreakdown.php",
+						data: {nu_email: nu_email, start: start, end: end},
+						success: function(data){
+							var events = data.attended.events;
+							if(events.event_name.length > 0){
+								for(var i=events.event_name.length-1; 0<=i; i--){
+									$("<tr />").appendTo("#attended");
+									$("<td />").html(events.event_name[i]).appendTo("#attended tr:last");
+								}
+							}else{
 								$("<tr />").appendTo("#attended");
-								$("<td />").html(events.event_name[i]).appendTo("#attended tr:last");
+								$("<td />").html("None :(").appendTo("#attended tr:last");
 							}
-						}else{
-							$("<tr />").appendTo("#attended");
-							$("<td />").html("None :(").appendTo("#attended tr:last");
-						}
 
-						events = data.unattended.events;
-						if(events.event_name.length > 0){
-							for(var j=events.event_name.length-1; 0<=j; j--){
+							events = data.unattended.events;
+							if(events.event_name.length > 0){
+								for(var j=events.event_name.length-1; 0<=j; j--){
+									$("<tr />").appendTo("#unattended");
+									$("<td />").html(events.event_name[j]).appendTo("#unattended tr:last");
+								}
+							}else{
 								$("<tr />").appendTo("#unattended");
-								$("<td />").html(events.event_name[j]).appendTo("#unattended tr:last");
+								$("<td />").html("None :D").appendTo("#unattended tr:last");
 							}
-						}else{
-							$("<tr />").appendTo("#unattended");
-							$("<td />").html("None :D").appendTo("#unattended tr:last");
+
+							$("#breakdown").fadeIn();
+
+							//Charts:
+							var tableData = [];
+							for(var c in data.attended.committees){
+								tableData.push([c,data.attended.committees[c]]);
+							}
+
+							breakdown.drawChart(tableData,"Attended Events Committee Distribution","attendedByCommittee");
+
+							tableData = [];
+							for(c in data.unattended.committees){
+								tableData.push([c,data.unattended.committees[c]]);
+							}
+							breakdown.drawChart(tableData,"Unattended Events Committee Distribution","unattendedByCommittee");
 						}
-
-						$("#breakdown").fadeIn();
-
-						//Charts:
-						var tableData = [];
-						for(var c in data.attended.committees){
-							tableData.push([c,data.attended.committees[c]]);
-						}
-
-						breakdown.drawChart(tableData,"Attended Events Committee Distribution","attendedByCommittee");
-
-						tableData = [];
-						for(c in data.unattended.committees){
-							tableData.push([c,data.unattended.committees[c]]);
-						}
-						breakdown.drawChart(tableData,"Unattended Events Committee Distribution","unattendedByCommittee");
-					}
+					});
 				});
-			});
+			}
 		},
 		drawChart: function(tableData,title_in,id){
 			//setTimeout(function(){
