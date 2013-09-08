@@ -3,16 +3,60 @@ body{
   background-clip: border-box;
 }
 
+legend{
+  padding-left: 10px;
+}
+
 .content{
   background-color: #FFFFFF;
   -webkit-border-radius: 4px;
      -moz-border-radius: 4px;
           border-radius: 4px;
-     -webkit-box-shadow: 7px 7px 10px rgba(50, 50, 50, 1);
-        -moz-box-shadow: 7px 7px 10px rgba(50, 50, 50, 1);
-             box-shadow: 7px 7px 10px rgba(50, 50, 50, 1);
+     -webkit-box-shadow: 7px 7px 7px rgba(50, 50, 50, 1);
+        -moz-box-shadow: 7px 7px 7px rgba(50, 50, 50, 1);
+             box-shadow: 7px 7px 7px rgba(50, 50, 50, 1);
 }
 
 .col{
   padding: 10px 20px;
+}
+
+.slivkan-suggestion{
+  min-height: 30px;
+}
+
+.slivkan-suggestion img{
+  display: inline-block;
+  position: absolute;
+  right: 4px;
+  height: 30px;
+          transition-duration: 0.2s;
+  -webkit-transition-duration: 0.2s;
+     -moz-transition-duration: 0.2s;
+       -o-transition-duration: 0.2s;
+}
+
+.slivkan-suggestion img:hover{
+  z-index: 100;
+  -webkit-transform: translate(60px,0) scale(5);
+     -moz-transform: translate(60px,0) scale(5);
+      -ms-transform: translate(60px,0) scale(5);
+       -o-transform: translate(60px,0) scale(5);
+          transform: translate(60px,0) scale(5);
+}
+
+@media (max-width: 768px){
+  .container, .form-group{
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .row{
+    margin-left: -10px;
+    margin-right: -10px;
+  }
+
+  .col{
+    padding: 10px;
+  }
 }

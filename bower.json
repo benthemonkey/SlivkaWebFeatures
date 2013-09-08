@@ -1,17 +1,34 @@
 {
-	"name": "Slivka Points Center",
-	"dependencies": {
-		"jquery": "1.9.x",
-		"jquery-ui": "*",
-		"bootstrap": "3.x",
-		"bootstrap-daterangepicker": "*",
-		"stayInWebApp": "mrmoses/jQuery.stayInWebApp",
-		"datatables": "*",
-		"typeahead.js": "0.9.x",
-		"hogan": "*",
-		"nprogress": "*"
-	},
-	"devDependencies": {
-		"qunit": "*"
-	}
+  "name": "Slivka Points Center",
+  "authors": [
+    "Ben Rothman <bensrothman@gmail.com>"
+  ],
+  "dependencies": {
+    "jquery": "1.9.x",
+    "jquery-ui": "*",
+    "bootstrap": "3.x",
+    "stayInWebApp": "mrmoses/jQuery.stayInWebApp",
+    "datatables": "*",
+    "typeahead.js": "0.9.x",
+    "hogan": "*",
+    "nprogress": "*",
+    "jquery-ui-bootstrap": "https://github.com/addyosmani/jquery-ui-bootstrap/archive/masterbs3.tar.gz",
+    "moment": "~2.1.0",
+    "bootstrap-daterangepicker": "*",
+    "bootstrap-switch": "*"
+  },
+  "devDependencies": {
+    "qunit": "*"
+  },
+  "homepage": "http://slivka.northwestern.edu/points",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test"
+  ],
+  "resolutions": {
+    "jquery": "1.9.x"
+  }
 }

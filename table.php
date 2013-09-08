@@ -16,9 +16,5 @@
     </div>
 	</div>
   <?php include('footer.html'); ?>
-  <script type="text/javascript" src="DataTables/media/js/jquery.dataTables.min.js"></script>
-  <script type="text/javascript">
-    $(document).ready(function(){ pointsCenter.table.init(); });
-  </script>
 </body>
 </html>

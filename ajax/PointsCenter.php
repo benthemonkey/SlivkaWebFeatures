@@ -273,11 +273,17 @@ class PointsCenter
                 WHERE qtr=:qtr");
             $statement->bindValue(":qtr", self::$qtr);
             $statement->execute();
-            $bonus_points = $statement->fetchAll(PDO::FETCH_ASSOC|PDO::FETCH_GROUP);
+            $bonus_points = $statement->fetchAll(PDO::FETCH_GROUP|PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
             die();
         }
+
+        #fixing wierd extra nested array in return
+        foreach(array_keys($bonus_points) as $b){
+            $bonus_points[$b] = $bonus_points[$b][0];
+        }
+
         return $bonus_points;
     }
 
