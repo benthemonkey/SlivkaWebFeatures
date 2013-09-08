@@ -3,8 +3,8 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 	var slivkans, nicknames, fellows, type = "Other", valid_event_name = false,
 
 	//Quarter-related variables:
-	quarter_start = "2013-04-01",//"2013-09-24", //first day of classes
-	quarter_end = "2013-06-07",//"2013-12-06", //last day of reading week
+	quarter_start = "2013-09-24",//"2013-04-01", //first day of classes
+	quarter_end = "2013-12-06",//"2013-06-07", //last day of reading week
 	im_teams = ["Co-Rec Dodgeball","Co-Rec Football","Co-Rec Volleyball","White Dodgeball","White Football","White Volleyball"];
 
 	//add indexOfKey (useful: http://jsperf.com/js-for-loop-vs-array-indexof)
@@ -517,7 +517,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 					submission.validateFilledBy();
 				}
 				if(localStorage.spc_sub_type && localStorage.spc_sub_type != "Other"){
-					//$("input[value=\""+localStorage.spc_sub_type+"\"]:radio").parent().click();
+					$("input[value=\""+localStorage.spc_sub_type+"\"]:radio").parent().click();
 					// $("input[value=\"other\"]").removeClass("active");
 					// $("input[value=\""+localStorage.spc_sub_type+"\"]:radio").addClass("active");
 				}
@@ -569,7 +569,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			//event handlers for inputs
 			$("#filled-by")			.on("focus",	submission.handlers.addClassWarning)
 									.on("focusout",	submission.validateFilledBy);
-			//$("#type")				.on("click",	submission.toggleType);
+			$("#type")				.on("click",	submission.toggleType);
 			$("#event")				.on("focus",	submission.handlers.addClassWarning)
 									.on("focusout",	submission.validateEventName);
 			$("#date-label")		.on("click",	function(){ $("#date").datepicker("show"); });
@@ -646,7 +646,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			});
 		},
 		toggleType: function(event){
-			type = event.target.value;
+			type = $(event.target).find("input").val();
 
 			//store value
 			localStorage.spc_sub_type = type;
@@ -1095,7 +1095,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 
 				$(".fellow-entry").each(function(){
 					$(this).val("");
-					submission.validateFellowName($(this).parent());
+					submission.validateFellowName($(this).closest(".fellow-entry-control"));
 				});
 
 				$("#event-name-error").fadeOut();

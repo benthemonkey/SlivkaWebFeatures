@@ -4,7 +4,7 @@ include_once "./swift/swift_required.php";
 
 class PointsCenter
 {
-    private static $qtr = 1302;
+    private static $qtr = 1303;
 
     private static $dbConn = null;
     public function __construct ()
