@@ -10,7 +10,7 @@
 			<?php include('nav.html'); ?>
 			<div class="col">
 				<div class="row">
-					<legend>&nbsp;&nbsp;FAQ</legend>
+					<legend>FAQ</legend>
 					<div class="panel-group" id="accordion">
 						<div class="panel panel-default">
 							<div class="panel-heading">
@@ -66,10 +66,5 @@
 		</div>
 	</div>
 	<?php include('footer.html'); ?>
-	<script type="text/javascript">
-	$(document).ready(function(){
-		$('.nav li').eq(4).addClass('active');
-	})
-	</script>
 </body>
 </html>

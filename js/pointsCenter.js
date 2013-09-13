@@ -1,4 +1,4 @@
-define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterangepicker","jquery.ui.core","jquery.ui.datepicker","jquery.ui.effect"],function ($,NProgress,moment,Hogan) {
+define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterangepicker","jquery.ui.core","jquery.ui.effect"],function ($,NProgress,moment,Hogan) {
 	"use strict";
 	var slivkans, nicknames, fellows, type = "Other", valid_event_name = false,
 
@@ -160,18 +160,33 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 							$("#breakdown").fadeIn();
 
 							//Charts:
-							var tableData = [];
-							for(var c in data.attended.committees){
-								tableData.push([c,data.attended.committees[c]]);
+							var tableData, c;
+							if(data.attended.committees.length > 0){
+								$("#attendedByCommittee").css("height","250px");
+								tableData = [];
+								for(c in data.attended.committees){
+									if(data.attended.committees.hasOwnProperty(c)){
+										tableData.push([c,data.attended.committees[c]]);
+									}
+								}
+
+								breakdown.drawChart(tableData,"Attended Events Committee Distribution","attendedByCommittee");
+							}else{
+								$("#attendedByCommittee").css("height","0");
 							}
 
-							breakdown.drawChart(tableData,"Attended Events Committee Distribution","attendedByCommittee");
-
-							tableData = [];
-							for(c in data.unattended.committees){
-								tableData.push([c,data.unattended.committees[c]]);
+							if(data.unattended.committees.length > 0){
+								$("#unattendedByCommittee").css("height","250px");
+								tableData = [];
+								for(c in data.unattended.committees){
+									if(data.unattended.committees.hasOwnProperty(c)){
+										tableData.push([c,data.unattended.committees[c]]);
+									}
+								}
+								breakdown.drawChart(tableData,"Unattended Events Committee Distribution","unattendedByCommittee");
+							}else{
+								$("#unattendedByCommittee").css("height","0");
 							}
-							breakdown.drawChart(tableData,"Unattended Events Committee Distribution","unattendedByCommittee");
 						}
 					});
 				});
@@ -223,9 +238,9 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 					events = data.events;
 
 					for(var row in data.points_table){
-						//if(Math.max.apply(null,data.points_table[row].slice(1)) > 0){
+						if(data.points_table.hasOwnProperty(row)){
 							aDataSet.push(data.points_table[row]);
-						//}
+						}
 					}
 
 					for(var i=0;i<events.event_name.length;i++){
@@ -492,7 +507,6 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			$(".nav li").eq(3).addClass("active");
 			//mobile app support
 			$.stayInWebApp();
-			$("#type").button();
 
 			$.getJSON("ajax/getSlivkans.php",function(data){
 				slivkans = data.slivkans;
@@ -520,12 +534,10 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				}
 				if(localStorage.spc_sub_type && localStorage.spc_sub_type != "Other"){
 					$("input[value=\""+localStorage.spc_sub_type+"\"]:radio").parent().click();
-					// $("input[value=\"other\"]").removeClass("active");
-					// $("input[value=\""+localStorage.spc_sub_type+"\"]:radio").addClass("active");
 				}
-				if(localStorage.spc_sub_date){
+				/*if(localStorage.spc_sub_date){
 					$("#date").datepicker("setDate", localStorage.spc_sub_date);
-				}
+				}*/
 				if(localStorage.spc_sub_name){
 					$("#event").val(localStorage.spc_sub_name);
 					submission.validateEventName();
@@ -535,10 +547,9 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				}
 
 				//autocomplete and events for slivkan/fellow inputs
-				$("#filled-by").typeahead(common.typeaheadOpts(slivkans)
-					);
+				$("#filled-by").typeahead(common.typeaheadOpts(slivkans));
 
-				$("#slivkan-entry-tab")	.on("focus",".slivkan-entry",submission.handlers.addClassWarning)
+				$("#slivkan-entry-tab")	.on("focus",".slivkan-entry",submission.handlers.typeahead)
 										.on("focusout",".slivkan-entry",submission.handlers.validateSlivkanName)
 										.on("click",".helper-point",submission.handlers.toggleActive)
 										.on("click",".committee-point",submission.handlers.toggleActive);
@@ -547,7 +558,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 										.on("focusout",".fellow-entry",submission.handlers.validateFellowName);
 			});
 
-			$("#date").datepicker({
+			/*$("#date").datepicker({
 				minDate: -5,
 				maxDate: 0,
 				dateFormat: "m/d",
@@ -561,10 +572,15 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				}
 			});
 			$("#date").datepicker("setDate", new Date());
-			$("button.ui-datepicker-trigger").addClass("btn btn-default").html("<i class=\"glyphicon glyphicon-calendar\"></i>").wrap("<span class=\"input-group-btn\"></span>");
+			$("button.ui-datepicker-trigger").addClass("btn btn-default").html("<i class=\"glyphicon glyphicon-calendar\"></i>").wrap("<div class=\"input-group-btn\"></div>");
+			*/
+			//dates
+			for(var i=0; i<5; i++){
+				$("<option />").text(moment().subtract("days",i).format("ddd, M/D")).appendTo("#date");
+			}
 
 			//im teams
-			for(var i=0; i<im_teams.length; i++){
+			for(i=0; i<im_teams.length; i++){
 				$("<option />").text(im_teams[i]).appendTo("#im-team");
 			}
 
@@ -574,7 +590,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			$("#type")				.on("click",	submission.toggleType);
 			$("#event")				.on("focus",	submission.handlers.addClassWarning)
 									.on("focusout",	submission.validateEventName);
-			$("#date-label")		.on("click",	function(){ $("#date").datepicker("show"); });
+			//$("#date-label")		.on("click",	function(){ $("#date").datepicker("show"); });
 			$("#im-team")			.on("change",	submission.validateIMTeam);
 			$("#committee")			.on("change",	submission.validateCommittee);
 			$("#description")		.on("focusout",	submission.validateDescription);
@@ -593,7 +609,15 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			addClassWarning : function(){
 				$(this).closest(".form-group").addClass("has-warning");
 			},
+			typeahead : function(){
+				var target = $(this);
+				if(!target.hasClass("tt-query")){
+					target.parent().addClass("has-warning");
+					target.typeahead(common.typeaheadOpts(slivkans)).focus();
+				}
+			},
 			validateSlivkanName : function(){
+				$(this).closest(".slivkan-entry").typeahead("destroy");
 				submission.validateSlivkanName($(this).closest(".form-group"));
 			},
 			validateFellowName : function(){
@@ -613,11 +637,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				.find(".input-group-addon").text(start+i+1);
 			}
 
-			var slivkan_entries = $("#slivkan-entry-tab").find(".slivkan-entry");
-
-			slivkan_entries.typeahead(common.typeaheadOpts(slivkans));
-
-			slivkan_entries.last().on("focus",function(){
+			$("#slivkan-entry-tab").find(".slivkan-entry").last().on("focus",function(){
 				$(this).closest(".form-group").addClass("has-warning");
 				var num_inputs = $("#slivkan-entry-tab").find(".slivkan-entry").length;
 				$(this).off("focus");
@@ -694,7 +714,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			}
 		},
 		validatePointsForm: function(){
-			var valid = true,
+			var valid = true, valid_slivkans = true, valid_fellows = true,
 			errors = [];
 
 			if (!submission.validateFilledBy()){ valid = false; errors.push("Filled By"); }
@@ -702,16 +722,12 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			if (!submission.validateCommittee()){ valid = false; errors.push("Committee"); }
 			if (!submission.validateDescription()){ valid = false; errors.push("Description"); }
 
-			var valid_slivkans = true;
-
 			$(".slivkan-entry-control").each(function(index){
 				if(!submission.validateSlivkanName($(this),(index !== 0))){ valid_slivkans = false; }
 			});
 
 			if(!valid_slivkans){ valid = false; errors.push("Attendees"); }
 
-
-			var valid_fellows = true;
 
 			$(".fellow-entry-control").each(function(){
 				if(!submission.validateFellowName($(this))){ valid_fellows = false; }
@@ -738,7 +754,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			valid_event_name = false;
 
 			if((event_name.length <= 40 && event_name.length >= 8) || event_name == "P2P"){
-				event_name += " "+$("#date-val").val();
+				event_name += " "+moment($("#date-val").val()).format("YYYY-MM-DD");
 
 				$.getJSON("ajax/getEvents.php",function(data){
 					$(".event-control").removeClass("has-warning");
@@ -840,8 +856,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 		validateSlivkanName: function(entry,inBulk){
 			var valid = true,
 			slivkan_entry = entry.find(".slivkan-entry"),
-			helper = entry.find(".helper-point").parent(),
-			committee = entry.find(".committee-point").parent(),
+			entry_button = entry.find(".btn"),
 			name = slivkan_entry.val();
 
 			if (nicknames.nickname.indexOf(name) != -1){
@@ -883,23 +898,26 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				var name_ind = slivkans.indexOfKey("full_name",name);
 				if(name_ind != -1){
 					if(slivkans[name_ind].committee == $("#committee").val() && type != "IM"){
-						submission.showCommitteeMember(helper,committee,inBulk);
+						submission.showCommitteeMember(entry_button);
 					}else if(type == "IM" || slivkans[name_ind].committee == "Facilities" || slivkans[name_ind].committee == "Exec"){
-						submission.hideButtons(helper,committee,inBulk);
+						submission.hideButtons(entry_button);
 					}else{
-						submission.showHelperPoint(helper,committee,inBulk);
+						submission.showHelperPoint(entry_button);
 					}
 				}else{ valid=false; }
 				common.updateValidity(entry,valid);
 			}else{
 				entry.removeClass("has-success").removeClass("has-error");
-				submission.hideButtons(helper,committee,inBulk);
+				submission.hideButtons(entry_button);
 			}
 
 			return valid;
 		},
-		showHelperPoint: function(helper,committee,inBulk){ //quick: 46.15
-			if(helper.css("display") == "none"){
+		showHelperPoint: function(entry_button){ //quick: 46.15
+			if(!entry_button.hasClass("helper-point")){
+				entry_button.removeClass("committee-point disabled active").addClass("helper-point");
+			}
+			/*if(entry.find(".helper-point").css("display") == "none"){
 				committee.children().removeClass("active");
 				if(inBulk){
 					committee.hide();
@@ -909,10 +927,13 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 						helper.show("slide");
 					});
 				}
-			}
+			}*/
 		},
-		showCommitteeMember: function(helper,committee,inBulk){
-			if(committee.css("display") == "none"){
+		showCommitteeMember: function(entry_button){
+			if(!entry_button.hasClass("committee-point")){
+				entry_button.removeClass("helper-point disabled active").addClass("committee-point active");
+			}
+			/*if(committee.css("display") == "none"){
 				helper.children().removeClass("active");
 				if(inBulk){
 					helper.hide();
@@ -923,10 +944,13 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 					});
 				}
 				committee.children().addClass("active");
-			}
+			}*/
 		},
-		hideButtons: function(helper,committee,inBulk){
-			helper.children().removeClass("active");
+		hideButtons: function(entry_button){
+			if(!entry_button.hasClass("disabled")){
+				entry_button.removeClass("helper-point committee-point active").addClass("disabled");
+			}
+			/*helper.children().removeClass("active");
 			committee.children().removeClass("active");
 			if(inBulk){
 				helper.hide();
@@ -934,7 +958,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			}else{
 				helper.hide("slide");
 				committee.hide("slide");
-			}
+			}*/
 		},
 		validateFellowName: function(entry){
 			var valid = true,
@@ -1018,6 +1042,8 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				var ind = slots.indexOf(0);
 				slots[ind] = 1;
 				slivkan_entries.eq(ind).val(name);
+				// need to set input using typeahead
+				//slivkan_entries.eq(ind).typeahead("setQuery",name);
 				submission.validateSlivkanName(slivkan_entries.eq(ind).closest(".slivkan-entry-control"),(i < len-1));
 			}
 		},
@@ -1030,8 +1056,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			$("#slivkan-entry-tab").find(".slivkan-entry").val("");
 
 			//reset buttons
-			$(".committee-point").removeClass("active");
-			$(".helper-point").removeClass("active");
+			$(".bonus-point").removeClass("committee-point helper-point active").addClass("disabled");
 
 			nameArray = nameArray.sort();
 
@@ -1069,6 +1094,8 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 
 				var entry = entries.eq(i);
 				entry.find(".slivkan-entry").val(name);
+				// need to set input using typeahead
+				//entry.find(".slivkan-entry").typeahead("setQuery", name);
 				submission.validateSlivkanName(entry,(i < len-1));
 				if(h=="1"){ entry.find(".helper-point").addClass("active"); }
 				if(c=="0"){ entry.find(".committee-point").removeClass("active"); }
@@ -1081,17 +1108,18 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 		resetForm: function(force){
 			if(force === "force" || window.confirm("Reset form?")){
 				$(".type-btn:last").click();
-				$("#event").val(""); $(".event-control").removeClass("has-success").removeClass("has-error");
-				$("#description").val(""); $(".description-control").removeClass("has-success").removeClass("has-error");
-				$("#committee").val("Select One"); $(".committee-control").removeClass("has-success").removeClass("has-error");
-				$("#filled-by").val(""); $(".filled-by-control").removeClass("has-success").removeClass("has-error");
+				$("#event").val(""); $(".event-control").removeClass("has-success has-warning has-error");
+				$("#description").val(""); $(".description-control").removeClass("has-success has-error");
+				$("#committee").val("Select One"); $(".committee-control").removeClass("has-success has-error");
+				$("#filled-by").val(""); $(".filled-by-control").removeClass("has-success has-error");
 				$("#comments").val("");
 
 				$("#slivkan-entry-tab").find(".slivkan-entry-control").slice(15).remove();
 
-				$("#slivkan-entry-tab").find(".slivkan-entry-control").each(function(){
-					$(this).find(".slivkan-entry").val("");
-					submission.validateSlivkanName($(this),true);
+				$("#slivkan-entry-tab").find(".slivkan-entry").each(function(){
+					//$(this).find(".slivkan-entry").typeahead("setQuery","");
+					$(this).val("");
+					submission.validateSlivkanName($(this).parent(),true);
 				});
 				submission.validateSlivkanName($(".slivkan-entry-control").last());
 
@@ -1116,7 +1144,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 		},
 		submitPointsForm: function(){
 			var data = {
-				date: $("#date-val").val(),
+				date: moment($("#date-val").val()).format("YYYY-MM-DD"),
 				type: type.toLowerCase().replace(" ","_"),
 				committee: $("#committee").val(),
 				event_name: $("#event").val(),
@@ -1132,12 +1160,12 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			$("#slivkan-entry-tab").find(".slivkan-entry").each(function(){
 				var name = $(this).val();
 				if(name.length > 0){
-					var name_ind = slivkans.indexOfKey("full_name",name);
-					data.attendees.push(slivkans[name_ind].nu_email);
+					var nu_email = slivkans[slivkans.indexOfKey("full_name",name)].nu_email;
+					data.attendees.push(nu_email);
 					if($(this).parent().find(".helper-point").hasClass("active")){
-						data.helper_points.push(slivkans[name_ind].nu_email);
+						data.helper_points.push(nu_email);
 					}else if($(this).parent().find(".committee-point").hasClass("active")){
-						data.committee_members.push(slivkans[name_ind].nu_email);
+						data.committee_members.push(nu_email);
 					}
 				}
 			});
@@ -1157,17 +1185,19 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			var val;
 
 			for(var obj in data){
-				if(obj == "attendees" || obj == "helper_points" || obj == "committee_members" || obj == "fellows"){
-					val = data[obj].join(", ");
-				}else{
-					val = data[obj];
-				}
+				if(data.hasOwnProperty(obj)){
+					if(obj == "attendees" || obj == "helper_points" || obj == "committee_members" || obj == "fellows"){
+						val = data[obj].join(", ");
+					}else{
+						val = data[obj];
+					}
 
-				$("<tr class=\"results-row\" />").append(
-					$("<td class=\"results-label\" />").html(obj)
-				).append(
-					$("<td class=\"results\" />").html(val)
-				).appendTo("#receipt tbody");
+					$("<tr class=\"results-row\" />").append(
+						$("<td class=\"results-label\" />").html(obj)
+					).append(
+						$("<td class=\"results\" />").html(val)
+					).appendTo("#receipt tbody");
+				}
 			}
 
 			$("#submit-results").modal("show");
@@ -1187,12 +1217,22 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				});
 			});
 		}
+	},
+
+	faq = {
+		init: function(){
+			//nav
+			$(".nav li").eq(4).addClass("active");
+			//mobile app support
+			$.stayInWebApp();
+		}
 	};
 
 	return {
 		breakdown: breakdown,
 		table: table,
 		correction: correction,
-		submission: submission
+		submission: submission,
+		faq: faq
 	};
 });

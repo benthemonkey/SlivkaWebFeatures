@@ -8,7 +8,6 @@ require.config({
 		hogan: "bower_components/hogan/web/builds/2.0.0/hogan-2.0.0.amd",
 		jquery: "bower_components/jquery/jquery",
 		"jquery.ui.core": "bower_components/jquery-ui/ui/jquery.ui.core",
-		"jquery.ui.datepicker": "bower_components/jquery-ui/ui/jquery.ui.datepicker",
 		"jquery.ui.effect": "bower_components/jquery-ui/ui/jquery.ui.effect",
 		moment: "bower_components/moment/moment",
 		nprogress: "bower_components/nprogress/nprogress",
@@ -31,9 +30,6 @@ require.config({
 		],
 		"jquery.ui.core": [
 		"jquery"
-		],
-		"jquery.ui.datepicker": [
-			"jquery"
 		],
 		"jquery.ui.effect": [
 			"jquery"
@@ -70,7 +66,6 @@ require(["jquery","js/pointsCenter"],function($,spc) {
 		page = page.substr(0,page.length-4);
 
 		if(page == "index" || page === ""){ page = "breakdown"; }
-
 		spc[page].init();
 	});
 });

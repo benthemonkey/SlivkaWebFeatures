@@ -18,9 +18,21 @@
 			margin-top: 10px;
 		}
 
-		.committee-point{
-			border-top-left-radius: 0;
-			border-bottom-left-radius: 0;
+		.bonus-point.disabled{
+			width: 40px;
+			height: 34px;
+		}
+
+		.bonus-point.disabled > i{
+			display: none;
+		}
+
+		.bonus-point.helper-point > i.glyphicon-user{
+			display: none;
+		}
+
+		.bonus-point.committee-point > i.glyphicon-thumbs-up{
+			display: none;
 		}
 
 		.input-group-addon{
@@ -65,6 +77,8 @@
 							<select id="im-team" class="form-control"></select>
 						</div>
 
+						<div class="clearfix"></div>
+
 						<div class="form-group event-control col-md-12">
 							<label class="control-label" for="event">Event name:</label>
 							<input type="text" name="event" id="event" class="form-control">
@@ -72,12 +86,13 @@
 							<div class="help-block hide" id="event-name-length-error">Event name must be between 8 and 40 characters.<br/><span id="event-name-length-error-count"></span></div>
 						</div>
 
-						<div class="form-group col-xs-4">
+						<div class="form-group col-md-4">
 							<label id="date-label" for="date">Date:</label>
-							<input type="text" id="date-val" name="actual-date" style="display: none">
+							<select id="date" class="form-control"></select>
+							<!--<input type="text" id="date-val" name="actual-date" style="display: none">
 							<div class="input-group">
 								<input type="text" id="date" name="date" class="form-control text-center" style="position: relative; z-index: 10; color: #000000;" disabled></input>
-							</div>
+							</div>-->
 						</div>
 
 						<div class="clearfix"></div>
@@ -139,11 +154,10 @@
 								<div class="form-group input-group slivkan-entry-control">
 									<div class="input-group-addon">1</div>
 									<input type="text" class="slivkan-entry form-control" name="slivkan-entry" placeholder="Slivkan">
-									<div class="input-group-btn" style="display: none">
-										<div class="btn btn-default committee-point" title="Committee Member"><i class="glyphicon glyphicon-user"></i></div>
-									</div>
-									<div class="input-group-btn" style="display: none">
-										<div class="btn btn-default helper-point" title="Helper Point"><i class="glyphicon glyphicon-thumbs-up"></i></div>
+									<div class="input-group-btn">
+										<div class="btn btn-default bonus-point disabled"><i class="glyphicon glyphicon-user"></i><i class="glyphicon glyphicon-thumbs-up"></i></div>
+										<!--div class="btn btn-default committee-point" title="Committee Member"><i class="glyphicon glyphicon-user"></i></div>
+										<div class="btn btn-default helper-point" title="Helper Point"><i class="glyphicon glyphicon-thumbs-up"></i></div-->
 									</div>
 								</div>
 							</div>
@@ -191,7 +205,7 @@
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<h3>Points Form Submission</h3>
+					<h3>Form Receipt</h3>
 				</div>
 				<div class="modal-body">
 					<table class="table table-bordered table-condensed" id="receipt">
@@ -208,7 +222,7 @@
 						<button type="button" class="btn btn-primary" id="real-submit">Submit</button>
 						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 					</div>
-					<div id="confirmed" class="hide">
+					<div id="confirmed" style="display: none;">
 						<span>If an error occurs, email the receipt to Ben Rothman.</span>
 						<a href="table.php" class="btn btn-primary">View Points</a>
 					</div>
