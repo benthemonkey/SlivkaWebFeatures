@@ -45,6 +45,10 @@ legend{
           transform: translate(0,60px) scale(5);
 }
 
+.form-control{
+  padding: 6px 4px;
+}
+
 .tt-dropdown-menu{
   min-width: 260px;
 }
