@@ -9,7 +9,7 @@
 			display: block;
 		}
 
-		.slivkan-entry-control{
+		.slivkan-entry-control, .fellow-entry-control{
 			width: 100%;
 			margin-bottom: 10px;
 		}
@@ -155,9 +155,10 @@
 									<div class="input-group-addon">1</div>
 									<input type="text" class="slivkan-entry form-control" name="slivkan-entry" placeholder="Slivkan">
 									<div class="input-group-btn">
-										<div class="btn btn-default bonus-point disabled"><i class="glyphicon glyphicon-user"></i><i class="glyphicon glyphicon-thumbs-up"></i></div>
-										<!--div class="btn btn-default committee-point" title="Committee Member"><i class="glyphicon glyphicon-user"></i></div>
-										<div class="btn btn-default helper-point" title="Helper Point"><i class="glyphicon glyphicon-thumbs-up"></i></div-->
+										<div class="btn btn-default bonus-point disabled">
+											<i class="glyphicon glyphicon-user"></i>
+											<i class="glyphicon glyphicon-thumbs-up"></i>
+										</div>
 									</div>
 								</div>
 							</div>

@@ -1,9 +1,9 @@
-define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterangepicker","jquery.ui.core","jquery.ui.effect"],function ($,NProgress,moment,Hogan) {
+define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterangepicker"],function ($,NProgress,moment,Hogan) {
 	"use strict";
 	var slivkans, nicknames, fellows, type = "Other", valid_event_name = false,
 
 	//Quarter-related variables:
-	quarter_start = "2013-09-24",//"2013-04-01", //first day of classes
+	quarter_start = "2013-09-04",//"2013-04-01", //first day of classes
 	quarter_end = "2013-12-06",//"2013-06-07", //last day of reading week
 	im_teams = ["Co-Rec Dodgeball","Co-Rec Football","Co-Rec Volleyball","White Dodgeball","White Football","White Volleyball"];
 
@@ -108,10 +108,10 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 		},
 		toggleShowUnattended: function(event,data){
 			if(data.value){
-				$("#unattended-col").show("slideup");//,{direction: "up"});
+				$("#unattended-col").slideDown();
 				localStorage.spc_brk_showUnattended = 1;
 			}else{
-				$("#unattended-col").hide("slideup");//,{direction: "up"});
+				$("#unattended-col").slideUp();
 				localStorage.spc_brk_showUnattended = "";
 			}
 		},
@@ -127,7 +127,9 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 
 				$("#breakdown").fadeOut(function(){
 					$("#attended").empty();
+					$("#attendedByCommittee").empty();
 					$("#unattended").empty();
+					$("#unattendedByCommittee").empty();
 
 					$.ajax({
 						async: true,
@@ -135,33 +137,13 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 						url: "ajax/getPointsBreakdown.php",
 						data: {nu_email: nu_email, start: start, end: end},
 						success: function(data){
-							var events = data.attended.events;
+							var events = data.attended.events, tableData, c;
 							if(events.event_name.length > 0){
 								for(var i=events.event_name.length-1; 0<=i; i--){
 									$("<tr />").appendTo("#attended");
 									$("<td />").html(events.event_name[i]).appendTo("#attended tr:last");
 								}
-							}else{
-								$("<tr />").appendTo("#attended");
-								$("<td />").html("None :(").appendTo("#attended tr:last");
-							}
 
-							events = data.unattended.events;
-							if(events.event_name.length > 0){
-								for(var j=events.event_name.length-1; 0<=j; j--){
-									$("<tr />").appendTo("#unattended");
-									$("<td />").html(events.event_name[j]).appendTo("#unattended tr:last");
-								}
-							}else{
-								$("<tr />").appendTo("#unattended");
-								$("<td />").html("None :D").appendTo("#unattended tr:last");
-							}
-
-							$("#breakdown").fadeIn();
-
-							//Charts:
-							var tableData, c;
-							if(data.attended.committees.length > 0){
 								$("#attendedByCommittee").css("height","250px");
 								tableData = [];
 								for(c in data.attended.committees){
@@ -172,10 +154,19 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 
 								breakdown.drawChart(tableData,"Attended Events Committee Distribution","attendedByCommittee");
 							}else{
+								$("<tr />").appendTo("#attended");
+								$("<td />").html("None :(").appendTo("#attended tr:last");
+
 								$("#attendedByCommittee").css("height","0");
 							}
 
-							if(data.unattended.committees.length > 0){
+							events = data.unattended.events;
+							if(events.event_name.length > 0){
+								for(var j=events.event_name.length-1; 0<=j; j--){
+									$("<tr />").appendTo("#unattended");
+									$("<td />").html(events.event_name[j]).appendTo("#unattended tr:last");
+								}
+
 								$("#unattendedByCommittee").css("height","250px");
 								tableData = [];
 								for(c in data.unattended.committees){
@@ -185,15 +176,20 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 								}
 								breakdown.drawChart(tableData,"Unattended Events Committee Distribution","unattendedByCommittee");
 							}else{
+								$("<tr />").appendTo("#unattended");
+								$("<td />").html("None :D").appendTo("#unattended tr:last");
+
 								$("#unattendedByCommittee").css("height","0");
 							}
+
+							$("#breakdown").fadeIn();
 						}
 					});
 				});
 			}
 		},
 		drawChart: function(tableData,title_in,id){
-			//setTimeout(function(){
+			setTimeout(function(){
 				$("#"+id).highcharts({
 					credits: {
 						enabled: false
@@ -213,7 +209,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 						data: tableData
 					}]
 				});
-			//},500);
+			},500);
 		}
 	},
 
@@ -285,7 +281,14 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 						"oLanguage": {
 							"sSearch": "Filter by Name:<br/>"
 						},
-						"sDom": "<'row table-controls'<'col-sm-5 table-info'i><'col-sm-3'f><'col-sm-2 filter1'><'col-sm-2 filter2'>><'header-row'><'row'<'col-md-12'rt>>"
+						"sDom": ["",
+							"<'row table-controls'",
+								"<'col-sm-5 table-info'i>",
+								"<'col-sm-3'f>",
+								"<'col-sm-2 filter1'>",
+								"<'col-sm-2 filter2'>",
+							"><'header-row'>",
+							"<'row'<'col-md-12'rt>>"].join("")
 					});
 
 					//table info
@@ -351,7 +354,8 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 
 						table.processAnimationQueue();*/
 
-						var cols_width = nameColWidth + (eventColWidth+1)*(count == -1 ? event_targets.length : count) + (totalsColWidth+1)*totals_targets.length + 40;
+						var cols_width = nameColWidth + (eventColWidth+1)*(count == -1 ? event_targets.length : count) +
+							(totalsColWidth+1)*totals_targets.length + 40;
 						$(".container").css("min-width", cols_width+"px");
 
 					});
@@ -368,7 +372,8 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 							trigger: "click",
 							html: true,
 							title: event_names[i],
-							content: "Date: "+event_dates[i]+"<br/>Attendees: "+events.attendees[i]+(events.description[i].length > 0 ? "<br/>Description: "+events.description[i] : ""),
+							content: ["Date: ",event_dates[i],"<br/>Attendees: ",events.attendees[i],
+								(events.description[i].length > 0 ? "<br/>Description: " + events.description[i] : "")].join(""),
 							placement: "bottom",
 							container: "#table"
 						}).appendTo("#columns");
@@ -549,12 +554,11 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				//autocomplete and events for slivkan/fellow inputs
 				$("#filled-by").typeahead(common.typeaheadOpts(slivkans));
 
-				$("#slivkan-entry-tab")	.on("focus",".slivkan-entry",submission.handlers.typeahead)
+				$("#slivkan-entry-tab")	.on("focus",".slivkan-entry",submission.handlers.slivkanTypeahead)
 										.on("focusout",".slivkan-entry",submission.handlers.validateSlivkanName)
-										.on("click",".helper-point",submission.handlers.toggleActive)
-										.on("click",".committee-point",submission.handlers.toggleActive);
+										.on("click",".bonus-point",submission.handlers.toggleActive);
 
-				$("#fellow-entry-tab")	.on("focus",".fellow-entry",submission.handlers.addClassWarning)
+				$("#fellow-entry-tab")	.on("focus",".fellow-entry",submission.handlers.fellowTypeahead)
 										.on("focusout",".fellow-entry",submission.handlers.validateFellowName);
 			});
 
@@ -572,7 +576,8 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				}
 			});
 			$("#date").datepicker("setDate", new Date());
-			$("button.ui-datepicker-trigger").addClass("btn btn-default").html("<i class=\"glyphicon glyphicon-calendar\"></i>").wrap("<div class=\"input-group-btn\"></div>");
+			$("button.ui-datepicker-trigger").addClass("btn btn-default").html("<i class=\"glyphicon glyphicon-calendar\"></i>")
+				.wrap("<div class=\"input-group-btn\"></div>");
 			*/
 			//dates
 			for(var i=0; i<5; i++){
@@ -609,22 +614,35 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			addClassWarning : function(){
 				$(this).closest(".form-group").addClass("has-warning");
 			},
-			typeahead : function(){
+			slivkanTypeahead : function(){
 				var target = $(this);
 				if(!target.hasClass("tt-query")){
-					target.parent().addClass("has-warning");
 					target.typeahead(common.typeaheadOpts(slivkans)).focus();
+					target.closest(".slivkan-entry-control").addClass("has-warning");
 				}
 			},
 			validateSlivkanName : function(){
 				$(this).closest(".slivkan-entry").typeahead("destroy");
 				submission.validateSlivkanName($(this).closest(".form-group"));
 			},
+			fellowTypeahead : function(){
+				var target = $(this);
+				if(!target.hasClass("tt-query")){
+					target.typeahead({
+						name: "fellows",
+						valueKey: "full_name",
+						local: fellows
+					}).focus();
+					target.closest(".fellow-entry-control").addClass("has-warning");
+				}
+			},
 			validateFellowName : function(){
+				$(this).closest(".fellow-entry").typeahead("destroy");
 				submission.validateFellowName($(this).closest(".form-group"));
 			},
 			toggleActive : function(){
-				$(this).toggleClass("active"); submission.saveSlivkans();
+				$(this).toggleClass("active");
+				submission.saveSlivkans();
 			}
 		},
 		appendNameInputs: function(n){
@@ -652,13 +670,6 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				.removeClass("has-warning")
 				.find(".input-group-addon").text(start+i+1);
 			}
-
-			$("#fellow-entry-tab").find(".fellow-entry")
-				.typeahead({
-					name: "fellows",
-					valueKey: "full_name",
-					local: fellows
-				});
 
 			$(".fellow-entry").last().on("focus",function(){
 				$(this).parent().addClass("has-warning");

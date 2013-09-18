@@ -7,13 +7,10 @@ require.config({
 		highcharts: "bower_components/Highcharts-3.0.5/js/highcharts.src",
 		hogan: "bower_components/hogan/web/builds/2.0.0/hogan-2.0.0.amd",
 		jquery: "bower_components/jquery/jquery",
-		"jquery.ui.core": "bower_components/jquery-ui/ui/jquery.ui.core",
-		"jquery.ui.effect": "bower_components/jquery-ui/ui/jquery.ui.effect",
 		moment: "bower_components/moment/moment",
 		nprogress: "bower_components/nprogress/nprogress",
 		stayInWebApp: "bower_components/stayInWebApp/jquery.stayInWebApp",
 		typeahead: "bower_components/typeahead.js/dist/typeahead",
-		"jquery-ui": "bower_components/jquery-ui/ui/jquery-ui"
 	},
 	shim: {
 		bootstrap: [
@@ -26,12 +23,6 @@ require.config({
 			"jquery"
 		],
 		highcharts: [
-			"jquery"
-		],
-		"jquery.ui.core": [
-		"jquery"
-		],
-		"jquery.ui.effect": [
 			"jquery"
 		],
 		stayInWebApp: [

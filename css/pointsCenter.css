@@ -1,5 +1,5 @@
 body{
-  background: transparent url('../img/slivka-wallpaper.jpg') repeat-y top center;
+  background: transparent url('../img/slivka-wallpaper-half.jpg') repeat-y top center;
   background-clip: border-box;
 }
 
@@ -38,11 +38,15 @@ legend{
 
 .slivkan-suggestion img:hover{
   z-index: 100;
-  -webkit-transform: translate(60px,0) scale(5);
-     -moz-transform: translate(60px,0) scale(5);
-      -ms-transform: translate(60px,0) scale(5);
-       -o-transform: translate(60px,0) scale(5);
-          transform: translate(60px,0) scale(5);
+  -webkit-transform: translate(0,60px) scale(5);
+     -moz-transform: translate(0,60px) scale(5);
+      -ms-transform: translate(0,60px) scale(5);
+       -o-transform: translate(0,60px) scale(5);
+          transform: translate(0,60px) scale(5);
+}
+
+.tt-dropdown-menu{
+  min-width: 260px;
 }
 
 @media (max-width: 768px){
@@ -60,20 +64,3 @@ legend{
     padding: 10px;
   }
 }
-
-/* ranges + (calendar * 2) = 160 + (230 *2 ) = 620 */
-/*@media (min-width: 620px) {
-  .daterangepicker.opensright .calendar { float: left !important; }
-}
-@media (max-width: 619px) {
-    .daterangepicker.dropdown-menu { max-width: 496px !important; }
-    .daterangepicker.opensleft .ranges { float: right !important; }
-
-    .daterangepicker.opensright .calendar.left { float: left; !important; }
-    .daterangepicker.opensright .calendar.right { float: right; !important; }
-}
-@media (max-width: 495px) {
-    .daterangepicker.dropdown-menu { max-width: 240px !important; }
-    .daterangepicker.opensright .calendar { float: left !important; }
-    .daterangepicker.opensright .ranges { float: left !important; }
-}*/

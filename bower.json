@@ -5,17 +5,16 @@
   ],
   "dependencies": {
     "jquery": "1.9.x",
-    "jquery-ui": "*",
     "bootstrap": "3.x",
     "stayInWebApp": "mrmoses/jQuery.stayInWebApp",
     "datatables": "*",
     "typeahead.js": "0.9.x",
     "hogan": "*",
     "nprogress": "*",
-    "jquery-ui-bootstrap": "https://github.com/addyosmani/jquery-ui-bootstrap/archive/masterbs3.tar.gz",
     "moment": "~2.1.0",
     "bootstrap-daterangepicker": "*",
-    "bootstrap-switch": "*"
+    "bootstrap-switch": "*",
+    "highcharts.com": "*"
   },
   "devDependencies": {
     "qunit": "*"
