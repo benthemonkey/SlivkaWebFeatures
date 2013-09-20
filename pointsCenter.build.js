@@ -10,7 +10,7 @@ require.config({
 		moment: "bower_components/moment/moment",
 		nprogress: "bower_components/nprogress/nprogress",
 		stayInWebApp: "bower_components/stayInWebApp/jquery.stayInWebApp",
-		typeahead: "bower_components/typeahead.js/dist/typeahead",
+		typeahead: "bower_components/typeahead.js/dist/typeahead"
 	},
 	shim: {
 		bootstrap: [

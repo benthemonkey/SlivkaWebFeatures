@@ -555,7 +555,8 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				$("#filled-by").typeahead(common.typeaheadOpts(slivkans));
 
 				$("#slivkan-entry-tab")	.on("focus",".slivkan-entry",submission.handlers.slivkanTypeahead)
-										.on("focusout",".slivkan-entry",submission.handlers.validateSlivkanName)
+										.on("typeahead:selected",".slivkan-entry",submission.handlers.validateSlivkanName)
+										.on("typeahead:closed",".slivkan-entry",submission.handlers.validateSlivkanName)
 										.on("click",".bonus-point",submission.handlers.toggleActive);
 
 				$("#fellow-entry-tab")	.on("focus",".fellow-entry",submission.handlers.fellowTypeahead)
@@ -622,8 +623,11 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				}
 			},
 			validateSlivkanName : function(){
-				$(this).closest(".slivkan-entry").typeahead("destroy");
-				submission.validateSlivkanName($(this).closest(".form-group"));
+				var target = $(this);
+				if(target.hasClass("tt-query")){
+					target.closest(".slivkan-entry").typeahead("destroy");
+					submission.validateSlivkanName(target.closest(".form-group"));
+				}
 			},
 			fellowTypeahead : function(){
 				var target = $(this);
@@ -928,48 +932,16 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			if(!entry_button.hasClass("helper-point")){
 				entry_button.removeClass("committee-point disabled active").addClass("helper-point");
 			}
-			/*if(entry.find(".helper-point").css("display") == "none"){
-				committee.children().removeClass("active");
-				if(inBulk){
-					committee.hide();
-					helper.show();
-				}else{
-					committee.hide("slide",function(){
-						helper.show("slide");
-					});
-				}
-			}*/
 		},
 		showCommitteeMember: function(entry_button){
 			if(!entry_button.hasClass("committee-point")){
 				entry_button.removeClass("helper-point disabled active").addClass("committee-point active");
 			}
-			/*if(committee.css("display") == "none"){
-				helper.children().removeClass("active");
-				if(inBulk){
-					helper.hide();
-					committee.show();
-				}else{
-					helper.hide("slide",function(){
-						committee.show("slide");
-					});
-				}
-				committee.children().addClass("active");
-			}*/
 		},
 		hideButtons: function(entry_button){
 			if(!entry_button.hasClass("disabled")){
 				entry_button.removeClass("helper-point committee-point active").addClass("disabled");
 			}
-			/*helper.children().removeClass("active");
-			committee.children().removeClass("active");
-			if(inBulk){
-				helper.hide();
-				committee.hide();
-			}else{
-				helper.hide("slide");
-				committee.hide("slide");
-			}*/
 		},
 		validateFellowName: function(entry){
 			var valid = true,
@@ -1186,9 +1158,6 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 					data.fellows.push($(this).val());
 				}
 			});
-
-
-			//console.log(JSON.stringify(data));
 
 			//clear receipt:
 			$(".results-row").remove();
