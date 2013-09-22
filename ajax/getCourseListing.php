@@ -1,39 +1,25 @@
 <?php
 header('Content-type: text/html; charset=utf-8');
+require_once "./PointsCenter.php";
+$points_center = new PointsCenter();
+$quarter_info = $points_center->getQuarterInfo();
+$slivkans = $points_center->getAllSlivkans();
 
-require_once('datastoreVars.php');
+$quarter_info['im_teams'] = json_decode($quarter_info['im_teams']);
 
-$con = mysql_connect($DB_SERV,$DB_USER,$DB_PASS);
+$listing = $points_center->getCourseListing($_GET['department'],$_GET['number']);
+$past = array(); $current = array();
 
-if(!$con){
-    die('Could not connect: ' . mysql_errror());
+foreach($listing as $item){
+	if($item['qtr'] == $quarter_info['qtr']){
+		$current[] = $slivkans[$item['nu_email']];
+	}else{
+		$past[] = $slivkans[$item['nu_email']];
+	}
 }
 
-mysql_select_db($DB_NAME,$con);
+$current = array_unique($current); sort($current);
+$past = array_unique($past); sort($past);
 
-$department = $_GET['department'];
-$course = $_GET['course'];
-
-$result = mysql_query('SELECT * FROM courses WHERE Courses LIKE "%' . $department . ' ' . $course . '%" ORDER BY Name');
-
-$current = array();
-$past = array();
-
-while($r = mysql_fetch_assoc($result)){
-        if(strcmp($r['Quarter'],$quarter) == 0){
-            $current[] = $r['Name'];
-        }else{
-            $past[] = $r['Name'];
-        }
-}
-
-$current = array_unique($current);
-$past = array_unique($past);
-
-$return = array(current => $current, past => $past);
-
-echo json_encode($return);
-
-mysql_close($con);
-
+echo json_encode(array("past"=>$past, "current"=>$current));
 ?>

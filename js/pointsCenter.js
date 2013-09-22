@@ -1,11 +1,6 @@
 define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterangepicker"],function ($,NProgress,moment,Hogan) {
 	"use strict";
-	var slivkans, nicknames, fellows, type = "Other", valid_event_name = false,
-
-	//Quarter-related variables:
-	quarter_start = "2013-09-04",//"2013-04-01", //first day of classes
-	quarter_end = "2013-12-06",//"2013-06-07", //last day of reading week
-	im_teams = ["Co-Rec Dodgeball","Co-Rec Football","Co-Rec Volleyball","White Dodgeball","White Football","White Volleyball"];
+	var slivkans, nicknames, fellows, type = "Other", valid_event_name = false;
 
 	//add indexOfKey (useful: http://jsperf.com/js-for-loop-vs-array-indexof)
 	Array.prototype.indexOfKey = function (key, value) {
@@ -78,30 +73,30 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 					}
 
 					if(!localStorage.spc_brk_showUnattended){ $("#showUnattended").click(); }
+
+					$("#daterange").daterangepicker({
+						format: "MMM Do",
+						startDate: moment(localStorage.spc_brk_start || quarter_start),
+						endDate: moment(localStorage.spc_brk_end || quarter_end),
+						minDate: moment(quarter_start),
+						maxDate: moment(quarter_end),
+						ranges: {
+							"Last 7 Days": [moment().subtract("days", 6), moment()],
+							"Last 30 Days": [moment().subtract("days", 29), moment()],
+							"Since Quarter Started": [moment(quarter_start), moment()]
+						},
+						buttonClasses: "btn",
+						applyClass: "btn-primary"
+					},function(start, end) {
+						localStorage.spc_brk_start = start.format("YYYY-MM-DD");
+						localStorage.spc_brk_end = end.format("YYYY-MM-DD");
+
+						if($("#slivkan").val().length > 0){
+							breakdown.getSlivkanPoints();
+						}
+					}).val(moment(localStorage.spc_brk_start || quarter_start).format("MMM Do") + " - " + moment(localStorage.spc_brk_end || quarter_end).format("MMM Do"));
 				}
 			});
-
-			$("#daterange").daterangepicker({
-				format: "MMM Do",
-				startDate: moment(localStorage.spc_brk_start || quarter_start),
-				endDate: moment(localStorage.spc_brk_end || quarter_end),
-				minDate: moment(quarter_start),
-				maxDate: moment(quarter_end),
-				ranges: {
-					"Last 7 Days": [moment().subtract("days", 6), moment()],
-					"Last 30 Days": [moment().subtract("days", 29), moment()],
-					"Since Quarter Started": [moment(quarter_start), moment()]
-				},
-				buttonClasses: "btn",
-				applyClass: "btn-primary"
-			},function(start, end) {
-				localStorage.spc_brk_start = start.format("YYYY-MM-DD");
-				localStorage.spc_brk_end = end.format("YYYY-MM-DD");
-
-				if($("#slivkan").val().length > 0){
-					breakdown.getSlivkanPoints();
-				}
-			}).val(moment(localStorage.spc_brk_start || quarter_start).format("MMM Do") + " - " + moment(localStorage.spc_brk_end || quarter_end).format("MMM Do"));
 
 			$("#slivkan")		.on("change", breakdown.getSlivkanPoints);
 			$(".make-switch")	.on("switch-change", breakdown.toggleShowUnattended);
@@ -517,10 +512,16 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 				fellows = data.fellows;
+				var im_teams = data.quarter_info.im_teams;
 
 				//initialization
 				submission.appendNameInputs(14);
 				submission.appendFellowInputs(9);
+
+				//im teams
+				for(i=0; i<im_teams.length; i++){
+					$("<option />").text(im_teams[i]).appendTo("#im-team");
+				}
 
 				//loading saved values
 				if(localStorage.spc_sub_committee){
@@ -583,11 +584,6 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			//dates
 			for(var i=0; i<5; i++){
 				$("<option />").text(moment().subtract("days",i).format("ddd, M/D")).appendTo("#date");
-			}
-
-			//im teams
-			for(i=0; i<im_teams.length; i++){
-				$("<option />").text(im_teams[i]).appendTo("#im-team");
 			}
 
 			//event handlers for inputs
