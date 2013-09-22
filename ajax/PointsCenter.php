@@ -685,13 +685,10 @@ class PointsCenter
 			$statement = self::$dbConn->prepare(
 				"INSERT INTO courses
 				(nu_email, courses, qtr)
-				VALUES (':nu_email',':courses',':qtr')");
-			$statement->bindValue(":nu_email", $nu_email);
-			$statement->bindValue(":courses", $courses);
-			$statement->bindValue(":qtr", $qtr);
-			$statement->execute();
+				VALUES (?,?,?)");
+			$statement->execute(array($nu_email,$courses,$qtr));
 		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
+			echo "Error: " . $e->getMessage() . "<br/>Tell Ben";
 			die();
 		}
 

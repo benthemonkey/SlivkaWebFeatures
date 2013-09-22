@@ -5,9 +5,6 @@
 	<title>Course Database</title>
 </head>
 <body style="background: none;">
-<p>
-	<a href="http://slivka.northwestern.edu/resources/course-database/course-database-entry-form/" title="Click here to access the Course Database Entry Form">Click here to access the Course Database Entry Form.</a>
-</p>
 <p>Want to know who else in Slivka has taken your classes? Search for your department and course here to find out!</p>
 <form method="get" action="">
 	<table class="table">

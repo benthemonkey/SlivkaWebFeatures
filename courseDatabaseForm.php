@@ -111,6 +111,7 @@
 
 	    if (matched){
 	        valid = true;
+	        $("#courses").val(matched.join("; "));
 	        $("#matched").html(matched.length);
 	        $("#courses-error").fadeOut();
 	    }else{

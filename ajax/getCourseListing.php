@@ -7,7 +7,7 @@ $slivkans = $points_center->getAllSlivkans();
 
 $quarter_info['im_teams'] = json_decode($quarter_info['im_teams']);
 
-$listing = $points_center->getCourseListing($_GET['department'],$_GET['number']);
+$listing = $points_center->getCourseListing($_GET['department'],$_GET['course']);
 $past = array(); $current = array();
 
 foreach($listing as $item){
