@@ -1,6 +1,6 @@
 define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterangepicker"],function ($,NProgress,moment,Hogan) {
 	"use strict";
-	var slivkans, nicknames, fellows, type = "Other", valid_event_name = false;
+	var slivkans, nicknames, fellows, type = "Other", valid_event_name = false, quarter_start, quarter_end;
 
 	//add indexOfKey (useful: http://jsperf.com/js-for-loop-vs-array-indexof)
 	Array.prototype.indexOfKey = function (key, value) {
@@ -62,6 +62,8 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				url: "ajax/getSlivkans.php",
 				success: function (data) {
 					slivkans = data.slivkans;
+					quarter_start = data.quarter_info.start_date;
+					quarter_end = data.quarter_info.end_date;
 
 					for(var i=0; i<slivkans.length; i++){
 						$("<option />").attr("value",slivkans[i].nu_email).text(slivkans[i].full_name).appendTo("#slivkan");

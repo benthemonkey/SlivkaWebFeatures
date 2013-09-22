@@ -35,6 +35,8 @@ class PointsCenter
 			echo "Error: " . $e->getMessage();
 			die();
 		}
+
+		$quarter_info[0]['im_teams'] = json_decode($quarter_info[0]['im_teams']);
 		return $quarter_info[0];
 	}
 
