@@ -430,6 +430,14 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 
+				//tack on nicknames to slivkans
+				for(var i=0; i<nicknames.length; i++){
+					var ind = slivkans.indexOfKey("nu_email",nicknames[i].nu_email);
+					if(ind !== -1){
+						slivkans[ind].tokens.push(nicknames[i].nickname);
+					}
+				}
+
 				$("#filled-by").typeahead(common.typeaheadOpts(slivkans));
 			});
 
@@ -454,6 +462,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			if($("#event-name").val() == "Select One"){ valid = false; errors.push("Event Name"); }
 
 			if(valid){
+				$("#submit-error").fadeOut();
 				correction.submitPointsCorrection();
 			}else{
 				$("#submit-error").text("Validation errors in: "+errors.join(", ")).fadeIn();
@@ -461,11 +470,6 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 		},
 		validateFilledBy: function(){
 			var valid, name = $("#filled-by").val();
-
-			if (nicknames.nickname.indexOf(name) != -1){
-				name = nicknames.full_name[nicknames.nickname.indexOf(name)];
-				$("#filled-by").val(name);
-			}
 
 			$(".filled-by-control").removeClass("has-warning");
 
@@ -495,9 +499,9 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			$("#response").fadeOut();
 
 			$.getJSON("./ajax/sendPointsCorrection.php",data,function(response){
-				$("#response").html("<p>Response: "+response.message+"</p>");
-				$("<a href=\"table.php\" class=\"btn btn-primary\">View Points</a>").appendTo("#response");
-				$("<a class=\"btn btn-default\" href=\"correction.php\">Submit Another</a>").appendTo("#response");
+				$("#response").text("Response: "+response.message);
+				$("#form-actions").html("<button type=\"button\" class=\"btn btn-primary\" href=\"table.php\">View Points</button>"+
+					"<button type=\"button\" class=\"btn btn-default\" href=\"correction.php\">Submit Another</button>");
 				$("#response").fadeIn();
 			});
 		}
@@ -509,6 +513,13 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			$(".nav li").eq(3).addClass("active");
 			//mobile app support
 			$.stayInWebApp();
+			//prevent [Enter] from causing form submit
+			$(window)				.on("keydown",	function(event){
+				if(event.keyCode == 13) {
+					event.preventDefault();
+					return false;
+				}
+			});
 
 			$.getJSON("ajax/getSlivkans.php",function(data){
 				slivkans = data.slivkans;
@@ -516,8 +527,16 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				fellows = data.fellows;
 				var im_teams = data.quarter_info.im_teams;
 
+				//tack on nicknames to slivkans
+				for(var i=0; i<nicknames.length; i++){
+					var ind = slivkans.indexOfKey("nu_email",nicknames[i].nu_email);
+					if(ind !== -1){
+						slivkans[ind].tokens.push(nicknames[i].nickname);
+					}
+				}
+
 				//initialization
-				submission.appendNameInputs(14);
+				submission.appendSlivkanInputs(14);
 				submission.appendFellowInputs(9);
 
 				//im teams
@@ -533,7 +552,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				if(localStorage.spc_sub_attendees){
 					var attendees = localStorage.spc_sub_attendees;
 					attendees = attendees.split(", ");
-					if(attendees.length > 14){ submission.appendNameInputs(attendees.length - 14); }
+					if(attendees.length > 14){ submission.appendSlivkanInputs(attendees.length - 14); }
 					submission.addSlivkans(attendees);
 				}
 				if(localStorage.spc_sub_filledby){
@@ -550,6 +569,10 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 					$("#event").val(localStorage.spc_sub_name);
 					submission.validateEventName();
 				}
+				if(localStorage.spc_sub_description){
+					$("#description").val(localStorage.spc_sub_description);
+					submission.validateDescription();
+				}
 				if(localStorage.spc_sub_comments){
 					$("#comments").val(localStorage.spc_sub_comments);
 				}
@@ -558,12 +581,11 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				$("#filled-by").typeahead(common.typeaheadOpts(slivkans));
 
 				$("#slivkan-entry-tab")	.on("focus",".slivkan-entry",submission.handlers.slivkanTypeahead)
-										.on("typeahead:selected",".slivkan-entry",submission.handlers.validateSlivkanName)
-										.on("typeahead:closed",".slivkan-entry",submission.handlers.validateSlivkanName)
+										.on("typeahead:closed",".slivkan-entry.tt-query",submission.handlers.validateSlivkanName)
 										.on("click",".bonus-point",submission.handlers.toggleActive);
 
 				$("#fellow-entry-tab")	.on("focus",".fellow-entry",submission.handlers.fellowTypeahead)
-										.on("focusout",".fellow-entry",submission.handlers.validateFellowName);
+										.on("typeahead:closed",".fellow-entry.tt-query",submission.handlers.validateFellowName);
 			});
 
 			/*$("#date").datepicker({
@@ -610,32 +632,40 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			$("#tabs a:first").tab("show");
 		},
 		handlers: {
-			addClassWarning : function(){
+			addClassWarning: function(){
 				$(this).closest(".form-group").addClass("has-warning");
 			},
-			slivkanTypeahead : function(){
+			slivkanTypeahead: function(){
 				var target = $(this);
+				if(target.closest(".slivkan-entry-control").addClass("has-warning").is(":last-child")){
+					var num_inputs = $("#slivkan-entry-tab").find(".slivkan-entry").length;
+					if(num_inputs < 120){
+						submission.appendSlivkanInputs(1);
+					}
+				}
 				if(!target.hasClass("tt-query")){
 					target.typeahead(common.typeaheadOpts(slivkans)).focus();
-					target.closest(".slivkan-entry-control").addClass("has-warning");
 				}
 			},
-			validateSlivkanName : function(){
+			validateSlivkanName: function(){
 				var target = $(this);
 				if(target.hasClass("tt-query")){
-					target.closest(".slivkan-entry").typeahead("destroy");
-					submission.validateSlivkanName(target.closest(".form-group"));
+					target.typeahead("destroy");
+					submission.validateSlivkanName(target.parent());
 				}
 			},
-			fellowTypeahead : function(){
+			fellowTypeahead: function(){
 				var target = $(this);
+				if(target.closest(".fellow-entry-control").addClass("has-warning").is(":last-child")){
+					var num_inputs = $("#fellow-entry-tab").find(".fellow-entry").length;
+					if(num_inputs < 20){ submission.appendFellowInputs(1); }
+				}
 				if(!target.hasClass("tt-query")){
 					target.typeahead({
 						name: "fellows",
 						valueKey: "full_name",
 						local: fellows
 					}).focus();
-					target.closest(".fellow-entry-control").addClass("has-warning");
 				}
 			},
 			validateFellowName : function(){
@@ -647,7 +677,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				submission.saveSlivkans();
 			}
 		},
-		appendNameInputs: function(n){
+		appendSlivkanInputs: function(n){
 			//2-4ms per insertion. Slow but acceptable.
 			var cloned = $("#slivkan-entry-tab").find(".slivkan-entry-control").last(),
 			start = parseInt(cloned.find(".input-group-addon").text(),10);
@@ -656,13 +686,6 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				.removeClass("has-warning")
 				.find(".input-group-addon").text(start+i+1);
 			}
-
-			$("#slivkan-entry-tab").find(".slivkan-entry").last().on("focus",function(){
-				$(this).closest(".form-group").addClass("has-warning");
-				var num_inputs = $("#slivkan-entry-tab").find(".slivkan-entry").length;
-				$(this).off("focus");
-				if(num_inputs < 120){ submission.appendNameInputs(1); }
-			});
 		},
 		appendFellowInputs: function(n){
 			var cloned = $("#fellow-entry-tab").find(".fellow-entry-control").last(),
@@ -672,13 +695,6 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				.removeClass("has-warning")
 				.find(".input-group-addon").text(start+i+1);
 			}
-
-			$(".fellow-entry").last().on("focus",function(){
-				$(this).parent().addClass("has-warning");
-				var num_inputs = $(".fellow-entry").length;
-				$(this).off("focus");
-				if(num_inputs < 20){ submission.appendFellowInputs(1); }
-			});
 		},
 		toggleType: function(event){
 			type = $(event.target).find("input").val();
@@ -844,15 +860,16 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			return valid;
 		},
 		validateFilledBy: function(){
-			var valid = true, name = $("#filled-by").val();
+			var valid = true, name = $("#filled-by").val(),
+			nickname_ind = nicknames.indexOfKey("nickname",name);
+
+			if (nickname_ind != -1){
+				name = slivkans[slivkans.indexOfKey("nu_email",nicknames[nickname_ind].nu_email)].full_name;
+				$("#filled-by").typeahead("setQuery",name);
+			}
 
 			//store value
 			localStorage.spc_sub_filledby = name;
-
-			if (nicknames.nickname.indexOf(name) != -1){
-				name = nicknames.full_name[nicknames.nickname.indexOf(name)];
-				$("#filled-by").val(name);
-			}
 
 			$(".filled-by-control").removeClass("has-warning");
 
@@ -870,10 +887,11 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			var valid = true,
 			slivkan_entry = entry.find(".slivkan-entry"),
 			entry_button = entry.find(".btn"),
-			name = slivkan_entry.val();
+			name = slivkan_entry.val(),
+			nickname_ind = nicknames.indexOfKey("nickname",name);
 
-			if (nicknames.nickname.indexOf(name) != -1){
-				name = nicknames.full_name[nicknames.nickname.indexOf(name)];
+			if (nickname_ind != -1){
+				name = slivkans[slivkans.indexOfKey("nu_email",nicknames[nickname_ind].nu_email)].full_name;
 				slivkan_entry.val(name);
 			}
 
@@ -896,7 +914,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				});
 
 				//no names = invalid
-				if(nameArray.length === 0){ valid=false; }
+				if(nameArray.length === 0){ valid = false; }
 
 				//store values
 				submission.saveSlivkans();
@@ -920,7 +938,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				}else{ valid=false; }
 				common.updateValidity(entry,valid);
 			}else{
-				entry.removeClass("has-success").removeClass("has-error");
+				entry.removeClass("has-success has-error");
 				submission.hideButtons(entry_button);
 			}
 
@@ -1003,7 +1021,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 
 			if(nameArray.length >= free_slots){
 				var n = nameArray.length - free_slots + 1;
-				submission.appendNameInputs(n);
+				submission.appendSlivkanInputs(n);
 				for(var k=0; k<n; k++){
 					slots.push(0);
 				}
@@ -1023,8 +1041,6 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				var ind = slots.indexOf(0);
 				slots[ind] = 1;
 				slivkan_entries.eq(ind).val(name);
-				// need to set input using typeahead
-				//slivkan_entries.eq(ind).typeahead("setQuery",name);
 				submission.validateSlivkanName(slivkan_entries.eq(ind).closest(".slivkan-entry-control"),(i < len-1));
 			}
 		},
@@ -1075,8 +1091,6 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 
 				var entry = entries.eq(i);
 				entry.find(".slivkan-entry").val(name);
-				// need to set input using typeahead
-				//entry.find(".slivkan-entry").typeahead("setQuery", name);
 				submission.validateSlivkanName(entry,(i < len-1));
 				if(h=="1"){ entry.find(".helper-point").addClass("active"); }
 				if(c=="0"){ entry.find(".committee-point").removeClass("active"); }
@@ -1098,7 +1112,6 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				$("#slivkan-entry-tab").find(".slivkan-entry-control").slice(15).remove();
 
 				$("#slivkan-entry-tab").find(".slivkan-entry").each(function(){
-					//$(this).find(".slivkan-entry").typeahead("setQuery","");
 					$(this).val("");
 					submission.validateSlivkanName($(this).parent(),true);
 				});
@@ -1119,6 +1132,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 				localStorage.spc_sub_type = "";
 				localStorage.spc_sub_name = "";
 				localStorage.spc_sub_committee = "";
+				localStorage.spc_sub_description = "";
 				localStorage.spc_sub_comments = "";
 				localStorage.spc_sub_attendees = "";
 			}

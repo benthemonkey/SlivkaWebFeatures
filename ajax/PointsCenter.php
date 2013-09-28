@@ -76,6 +76,13 @@ class PointsCenter
 			echo "Error: " . $e->getMessage();
 			die();
 		}
+
+		# Add tokens for typeahead.js
+		$n = count($slivkans);
+		for($i=0; $i<$n; $i++){
+			$slivkans[$i]["tokens"] = explode(" ",$slivkans[$i]["full_name"]);
+		}
+
 		return $slivkans;
 	}
 
@@ -111,20 +118,10 @@ class PointsCenter
 		$nicknames = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT nicknames.nickname,directory.full_name
-				FROM nicknames INNER JOIN directory ON nicknames.nu_email=directory.nu_email");
+				"SELECT nu_email,nickname
+				FROM nicknames");
 			$statement->execute();
-			$nicknames = $statement->fetchAll();
-
-			$nickname = array();
-			$full_name = array();
-
-			foreach($nicknames as $n){
-				$nickname[] = $n['nickname'];
-				$full_name[] = $n['full_name'];
-			}
-			$nicknames = array('nickname'=>$nickname,'full_name'=>$full_name);
-
+			$nicknames = $statement->fetchAll(PDO::FETCH_NAMED);
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();

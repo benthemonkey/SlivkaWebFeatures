@@ -48,7 +48,7 @@
 			<form autocomplete="off" onsubmit="return false;" role="form">
 				<legend>Points Submission Form</legend>
 				<div class="row">
-					<div class="col-lg-5 col-lg-offset-1 col-md-6 col">
+					<div class="col-lg-5 col-lg-offset-1 col-sm-6 col">
 						<div class="form-group filled-by-control col-md-12">
 							<label class="control-label" for="filled-by">Points filled out by:</label>
 							<input type="text" name="filled-by" id="filled-by" class="form-control">
@@ -86,7 +86,7 @@
 							<div class="help-block hide" id="event-name-length-error">Event name must be between 8 and 40 characters.<br/><span id="event-name-length-error-count"></span></div>
 						</div>
 
-						<div class="form-group col-md-4">
+						<div class="form-group col-md-4 col-sm-6">
 							<label id="date-label" for="date">Date:</label>
 							<select id="date" class="form-control"></select>
 							<!--<input type="text" id="date-val" name="actual-date" style="display: none">
@@ -97,7 +97,7 @@
 
 						<div class="clearfix"></div>
 
-						<div class="form-group committee-control col-md-4">
+						<div class="form-group committee-control col-md-4 col-sm-6">
 							<label class="control-label">Committee:</label>
 							<select id="committee" class="form-control">
 								<option>Select One</option>
@@ -128,7 +128,7 @@
 							<textarea name="comments" id="comments" class="form-control" rows="3"></textarea>
 						</div>
 					</div>
-					<div class="col-lg-5 col-md-6 col">
+					<div class="col-lg-5 col-sm-6 col">
 						<ul class="nav nav-tabs" id="tabs">
 							<li class="active"><a href="#slivkan-entry-tab" data-toggle="tab"><span>Attendees</span></a></li>
 							<li><a href="#fellow-entry-tab" data-toggle="tab"><span>Fellows</span></a></li>
