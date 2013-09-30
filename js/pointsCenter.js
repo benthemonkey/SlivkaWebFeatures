@@ -650,8 +650,8 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 			validateSlivkanName: function(){
 				var target = $(this);
 				if(target.hasClass("tt-query")){
-					target.typeahead("destroy");
-					submission.validateSlivkanName(target.parent());
+					//needs a delay because typeahead.js seems to not like destroying on focusout
+					setTimeout(function(target){ submission.validateSlivkanName(target.typeahead("destroy").closest(".slivkan-entry-control")); },1,target);
 				}
 			},
 			fellowTypeahead: function(){
