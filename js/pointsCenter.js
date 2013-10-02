@@ -13,6 +13,9 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 		return -1;
 	};
 
+	//mobile app support
+	$.stayInWebApp();
+
 	//bind ajax start and stop to nprogress
 	NProgress.configure({
 		trickleRate: 0.1
@@ -45,8 +48,6 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 		init: function () {
 			//nav
 			$(".nav li").eq(0).addClass("active");
-			//mobile app support
-			$.stayInWebApp();
 
 			//Remove stale values of start and end
 			if(localStorage.spc_brk_start && localStorage.spc_brk_start.search(/\//) !== -1){
@@ -85,7 +86,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 						ranges: {
 							"Last 7 Days": [moment().subtract("days", 6), moment()],
 							"Last 30 Days": [moment().subtract("days", 29), moment()],
-							"Since Quarter Started": [moment(quarter_start), moment()]
+							"Since Quarter Started": [moment(quarter_start), moment(quarter_end)]
 						},
 						buttonClasses: "btn",
 						applyClass: "btn-primary"
@@ -135,9 +136,10 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 						data: {nu_email: nu_email, start: start, end: end},
 						success: function(data){
 							var events = data.attended.events, tableData, c;
+
 							if(events.event_name.length > 0){
 								for(var i=events.event_name.length-1; 0<=i; i--){
-									$("<tr />").appendTo("#attended");
+									$("<tr />").addClass(events.committee[i]).appendTo("#attended");
 									$("<td />").html(events.event_name[i]).appendTo("#attended tr:last");
 								}
 
@@ -160,7 +162,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 							events = data.unattended.events;
 							if(events.event_name.length > 0){
 								for(var j=events.event_name.length-1; 0<=j; j--){
-									$("<tr />").appendTo("#unattended");
+									$("<tr />").addClass(events.committee[j]).appendTo("#unattended");
 									$("<td />").html(events.event_name[j]).appendTo("#unattended tr:last");
 								}
 
@@ -214,8 +216,6 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 		init: function(){
 			//nav
 			$(".nav li").eq(1).addClass("active");
-			//mobile app support
-			$.stayInWebApp();
 
 			var aDataSet = [],
 			event_names = [],
@@ -423,8 +423,6 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 		init: function(){
 			//nav
 			$(".nav li").eq(2).addClass("active");
-			//mobile app support
-			$.stayInWebApp();
 
 			$.getJSON("ajax/getSlivkans.php",function(data){
 				slivkans = data.slivkans;
@@ -511,8 +509,6 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 		init: function(){
 			//nav
 			$(".nav li").eq(3).addClass("active");
-			//mobile app support
-			$.stayInWebApp();
 			//prevent [Enter] from causing form submit
 			$(window)				.on("keydown",	function(event){
 				if(event.keyCode == 13) {
@@ -1215,8 +1211,6 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 		init: function(){
 			//nav
 			$(".nav li").eq(4).addClass("active");
-			//mobile app support
-			$.stayInWebApp();
 		}
 	};
 

@@ -50,6 +50,7 @@ table.dataTable .name{
 
 li.totals-label{
   width: 21px;
+  cursor: auto;
 }
 
 .legend{
@@ -101,7 +102,7 @@ tr.even td.gold, tr.even td.gold.sorting_1, tr.odd td.gold, tr.odd td.gold.sorti
   background: url('../bower_components/datatables/media/images/sort_both.png') no-repeat center center;
 }
 
-th.name.sorting_asc, th.name.sorting_desc, th.name.sorting {
+th.name {
   background-position: right;
 }
 
