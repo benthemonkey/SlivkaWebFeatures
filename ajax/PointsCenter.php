@@ -135,11 +135,11 @@ class PointsCenter
 		$fellows = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT full_name
+				"SELECT full_name,photo
 				FROM fellows
 				WHERE qtr_final IS NULL");
 			$statement->execute();
-			$fellows = $statement->fetchAll(PDO::FETCH_COLUMN,0);
+			$fellows = $statement->fetchAll(PDO::FETCH_ASSOC);
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();
@@ -420,6 +420,25 @@ class PointsCenter
 				$statement->execute($c_values);
 			} catch (PDOException $e) {
 				echo json_encode(array("error" => $e->getMessage(), "step" => "5"));
+				die();
+			}
+		}
+
+		if ($get['fellows'][0] != ""){
+			$f_sql = "INSERT INTO fellowattendance (full_name, event_name, qtr) VALUES ";
+			$f_fills = array();
+			$f_values = array();
+			foreach($get['fellows'] as $f){
+				$f_fills[] = "(?,?,?)";
+				$f_values = array_merge($f_values,array($f,$real_event_name,self::$qtr));
+			}
+			$f_sql .= implode(", ",$f_fills);
+
+			try {
+				$statement = self::$dbConn->prepare($f_sql);
+				$statement->execute($f_values);
+			} catch (PDOException $e) {
+				echo json_encode(array("error" => $e->getMessage(), "step" => "6"));
 				die();
 			}
 		}

@@ -39,6 +39,10 @@
 			padding: 6px 8px;
 			width: 35px;
 		}
+
+		.nav.nav-tabs{
+			margin: 0 15px;
+		}
 	</style>
 </head>
 <body>
