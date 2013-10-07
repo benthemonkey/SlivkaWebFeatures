@@ -366,7 +366,7 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 
 					for(i=0; i<event_names.length; i++){
 						$("<li />").html(event_names[i]).popover({
-							trigger: "click",
+							trigger: "hover",
 							html: true,
 							title: event_names[i],
 							content: ["Date: ",event_dates[i],"<br/>Attendees: ",events.attendees[i],
@@ -385,10 +385,10 @@ define(["jquery","nprogress","moment","hogan","stayInWebApp","bootstrap-daterang
 					$("<li />").addClass("totals-label").html("Total").appendTo("#columns");
 
 					//event handler for column labels
-					//var headers = $("#table").find("th");
-					/*$("#columns").find("li").each(function(index){
+					var headers = $("#table").find("th");
+					$("#columns").find("li").each(function(index){
 						$(this).on("click",function(){headers.eq(index+1).click();});
-					});*/
+					});
 				}
 			});
 		}/*,
