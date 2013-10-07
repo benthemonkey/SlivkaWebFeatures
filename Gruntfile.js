@@ -43,7 +43,7 @@ module.exports = function(grunt) {
 				// options here to override JSHint defaults
 				"browser": true,
 				"esnext": true,
-				"quotmark": "double",
+				"quotmark": "single",
 				"smarttabs": true,
 				"trailing": true,
 				"undef": true,
