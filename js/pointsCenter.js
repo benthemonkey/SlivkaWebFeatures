@@ -511,7 +511,7 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 			//nav
 			$('.nav li').eq(3).addClass('active');
 			//prevent [Enter] from causing form submit
-			$(window)				.on('keydown',	function(event){
+			$(window).on('keydown',	function(event){
 				if(event.keyCode == 13) {
 					event.preventDefault();
 					return false;
@@ -558,9 +558,9 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 				if(localStorage.spc_sub_type && localStorage.spc_sub_type != 'Other'){
 					$('input[value="'+localStorage.spc_sub_type+'"]:radio').parent().click();
 				}
-				/*if(localStorage.spc_sub_date){
-					$('#date').datepicker('setDate', localStorage.spc_sub_date);
-				}*/
+				if(localStorage.spc_sub_date){
+					$('#date').val(localStorage.spc_sub_date);
+				}
 				if(localStorage.spc_sub_name){
 					$('#event').val(localStorage.spc_sub_name);
 					submission.validateEventName();
@@ -622,7 +622,7 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 			$('#type')				.on('click',	submission.toggleType);
 			$('#event')				.on('focus',	submission.handlers.addClassWarning)
 									.on('focusout',	submission.validateEventName);
-			//$('#date-label')		.on('click',	function(){ $('#date').datepicker('show'); });
+			$('#date')				.on('change',	function(){ localStorage.spc_sub_date = $(this).val(); });
 			$('#im-team')			.on('change',	submission.validateIMTeam);
 			$('#committee')			.on('change',	submission.validateCommittee);
 			$('#description')		.on('focusout',	submission.validateDescription);
@@ -1112,6 +1112,7 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 			if(force === 'force' || window.confirm('Reset form?')){
 				$('.type-btn:last').click();
 				$('#event').val(''); $('.event-control').removeClass('has-success has-warning has-error');
+				$('#date').val(moment().format('ddd, M/D'));
 				$('#description').val(''); $('.description-control').removeClass('has-success has-error');
 				$('#committee').val('Select One'); $('.committee-control').removeClass('has-success has-error');
 				$('#filled-by').val(''); $('.filled-by-control').removeClass('has-success has-error');
@@ -1139,6 +1140,7 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 				localStorage.spc_sub_filledby = '';
 				localStorage.spc_sub_type = '';
 				localStorage.spc_sub_name = '';
+				localStorage.spc_sub_date = '';
 				localStorage.spc_sub_committee = '';
 				localStorage.spc_sub_description = '';
 				localStorage.spc_sub_comments = '';
@@ -1147,7 +1149,7 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 		},
 		submitPointsForm: function(){
 			var data = {
-				date: moment($('#date-val').val()).format('YYYY-MM-DD'),
+				date: moment().format('YYYY') + moment($('#date').val()).format('-MM-DD'),
 				type: type.toLowerCase().replace(' ','_'),
 				committee: $('#committee').val(),
 				event_name: $('#event').val(),
