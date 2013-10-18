@@ -78,7 +78,7 @@ legend{
     padding: 10px;
   }
 
-  .row{
+  .row, .form-group{
     margin-right: -10px;
     margin-left: -10px;
   }
