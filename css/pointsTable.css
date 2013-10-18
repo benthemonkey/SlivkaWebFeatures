@@ -9,19 +9,15 @@ table.dataTable .name{
   padding-left: 5px;
 }
 
-.col{
+.tablecol{
   font-size: 12px;
   line-height: 16px;
-  margin: 0 10px;
+  margin: 0 15px;
 }
 
 /*overriding default style*/
 .alert{
   margin-bottom: 0;
-}
-
-.table-controls{
-  max-width: 800px;
 }
 
 .header-row{
@@ -61,6 +57,12 @@ li.totals-label{
 .legend td{
   padding: 5px;
   border-radius: 5px;
+}
+
+.filter{
+  display: inline-block;
+  vertical-align: top;
+  margin: 0 5px;
 }
 
 tr.even td.name, tr.even td.totals{ background-color: #FFFFFE; }

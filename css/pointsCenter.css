@@ -77,4 +77,9 @@ legend{
   .col{
     padding: 10px;
   }
+
+  .row{
+    margin-right: -10px;
+    margin-left: -10px;
+  }
 }

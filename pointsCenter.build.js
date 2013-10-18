@@ -2,6 +2,7 @@ require.config({
 	paths: {
 		bootstrap: "bower_components/bootstrap/dist/js/bootstrap",
 		"bootstrap-daterangepicker": "bower_components/bootstrap-daterangepicker/daterangepicker",
+		"bootstrap-multiselect": "bower_components/bootstrap-multiselect/js/bootstrap-multiselect",
 		"bootstrap-switch": "bower_components/bootstrap-switch/static/js/bootstrap-switch",
 		datatables: "bower_components/datatables/media/js/jquery.dataTables",
 		highcharts: "bower_components/Highcharts-3.0.5/js/highcharts.src",
@@ -17,6 +18,9 @@ require.config({
 			"jquery"
 		],
 		"bootstrap-daterangepicker": [
+			"jquery"
+		],
+		"bootstrap-multiselect": [
 			"jquery"
 		],
 		"bootstrap-switch": [
@@ -41,6 +45,7 @@ require.config({
 	deps: [
 		"bootstrap",
 		"bootstrap-daterangepicker",
+		"bootstrap-multiselect",
 		"bootstrap-switch",
 		"datatables",
 		"highcharts",

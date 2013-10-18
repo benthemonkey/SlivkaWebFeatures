@@ -86,8 +86,8 @@
 						<div class="form-group event-control col-md-12">
 							<label class="control-label" for="event">Event name:</label>
 							<input type="text" name="event" id="event" class="form-control">
-							<div class="help-block hide" id="event-name-error">Event name + date combination taken</div>
-							<div class="help-block hide" id="event-name-length-error">Event name must be between 8 and 40 characters.<br/><span id="event-name-length-error-count"></span></div>
+							<div class="help-block" id="event-name-error" style="display:none;">Event name + date combination taken</div>
+							<div class="help-block" id="event-name-length-error" style="display:none;">Event name must be between 8 and 40 characters.<br/><span id="event-name-length-error-count"></span></div>
 						</div>
 
 						<div class="form-group col-md-4 col-sm-6">

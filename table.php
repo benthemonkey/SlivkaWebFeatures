@@ -10,7 +10,7 @@
 	<div class="container">
     <div class="content">
       <?php include('nav.html'); ?>
-      <div class="col">
+      <div class="tablecol">
         <table id="table"></table>
       </div>
     </div>
