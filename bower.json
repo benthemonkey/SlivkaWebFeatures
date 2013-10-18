@@ -14,7 +14,7 @@
     "moment": "~2.1.0",
     "bootstrap-daterangepicker": "*",
     "bootstrap-switch": "*",
-    "highcharts.com": "*"
+    "bootstrap-multiselect": "~0.9.1"
   },
   "devDependencies": {
     "qunit": "*"

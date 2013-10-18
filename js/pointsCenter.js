@@ -1,4 +1,4 @@
-define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterangepicker'],function ($,NProgress,moment,Hogan) {
+define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterangepicker','bootstrap-multiselect'],function ($,NProgress,moment,Hogan) {
 	'use strict';
 	var slivkans, nicknames, fellows, type = 'Other', valid_event_name = false, quarter_start, quarter_end;
 
@@ -137,10 +137,10 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 						success: function(data){
 							var events = data.attended.events, tableData, c;
 
-							if(events.event_name.length > 0){
-								for(var i=events.event_name.length-1; 0<=i; i--){
-									$('<tr />').addClass(events.committee[i]).appendTo('#attended');
-									$('<td />').html(events.event_name[i]).appendTo('#attended tr:last');
+							if(events.length > 0){
+								for(var i=events.length-1; 0<=i; i--){
+									$('<tr />').addClass(events[i].committee).appendTo('#attended');
+									$('<td />').html(events[i].event_name).appendTo('#attended tr:last');
 								}
 
 								$('#attendedByCommittee').css('height','250px');
@@ -160,10 +160,10 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 							}
 
 							events = data.unattended.events;
-							if(events.event_name.length > 0){
-								for(var j=events.event_name.length-1; 0<=j; j--){
-									$('<tr />').addClass(events.committee[j]).appendTo('#unattended');
-									$('<td />').html(events.event_name[j]).appendTo('#unattended tr:last');
+							if(events.length > 0){
+								for(var j=events.length-1; 0<=j; j--){
+									$('<tr />').addClass(events[j].committee).appendTo('#unattended');
+									$('<td />').html(events[j].event_name).appendTo('#unattended tr:last');
 								}
 
 								$('#unattendedByCommittee').css('height','250px');
@@ -221,7 +221,25 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 			event_names = [],
 			event_dates = [],
 			event_targets = [],
-			events = [];
+			/*im_targets = [],
+			committee_targets = {
+				Exec: [],
+				Academic: [],
+				Facilities: [],
+				Faculty: [],
+				Historian: [],
+				IT: [],
+				Philanthropy: [],
+				Social: [],
+				CA: [],
+				Other: []
+			},*/
+			totals_targets = [],
+			events, columns,
+
+			nameColWidth = 140,
+			eventColWidth = 16,
+			totalsColWidth = 20;
 
 			$.ajax({
 				async: true,
@@ -236,8 +254,8 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 						}
 					}
 
-					for(var i=0;i<events.event_name.length;i++){
-						var en = events.event_name[i],
+					for(var i=0; i<events.length; i++){
+						var en = events[i].event_name,
 						name = en.substr(0,en.length-11),
 						date = en.substr(en.length-5);
 
@@ -247,19 +265,14 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 						event_dates.push(date);
 					}
 
-					var totals_targets = [],
-					first_totals_target = data.events.event_name.length+2;
+					var first_totals_target = data.events.length+2;
 
 					for(i=0; i<6; i++){
 						totals_targets.push(first_totals_target + i);
 					}
 
 					//define size values:
-					var nameColWidth = 140,
-					eventColWidth = 16,
-					totalsColWidth = 20,
-
-					oTable = $('#table').dataTable({
+					var oTable = $('#table').dataTable({
 						aaData: aDataSet,
 						aoColumnDefs: [
 						{ aTargets: [0], sTitle: 'Name', sWidth: nameColWidth+'px', sClass: 'name'},
@@ -276,16 +289,20 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 						bPaginate: false,
 						bAutoWidth: false,
 						oLanguage: {
-							sSearch: 'Filter by Name:<br/>'
+							sSearch: 'Name:<br/>'
 						},
 						sDom: ['',
 							'<"row table-controls"',
-								'<"col-sm-5 table-info"i>',
-								'<"col-sm-3"f>',
-								'<"col-sm-2 filter1">',
-								'<"col-sm-2 filter2">',
+								'<"col-md-4 table-info"i>',
+								'<"col-md-8"',
+									'<"filter"f>',
+									'<"filter filter1">',
+									'<"filter filter2">',
+									'<"filter filter3">',
+									//'<"filter filter4">',
+								'>',
 							'><"header-row">',
-							'<"row"<"col-md-12"rt>>'].join('')
+							'<"row"<"col-lg-12"rt>>'].join('')
 					});
 
 					//table info
@@ -304,78 +321,124 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 					$('#table_filter input').addClass('form-control');
 
 					$(['',
-						'<label>Filter by Gender:<br/><select class="form-control" id="gender-filter">',
+						'<label>Gender:<br/><select class="form-control" id="gender-filter">',
 							'<option value="">All</option>',
 							'<option value="m">Male</option>',
 							'<option value="f">Female</option>',
 						'</select></label>'].join('')).appendTo('.filter1');
+
+					$(['',
+						'<label>IMs:<br/><select class="form-control" id="im-filter">',
+							'<option value="0">All</option>',
+							'<option value="1">No IMs</option>',
+							'<option value="2">Only IMs</option>',
+						'</select></label>'].join('')).appendTo('.filter2');
+
+					$(['',
+						'<label>Committee:<br/><select class="multiselect" multiple="multiple" id="committee-filter">',
+							'<option selected>Exec</option>',
+							'<option selected>Academic</option>',
+							'<option selected>Facilities</option>',
+							'<option selected>Faculty</option>',
+							'<option selected>Historian</option>',
+							'<option selected>IT</option>',
+							'<option selected>Philanthropy</option>',
+							'<option selected>Social</option>',
+							'<option selected>CA</option>',
+							'<option selected>Other</option>',
+						'</select></label>'].join('')).appendTo('.filter3');
+
 					$('#gender-filter').on('change',function(){
 						var option = $('#gender-filter').val();
 						oTable.fnFilter(option,1);
 					});
 
-					$(['',
-						'<label>Limit Columns:<br/><select class="form-control" id="count-filter">',
+					var columnFilter = function(){
+						var committees = $('#committee-filter').find('option:selected').map(function(){ return this.innerHTML; }).get(),
+							ims = $('#im-filter').val(),
+							n = 0;
+
+						if(ims === '2'){
+							committees = [];
+							$('#committee-filter').parent().find('.dropdown-toggle').attr('disabled','disabled');
+						}else{
+							$('#committee-filter').parent().find('.dropdown-toggle').removeAttr('disabled');
+						}
+
+						for(i=0; i<events.length; i++){
+							if(committees.indexOf(events[i].committee) !== -1 && (ims !== '1' || events[i].type !== 'im') || (ims === '2' && events[i].type === 'im')){
+								oTable.fnSetColumnVis(event_targets[i],true,false);
+								columns.eq(i).show();
+								n++;
+							}else{
+								oTable.fnSetColumnVis(event_targets[i],false,false);
+								columns.eq(i).hide();
+							}
+						}
+
+						var cols_width = nameColWidth + (eventColWidth+1)*n + (totalsColWidth+1)*totals_targets.length + 50;
+						$('.container').css('min-width', cols_width+'px');
+
+						oTable.fnDraw();
+					};
+
+					$('#im-filter').on('change',columnFilter);
+
+
+
+					$('.multiselect').multiselect({
+						buttonClass: 'btn btn-default',
+						onChange: columnFilter
+					});
+
+					/*$(['',
+						'<label>Limit Cols:<br/><select class="form-control" id="count-filter">',
 							'<option value="-1">All</option>',
 							'<option value="30">30</option>',
 							'<option value="20">20</option>',
 							'<option value="10">10</option>',
-						'</select></label>'].join('')).appendTo('.filter2');
+						'</select></label>'].join('')).appendTo('.filter4');
 
 					$('#count-filter').on('change',function(event){
 						var count = event.target.value,
-						table = $('#table').dataTable(),
 						columns = $('#columns').find('li');
 
 						for(var i=0; i<event_targets.length; i++){
 							if(i < count || count == -1){
-								table.fnSetColumnVis(event_targets.length - i + 2, true, false);
+								oTable.fnSetColumnVis(event_targets.length - i + 2, true, false);
 								columns.eq(event_targets.length - i).show();
 							}else{
-								table.fnSetColumnVis(event_targets.length - i + 2, false, false);
+								oTable.fnSetColumnVis(event_targets.length - i + 2, false, false);
 								columns.eq(event_targets.length - i).hide();
 							}
 						}
 
-						table.fnDraw();/*
-						n = event_targets.length;
-
-						for(var i=0; i<n; i++){
-							if(i > n-count || count == -1){
-								table.animationQueue.show.push(event_targets[i]);
-							}else{
-								table.animationQueue.hide.push(event_targets[i]);
-							}
-						}
-
-						table.animationQueue.show.reverse();
-
-						table.processAnimationQueue();*/
+						oTable.fnDraw();
 
 						var cols_width = nameColWidth + (eventColWidth+1)*(count == -1 ? event_targets.length : count) +
 							(totalsColWidth+1)*totals_targets.length + 50;
 						$('.container').css('min-width', cols_width+'px');
 
-					});
+					});*/
 
 					var cols_width = nameColWidth+(eventColWidth+1)*event_targets.length + (totalsColWidth+1)*totals_targets.length + 50;
 
 					$('.container').css('min-width',cols_width+'px');
 					//if(cols_width > 1000){ $('.container').css('max-width','none'); }
 					$('.header-row').attr('id','columns');
-					//var columns = $('.header-row');
 
 					for(i=0; i<event_names.length; i++){
 						$('<li />').html(event_names[i]).popover({
 							trigger: 'hover',
 							html: true,
 							title: event_names[i],
-							content: ['Date: ',event_dates[i],'<br/>Attendees: ',events.attendees[i],
-								(events.description[i].length > 0 ? '<br/>Description: ' + events.description[i] : '')].join(''),
+							content: ['Date: ',event_dates[i],'<br/>Attendees: ',events[i].attendees,
+								(events[i].description.length > 0 ? '<br/>Description: ' + events[i].description : '')].join(''),
 							placement: 'bottom',
 							container: '#table'
 						}).appendTo('#columns');
 					}
+					columns = $('#columns').find('li');
 
 					//Append 'totals' column labels
 					$('<li />').addClass('totals-label').html('Events Total').appendTo('#columns');
@@ -387,7 +450,7 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 
 					//event handler for column labels
 					var headers = $('#table').find('th');
-					$('#columns').find('li').each(function(index){
+					columns.each(function(index){
 						$(this).on('click',function(){headers.eq(index+1).click();});
 					});
 				}
@@ -440,11 +503,9 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 				$('#filled-by').typeahead(common.typeaheadOpts('slivkans', slivkans));
 			});
 
-			$.getJSON('ajax/getEvents.php',function(data){
-				var event_name = data.event_name;
-
-				for(var i=0; i<event_name.length; i++){
-					$('<option></option>').text(event_name[i]).appendTo('#event-name');
+			$.getJSON('ajax/getEvents.php',function(events){
+				for(var i=events.length-1; i>=0; i--){
+					$('<option></option>').text(events[i].event_name).appendTo('#event-name');
 				}
 			});
 
@@ -613,7 +674,8 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 			*/
 			//dates
 			for(var i=0; i<5; i++){
-				$('<option />').text(moment().subtract('days',i).format('ddd, M/D')).appendTo('#date');
+				var date = moment().subtract('days',i).format('YYYY-MM-DD');
+				$('<option />').text(moment(date).format('ddd, M/D')).attr('value',date).appendTo('#date');
 			}
 
 			//event handlers for inputs
@@ -622,7 +684,7 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 			$('#type')				.on('click',	submission.toggleType);
 			$('#event')				.on('focus',	submission.handlers.addClassWarning)
 									.on('focusout',	submission.validateEventName);
-			$('#date')				.on('change',	function(){ localStorage.spc_sub_date = $(this).val(); });
+			$('#date')				.on('change',	function(){ localStorage.spc_sub_date = $(this).val(); submission.validateEventName(); });
 			$('#im-team')			.on('change',	submission.validateIMTeam);
 			$('#committee')			.on('change',	submission.validateCommittee);
 			$('#description')		.on('focusout',	submission.validateDescription);
@@ -780,7 +842,7 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 			return valid;
 		},
 		validateEventName: function(){
-			var valid = false, event_name = $('#event').val(), event_names = [];
+			var valid = false, event_name = $('#event').val();
 
 			//store value
 			localStorage.spc_sub_name = event_name;
@@ -788,15 +850,13 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 			valid_event_name = false;
 
 			if((event_name.length <= 40 && event_name.length >= 8) || event_name == 'P2P'){
-				event_name += ' '+moment($('#date-val').val()).format('YYYY-MM-DD');
+				event_name += [' ', $('#date').val()].join('');
 
-				$.getJSON('ajax/getEvents.php',function(data){
+				$.getJSON('ajax/getEvents.php',function(events){
 					$('.event-control').removeClass('has-warning');
 
-					if(data.event_name.length > 0){
-						event_names = data.event_name;
-
-						if(event_names.indexOf(event_name) != -1){
+					if(events.length > 0){
+						if(events.indexOfKey('event_name',event_name) != -1){
 							if(type == 'IM'){
 								var last = parseInt($('#event').val().slice(-1),10);
 								$('#event').val($('#event').val().slice(0,-1) + (last+1).toString());
@@ -1149,7 +1209,7 @@ define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterang
 		},
 		submitPointsForm: function(){
 			var data = {
-				date: moment().format('YYYY') + moment($('#date').val()).format('-MM-DD'),
+				date: $('#date').val(),
 				type: type.toLowerCase().replace(' ','_'),
 				committee: $('#committee').val(),
 				event_name: $('#event').val(),

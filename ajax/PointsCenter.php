@@ -170,24 +170,6 @@ class PointsCenter
 			$statement->bindValue(":end", $end);
 			$statement->execute();
 			$events = $statement->fetchAll(PDO::FETCH_NAMED);
-
-			$event_name = array();
-			$date = array();
-			$type = array();
-			$attendees = array();
-			$committee = array();
-			$description = array();
-
-			foreach($events as $e){
-				$event_name[]  = $e['event_name'];
-				$date[]        = $e['date'];
-				$type[]        = $e['type'];
-				$attendees[]   = $e['attendees'];
-				$committee[]   = $e['committee'];
-				$description[] = $e['description'];
-			}
-
-			$events = array('event_name'=>$event_name,'date'=>$date,'type'=>$type,'attendees'=>$attendees,'committee'=>$committee,'description'=>$description);
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();
@@ -252,34 +234,19 @@ class PointsCenter
 		return $committee_attendance;
 	}
 
-	public function getEventsAttendedBySlivkan ($nu_email,$start,$end)
+	public function getSlivkanPoints ($nu_email)
 	{
 		self::initializeConnection();
 		$events = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT events.type,events.event_name,events.committee
-				FROM points INNER JOIN events ON points.event_name=events.event_name
-				WHERE events.qtr=:qtr AND points.nu_email=:nu_email AND events.date BETWEEN :start AND :end
-				ORDER BY events.date, events.id");
+				"SELECT event_name
+				FROM points
+				WHERE qtr=:qtr AND nu_email=:nu_email");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->bindValue(":nu_email", $nu_email);
-			$statement->bindValue(":start", $start);
-			$statement->bindValue(":end", $end);
 			$statement->execute();
-			$events = $statement->fetchAll(PDO::FETCH_NAMED);
-
-			$type = array();
-			$event_name = array();
-			$committee = array();
-
-			foreach($events as $e){
-				$type[] = $e['type'];
-				$event_name[] = $e['event_name'];
-				$committee[] = $e['committee'];
-			}
-
-			$events = array('type'=>$type,'event_name'=>$event_name,'committee'=>$committee);
+			$events = $statement->fetchAll(PDO::FETCH_COLUMN);
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();

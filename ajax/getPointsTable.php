@@ -14,7 +14,7 @@ $points_table = array(); #table that is slivkan count by event count + 6
 $im_points = array(); #stores events_total, helper_points, im_points
 
 #form points_table
-$events_count = count($events['event_name']);
+$events_count = count($events);
 $events_total_ind		= $events_count + 2;
 $helper_points_ind		= $events_count + 3;
 $im_points_ind			= $events_count + 4;
@@ -27,8 +27,8 @@ for($s=0; $s < count($slivkans); $s++){
 }
 
 for($e=0; $e < $events_count; $e++){
-	$event_name = $events['event_name'][$e];
-	$is_im = $events['type'][$e] == "im";
+	$event_name = $events[$e]['event_name'];
+	$is_im = $events[$e]['type'] == "im";
 
 	foreach($points[$event_name] as $s){
 		$points_table[$s][2+$e] = 1;
@@ -36,7 +36,7 @@ for($e=0; $e < $events_count; $e++){
 		if(!$is_im){
 			$points_table[$s][$events_total_ind]++;
 		}else{
-			$im_points[$s][$events['description'][$e]]++;
+			$im_points[$s][$events[$e]['description']]++;
 		}
 	}
 
