@@ -1,4 +1,4 @@
-define(['jquery','nprogress','moment','hogan','stayInWebApp','bootstrap-daterangepicker','bootstrap-multiselect'],function ($,NProgress,moment,Hogan) {
+define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstrap-daterangepicker','bootstrap-multiselect'],function ($,NProgress,moment,Hogan) {
 	'use strict';
 	var slivkans, nicknames, fellows, type = 'Other', valid_event_name = false, quarter_start, quarter_end;
 

@@ -76,7 +76,8 @@ module.exports = function(grunt) {
 						'css/nprogress.css',
 						'css/bootstrap-switch.css',
 						'css/daterangepicker-bs3.css',
-						'css/bootstrap-multiselect.css'
+						'css/bootstrap-multiselect.css',
+						'css/add2home.css'
 					]
 				}
 			},

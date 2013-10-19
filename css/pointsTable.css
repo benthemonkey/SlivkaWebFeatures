@@ -13,6 +13,7 @@ table.dataTable .name{
   font-size: 12px;
   line-height: 16px;
   margin: 0 15px;
+  padding-bottom: 15px;
 }
 
 /*overriding default style*/

@@ -10,6 +10,7 @@ require.config({
 		jquery: "bower_components/jquery/jquery",
 		moment: "bower_components/moment/moment",
 		nprogress: "bower_components/nprogress/nprogress",
+		add2home: "bower_components/add-to-homescreen/src/add2home",
 		stayInWebApp: "bower_components/stayInWebApp/jquery.stayInWebApp",
 		typeahead: "bower_components/typeahead.js/dist/typeahead"
 	},
@@ -29,6 +30,9 @@ require.config({
 		highcharts: [
 			"jquery"
 		],
+		add2home: {
+			exports: "addToHome"
+		},
 		stayInWebApp: [
 			"jquery"
 		],
@@ -50,6 +54,7 @@ require.config({
 		"datatables",
 		"highcharts",
 		"jquery",
+		"add2home",
 		"stayInWebApp",
 		"typeahead"
 	]

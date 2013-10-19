@@ -17,6 +17,10 @@ legend{
              box-shadow: 7px 7px 7px rgba(50, 50, 50, 1);
 }
 
+.navbar{
+  z-index: 99;
+}
+
 .col{
   padding: 10px 20px;
 }
