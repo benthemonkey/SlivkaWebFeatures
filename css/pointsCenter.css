@@ -49,6 +49,11 @@ legend{
           transform: translate(0,60px) scale(5);
 }
 
+.slivkan-dupe{
+  color: #999999;
+  font-style: italic;
+}
+
 .form-control{
   padding: 6px 4px;
 }

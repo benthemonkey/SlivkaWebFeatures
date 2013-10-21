@@ -37,7 +37,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 				name: name,
 				valueKey: 'full_name',
 				local: slivkans,
-				template: ['<div class="slivkan-suggestion">{{full_name}}',
+				template: ['<div class="slivkan-suggestion{{#dupe}} slivkan-dupe{{/dupe}}">{{full_name}}',
 				'{{#photo}}<img src="img/slivkans/{{photo}}.jpg" />{{/photo}}</div>'].join(''),
 				engine: Hogan
 			};
@@ -221,19 +221,6 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 			event_names = [],
 			event_dates = [],
 			event_targets = [],
-			/*im_targets = [],
-			committee_targets = {
-				Exec: [],
-				Academic: [],
-				Facilities: [],
-				Faculty: [],
-				Historian: [],
-				IT: [],
-				Philanthropy: [],
-				Social: [],
-				CA: [],
-				Other: []
-			},*/
 			totals_targets = [],
 			events, columns,
 
@@ -271,7 +258,6 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 						totals_targets.push(first_totals_target + i);
 					}
 
-					//define size values:
 					var oTable = $('#table').dataTable({
 						aaData: aDataSet,
 						aoColumnDefs: [
@@ -279,7 +265,6 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 						{ aTargets: [1], bVisible: false },
 						{ aTargets: event_targets, sWidth: eventColWidth+'px', fnCreatedCell: function(nTd, sData){
 							if(sData == '1'){$(nTd).addClass('green');}
-							//else if(sData == '0'){$(nTd).addClass('red');}
 							else if(sData == '1.1' || sData == '0.1'){$(nTd).addClass('gold'); $(nTd).html($(nTd).html().substr(0,1));}
 							else if(sData == '1.2' || sData == '0.2'){$(nTd).addClass('blue'); $(nTd).html($(nTd).html().substr(0,1));}
 						}},
@@ -424,11 +409,10 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					var cols_width = nameColWidth+(eventColWidth+1)*event_targets.length + (totalsColWidth+1)*totals_targets.length + 50;
 
 					$('.container').css('min-width',cols_width+'px');
-					//if(cols_width > 1000){ $('.container').css('max-width','none'); }
 					$('.header-row').attr('id','columns');
 
 					for(i=0; i<event_names.length; i++){
-						$('<li />').html(event_names[i]).popover({
+						$('<li />').text(event_names[i]).popover({
 							trigger: 'hover',
 							html: true,
 							title: event_names[i],
@@ -441,12 +425,12 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					columns = $('#columns').find('li');
 
 					//Append 'totals' column labels
-					$('<li />').addClass('totals-label').html('Events Total').appendTo('#columns');
-					$('<li />').addClass('totals-label').html('Helper Points').appendTo('#columns');
-					$('<li />').addClass('totals-label').html('IM Sports').appendTo('#columns');
-					$('<li />').addClass('totals-label').html('Standing Committees').appendTo('#columns');
-					$('<li />').addClass('totals-label').html('Position-Related').appendTo('#columns');
-					$('<li />').addClass('totals-label').html('Total').appendTo('#columns');
+					$('<li />').addClass('totals-label').text('Events Total').appendTo('#columns');
+					$('<li />').addClass('totals-label').text('Helper Points').appendTo('#columns');
+					$('<li />').addClass('totals-label').text('IM Sports').appendTo('#columns');
+					$('<li />').addClass('totals-label').text('Standing Committees').appendTo('#columns');
+					$('<li />').addClass('totals-label').text('Position-Related').appendTo('#columns');
+					$('<li />').addClass('totals-label').text('Total').appendTo('#columns');
 
 					//event handler for column labels
 					var headers = $('#table').find('th');
@@ -704,7 +688,18 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 				$(this).closest('.form-group').addClass('has-warning');
 			},
 			slivkanTypeahead: function(){
-				var target = $(this);
+				var target = $(this), slivkans_tmp = JSON.parse(JSON.stringify(slivkans));
+
+				if(localStorage.spc_sub_attendees){
+					var ind;
+					localStorage.spc_sub_attendees.split(', ').forEach(function(el){
+						ind = slivkans_tmp.indexOfKey('full_name',el.substr(0,el.length-2));
+						if(ind !== -1){
+							slivkans_tmp[ind].dupe = true;
+						}
+					});
+				}
+
 				if(target.closest('.slivkan-entry-control').addClass('has-warning').is(':last-child')){
 					var num_inputs = $('#slivkan-entry-tab').find('.slivkan-entry').length;
 					if(num_inputs < 120){
@@ -712,14 +707,16 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					}
 				}
 				if(!target.hasClass('tt-query')){
-					target.typeahead(common.typeaheadOpts('slivkans', slivkans)).focus();
+					target.typeahead(common.typeaheadOpts('slivkans'+Math.random(), slivkans_tmp)).focus();
 				}
 			},
 			validateSlivkanName: function(){
 				var target = $(this);
 				if(target.hasClass('tt-query')){
 					//needs a delay because typeahead.js seems to not like destroying on focusout
-					setTimeout(function(target){ submission.validateSlivkanName(target.typeahead('destroy').closest('.form-group')); },1,target);
+					setTimeout(function(target){
+						submission.validateSlivkanName(target.typeahead('destroy').closest('.form-group'));
+					},1,target);
 				}
 			},
 			fellowTypeahead: function(){
@@ -736,7 +733,9 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 				var target = $(this);
 				if(target.hasClass('tt-query')){
 					//needs a delay because typeahead.js seems to not like destroying on focusout
-					setTimeout(function(target){ submission.validateFellowName(target.typeahead('destroy').closest('.form-group')); },1,target);
+					setTimeout(function(target){
+						submission.validateFellowName(target.typeahead('destroy').closest('.form-group'));
+					},1,target);
 				}
 			},
 			toggleActive : function(){
