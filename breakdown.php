@@ -20,7 +20,7 @@
 			<div class="row">
 				<div class="col-md-3">
 					<legend>Filters</legend>
-					<div class="col">
+					<div class="col-lg-12">
 						<form>
 							<fieldset>
 								<div class="row">
@@ -51,7 +51,7 @@
 				</div>
 				<div class="col-md-9">
 					<legend>Points Breakdown</legend>
-					<div class="col">
+					<div class="col-lg-12">
 						<div class="row" id="breakdown" style="display: none">
 							<div class="col-md-6">
 								<div id="attendedByCommittee" class="chart"></div>

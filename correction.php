@@ -9,7 +9,7 @@
 		<div class="content">
 			<?php include('nav.html'); ?>
 			<div class="row">
-				<div class="col-lg-offset-3 col-lg-6 col-md-offset-2 col-md-8 col">
+				<div class="col-lg-offset-3 col-lg-6 col-md-offset-2 col-md-8">
 					<form autocomplete="off" onsubmit="return false;" class="form-horizontal">
 						<legend>Points Correction</legend>
 						<div class="form-group filled-by-control col-lg-12">
