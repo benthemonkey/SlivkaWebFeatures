@@ -11,7 +11,7 @@
 
 		.slivkan-entry-control, .fellow-entry-control{
 			width: 100%;
-			margin-bottom: 10px;
+			margin: auto 0 10px;
 		}
 
 		.fellow-entry-control:first-child{

@@ -87,8 +87,13 @@ legend{
     padding: 10px;
   }
 
-  .row, .form-group{
+  .row{
     margin-right: -10px;
     margin-left: -10px;
+  }
+
+  .form-group, .form-horizontal .form-group{
+    margin-right: -5px;
+    margin-left: -5px;
   }
 }
