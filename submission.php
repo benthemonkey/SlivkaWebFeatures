@@ -52,7 +52,7 @@
 			<form autocomplete="off" onsubmit="return false;" role="form">
 				<legend>Points Submission Form</legend>
 				<div class="row">
-					<div class="col-lg-5 col-lg-offset-1 col-sm-6">
+					<div class="col-lg-5 col-lg-offset-1 col-sm-6 col">
 						<div class="form-group filled-by-control col-md-12">
 							<label class="control-label" for="filled-by">Points filled out by:</label>
 							<input type="text" name="filled-by" id="filled-by" class="form-control">
@@ -132,7 +132,7 @@
 							<textarea name="comments" id="comments" class="form-control" rows="3"></textarea>
 						</div>
 					</div>
-					<div class="col-lg-5 col-sm-6">
+					<div class="col-lg-5 col-sm-6 col">
 						<ul class="nav nav-tabs" id="tabs">
 							<li class="active"><a href="#slivkan-entry-tab" data-toggle="tab"><span>Attendees</span></a></li>
 							<li><a href="#fellow-entry-tab" data-toggle="tab"><span>Fellows</span></a></li>

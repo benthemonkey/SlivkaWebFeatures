@@ -8,8 +8,8 @@
 	<div class="container">
 		<div class="content">
 			<?php include('nav.html'); ?>
-			<legend>FAQ</legend>
-			<div class="col-lg-12">
+			<div class="col">
+				<legend>FAQ</legend>
 				<div class="panel-group row">
 					<div class="col-lg-4">
 						<div class="panel panel-default">
