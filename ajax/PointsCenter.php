@@ -67,8 +67,9 @@ class PointsCenter
 			$statement = self::$dbConn->prepare(
 				"SELECT full_name,nu_email,gender,wildcard,committee,photo
 				FROM directory
-				WHERE qtr_final IS NULL
+				WHERE qtr_final IS NULL OR qtr_final >= :qtr
 				ORDER BY first_name");
+			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
 			$slivkans = $statement->fetchAll(PDO::FETCH_ASSOC);
 
@@ -81,6 +82,45 @@ class PointsCenter
 		$n = count($slivkans);
 		for($i=0; $i<$n; $i++){
 			$slivkans[$i]["tokens"] = explode(" ",$slivkans[$i]["full_name"]);
+		}
+
+		return $slivkans;
+	}
+
+	public function getMultipliers ()
+	{
+		self::initializeConnection();
+		$slivkans = array();
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT nu_email,qtr_joined,qtrs_away,qtr_final
+				FROM directory
+				WHERE qtr_final IS NULL OR qtr_final >= :qtr
+				ORDER BY first_name");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->execute();
+			$slivkans = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		for($s=0; $s<count($slivkans); $s++){
+			$y_join = round($slivkans[$s]['qtr_joined'],-2);
+			$q_join = $slivkans[$s]['qtr_joined'] - $y_join;
+
+			$y_this = round(self::$qtr,-2);
+			$q_this = self::$qtr - $y_this;
+
+			$y_acc = ($y_this - $y_join) / 100;
+			$q_acc = $q_this - $q_join;
+
+			$q_total = $q_acc + 3 * $y_acc - $slivkans[$s]['qtrs_away'];
+
+			$mult = 1 + 0.1 * $q_total;
+
+			$slivkans[$s]['mult'] = $mult;
 		}
 
 		return $slivkans;
@@ -175,6 +215,28 @@ class PointsCenter
 			die();
 		}
 		return $events;
+	}
+
+	public function getIMs ($team)
+	{
+		self::initializeConnection();
+		$IMs = array();
+
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT event_name
+				FROM events
+				WHERE qtr=:qtr AND type='im' AND event_name LIKE :team
+				ORDER BY date, id");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->bindValue(":team", "%".$team."%");
+			$statement->execute();
+			$IMs = $statement->fetchAll(PDO::FETCH_COLUMN,0);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+		return $IMs;
 	}
 
 	public function getPoints ()

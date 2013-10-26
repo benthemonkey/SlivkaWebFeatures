@@ -779,10 +779,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 				$('#event').val('P2P');
 			}else if(type == 'IM'){
 				$('#committee').val('Social');
-				$('#event').val($('#im-team').val()+' 1');
-
-				var sport = $('#im-team').val().split(' ');
-				$('#description').val(sport[1]);
+				submission.validateIMTeam();
 			}else if(type == 'House Meeting'){
 				$('#committee').val('Exec');
 				$('#event').val('House Meeting');
@@ -848,30 +845,26 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 
 			valid_event_name = false;
 
-			if((event_name.length <= 40 && event_name.length >= 8) || event_name == 'P2P'){
+			if((event_name.length <= 32 && event_name.length >= 8) || event_name == 'P2P'){
 				event_name += [' ', $('#date').val()].join('');
 
 				$.getJSON('ajax/getEvents.php',function(events){
 					$('.event-control').removeClass('has-warning');
 
-					if(events.length > 0){
-						if(events.indexOfKey('event_name',event_name) != -1){
-							if(type == 'IM'){
-								var last = parseInt($('#event').val().slice(-1),10);
-								$('#event').val($('#event').val().slice(0,-1) + (last+1).toString());
-								submission.validateEventName();
-							}else{
-								valid_event_name = false;
-								$('#event-name-error').fadeIn();
-							}
+					if(events.length > 0 && events.indexOfKey('event_name',event_name) != -1){
+						if(type == 'IM'){
+							var last = parseInt($('#event').val().slice(-1),10);
+							$('#event').val($('#event').val().slice(0,-1) + (last+1).toString());
+							submission.validateEventName();
 						}else{
-							valid_event_name = true;
-							$('#event-name-error').fadeOut();
+							valid_event_name = false;
+							$('#event-name-error').fadeIn();
 						}
-
 					}else{
 						valid_event_name = true;
+						$('#event-name-error').fadeOut();
 					}
+
 					$('#event-name-length-error').fadeOut();
 					common.updateValidity($('.event-control'),valid_event_name);
 				});
@@ -884,10 +877,12 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 			return valid;
 		},
 		validateIMTeam: function(){
-			$('#event').val($('#im-team').val()+' 1');
-			var sport = $('#im-team').val().split(' ');
-			$('#description').val(sport[1]);
-			submission.validateEventName();
+			var im_team = $('#im-team').val();
+			$.getJSON('ajax/getIMs.php',{team: im_team},function(events){
+				$('#event').val(im_team + ' ' + (events.length + 1));
+				$('#description').val(im_team.split(' ')[1]);
+				submission.validateEventName();
+			});
 		},
 		validateCommittee: function(){
 			var valid, committee = $('#committee').val();
@@ -1286,6 +1281,37 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 			//nav
 			$('.nav li').eq(4).addClass('active');
 		}
+	},
+
+	inboundPoints = {
+		init: function(){
+			$.ajax({
+				url: './ajax/getCalendar.php',
+				type: 'xml',
+				async: true,
+				success: function(xml){
+					xml = $.parseXML(xml);
+
+					var events = [];
+
+					$(xml).find('entry').each(function(i, el){
+						var title = el.childNodes[4].textContent,
+						date = el.childNodes[5].textContent;
+						date = date.slice(6,date.indexOf('to') - 1);
+
+						var dt = parseInt(moment(date,['ddd MMM DD, YYYY h:mma','ddd MMM DD, YYYY ha']).format('X'),10);
+
+						events.push([title,date,dt]);
+					});
+
+					events = events.sort(function(a,b){ return a[2] - b[2]; });
+
+					for(var i=0; i<events.length; i++){
+						$('<li />').html(events[i][0] + ' ' + events[i][1]).appendTo('#events'); // + ' ' + moment(events[i][2]+'','X').format('ddd MMM DD, YYYY h:mma')
+					}
+				}
+			});
+		}
 	};
 
 	return {
@@ -1293,6 +1319,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 		table: table,
 		correction: correction,
 		submission: submission,
-		faq: faq
+		faq: faq,
+		inboundPoints: inboundPoints
 	};
 });
