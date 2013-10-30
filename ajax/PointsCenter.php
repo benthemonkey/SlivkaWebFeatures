@@ -443,13 +443,13 @@ class PointsCenter
 			$totals_by_suite[$s] = round($totals_by_suite[$s] / $counts_by_suite[$s], 2);
 		}
 
-		return array('table' => $points_table, 'events' => $events, 'by_year' => $totals_by_year, 'by_suite' => $totals_by_suite);
+		return array('points_table' => $points_table, 'events' => $events, 'by_year' => $totals_by_year, 'by_suite' => $totals_by_suite);
 	}
 
 	public function updateTotals ()
 	{
 		$points_table = self::getPointsTable();
-		$points_table = $points_table['table'];
+		$points_table = $points_table['points_table'];
 
 		$sql = "INSERT INTO totals (nu_email, total, qtr) VALUES ";
 
