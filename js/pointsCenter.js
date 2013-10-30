@@ -233,15 +233,46 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 				dataType: 'json',
 				url: 'ajax/getPointsTable.php',
 				success: function(data){
+					var by_year = [], by_suite = [];
 					events = data.events;
 
-					for(var row in data.points_table){
+					// filling years and suites tables
+					for(var row in data.by_year){
+						if(data.by_year.hasOwnProperty(row)){
+							by_year.push([row, data.by_year[row]]);
+						}
+					}
+
+					by_year.sort(function(a,b){ return b[1] - a[1]; });
+
+					for(var i=0; i<by_year.length; i++){
+						$('<tr />').appendTo('#years');
+						$('<td />').text(by_year[i][0]).appendTo('#years tr:last');
+						$('<td />').text(by_year[i][1]).appendTo('#years tr:last');
+					}
+
+					for(row in data.by_suite){
+						if(data.by_suite.hasOwnProperty(row)){
+							by_suite.push([row, data.by_suite[row]]);
+						}
+					}
+
+					by_suite.sort(function(a,b){ return b[1] - a[1]; });
+
+					for(i=0; i<by_suite.length; i++){
+						$('<tr />').appendTo('#suites');
+						$('<td />').text(by_suite[i][0]).appendTo('#suites tr:last');
+						$('<td />').text(by_suite[i][1]).appendTo('#suites tr:last');
+					}
+					//end filling years and suites
+
+					for(row in data.points_table){
 						if(data.points_table.hasOwnProperty(row)){
 							aDataSet.push(data.points_table[row]);
 						}
 					}
 
-					for(var i=0; i<events.length; i++){
+					for(i=0; i<events.length; i++){
 						var en = events[i].event_name,
 						name = en.substr(0,en.length-11),
 						date = en.substr(en.length-5);
@@ -284,7 +315,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 									'<"filter filter1">',
 									'<"filter filter2">',
 									'<"filter filter3">',
-									//'<"filter filter4">',
+									'<"btn btn-default show-stats">',
 								'>',
 							'><"header-row">',
 							'<"row"<"col-lg-12"rt>>'].join('')
@@ -369,12 +400,15 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 
 					$('#im-filter').on('change',columnFilter);
 
-
-
 					$('.multiselect').multiselect({
 						buttonClass: 'btn btn-default',
 						onChange: columnFilter
 					});
+
+					$('.show-stats').text('Stats').attr({
+							'data-toggle': 'modal',
+							'data-target': '#stats'
+						}).css('margin','16px 5px 0');
 
 					/*$(['',
 						'<label>Limit Cols:<br/><select class="form-control" id="count-filter">',
