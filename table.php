@@ -26,7 +26,7 @@
           <div class="row">
             <div class="col-sm-4">
               <table class="table table-striped" id="years">
-                <tr><th>Year</th><th>Avg Pts</th></tr>
+                <tr><th>Class Year</th><th>Avg Pts</th></tr>
               </table>
             </div>
             <div class="col-sm-4 col-offset-sm-5">

@@ -385,15 +385,15 @@ class PointsCenter
 			#handling helper points max
 			if($points_table[$s][$helper_points_ind] > 5){ $points_table[$s][$helper_points_ind] = 5; }
 
-			$points_table[$s][$total_ind] = array_sum(array_slice($points_table[$s], $events_total_ind, 6));
+			$points_table[$s][$total_ind] = array_sum(array_slice($points_table[$s], $events_total_ind, 5));
 
 			$year = $years_suites[$s]['year'];
 			$suite = $years_suites[$s]['suite'];
 
 			$counts_by_year[$year]++;
-			$totals_by_year[$year] += $points_table[$s][$total_ind];
+			$totals_by_year[$year] += array_sum(array_slice($points_table[$s], $events_total_ind, 3));
 			$counts_by_suite[$suite]++;
-			$totals_by_suite[$suite] += $points_table[$s][$total_ind];
+			$totals_by_suite[$suite] += array_sum(array_slice($points_table[$s], $events_total_ind, 3));
 		}
 
 		foreach(array_keys($totals_by_year) as $y){
