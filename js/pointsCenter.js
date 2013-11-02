@@ -456,7 +456,6 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 							container: '#table'
 						}).appendTo('#columns');
 					}
-					columns = $('#columns').find('li');
 
 					//Append 'totals' column labels
 					$('<li />').addClass('totals-label').text('Events Total').appendTo('#columns');
@@ -466,10 +465,12 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					$('<li />').addClass('totals-label').text('Position-Related').appendTo('#columns');
 					$('<li />').addClass('totals-label').text('Total').appendTo('#columns');
 
+					columns = $('#columns').find('li');
+
 					//event handler for column labels
 					var headers = $('#table').find('th');
 					columns.each(function(index){
-						$(this).on('click',function(){headers.eq(index+1).click();});
+						$(this).on('click',function(){ headers.eq(index+1).click(); });
 					});
 				}
 			});
@@ -1346,6 +1347,57 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 				}
 			});
 		}
+	},
+
+	rankings = {
+		init: function(){
+			$.getJSON('./ajax/getRankings.php',function(data){
+				var males = [], females = [], tmp, row, i, j,
+					colDefs = [{ sTitle: 'Name', sClass: 'name'}];
+
+				for(i=0; i<data.qtrs.length; i++){
+					colDefs.push({
+						sTitle: data.qtrs[i]+''
+					});
+				}
+
+				colDefs.push(
+					{ sTitle: 'Total' },
+					{ sTitle: 'Mult' },
+					{ sTitle: 'Total w/ Mult' });
+
+				for(i=0; i<data.rankings.length; i++){
+					row = data.rankings[i];
+					tmp = [row.full_name];
+
+					for(j=0; j<data.qtrs.length; j++){
+						tmp.push(parseInt(row[data.qtrs[j]],10));
+					}
+
+					tmp.push(row.total, row.mult, row.total_w_mult);
+
+					if(row.gender == 'm'){
+						males.push(tmp);
+					}else{
+						females.push(tmp);
+					}
+				}
+
+				$('#males_table').dataTable({
+					aaData: males,
+					aoColumns: colDefs,
+					aaSorting: [[data.qtrs.length + 3,'desc']],
+					bPaginate: false
+				});
+
+				$('#females_table').dataTable({
+					aaData: females,
+					aoColumns: colDefs,
+					aaSorting: [[data.qtrs.length + 3,'desc']],
+					bPaginate: false
+				});
+			});
+		}
 	};
 
 	return {
@@ -1354,6 +1406,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 		correction: correction,
 		submission: submission,
 		faq: faq,
-		inboundPoints: inboundPoints
+		inboundPoints: inboundPoints,
+		rankings: rankings
 	};
 });

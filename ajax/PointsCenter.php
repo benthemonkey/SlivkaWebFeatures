@@ -87,45 +87,6 @@ class PointsCenter
 		return $slivkans;
 	}
 
-	public function getMultipliers ()
-	{
-		self::initializeConnection();
-		$slivkans = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT nu_email,qtr_joined,qtrs_away,qtr_final
-				FROM directory
-				WHERE qtr_final IS NULL OR qtr_final >= :qtr
-				ORDER BY first_name");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->execute();
-			$slivkans = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-
-		for($s=0; $s<count($slivkans); $s++){
-			$y_join = round($slivkans[$s]['qtr_joined'],-2);
-			$q_join = $slivkans[$s]['qtr_joined'] - $y_join;
-
-			$y_this = round(self::$qtr,-2);
-			$q_this = self::$qtr - $y_this;
-
-			$y_acc = ($y_this - $y_join) / 100;
-			$q_acc = $q_this - $q_join;
-
-			$q_total = $q_acc + 3 * $y_acc - $slivkans[$s]['qtrs_away'];
-
-			$mult = 1 + 0.1 * $q_total;
-
-			$slivkans[$s]['mult'] = $mult;
-		}
-
-		return $slivkans;
-	}
-
 	public function getAllSlivkans ()
 	{
 		self::initializeConnection();
@@ -444,6 +405,98 @@ class PointsCenter
 		}
 
 		return array('points_table' => $points_table, 'events' => $events, 'by_year' => $totals_by_year, 'by_suite' => $totals_by_suite);
+	}
+
+	public function getMultipliers ()
+	{
+		self::initializeConnection();
+		$slivkans = array();
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT nu_email,full_name,gender,qtr_joined,qtrs_away,qtr_final
+				FROM directory
+				WHERE qtr_final IS NULL OR qtr_final >= :qtr
+				ORDER BY first_name");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->execute();
+			$slivkans = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		for($s=0; $s<count($slivkans); $s++){
+			$y_join = round($slivkans[$s]['qtr_joined'],-2);
+			$q_join = $slivkans[$s]['qtr_joined'] - $y_join;
+
+			$y_this = round(self::$qtr,-2);
+			$q_this = self::$qtr - $y_this;
+
+			$y_acc = ($y_this - $y_join) / 100;
+			$q_acc = $q_this - $q_join;
+
+			$q_total = $q_acc + 3 * $y_acc - $slivkans[$s]['qtrs_away'];
+
+			$mult = 1 + 0.1 * $q_total;
+
+			$slivkans[$s]['mult'] = $mult;
+		}
+
+		return $slivkans;
+	}
+
+	public function getRankings ()
+	{
+		$is_housing = true;
+		# figure out how many qtrs to consider
+		# if its spring, you're trying to get final housing rankings.
+		$y_this = round(self::$qtr,-2);
+		$q_this = self::$qtr - $y_this;
+
+		if($q_this == 2 && !$is_housing){
+			$qtrs = array(self::$qtr);
+		}else if($q_this == 3){
+			$qtrs = array(self::$qtr-1, self::$qtr);
+		}else if($q_this == 1 || $is_housing){
+			$qtrs = array($y_this-100+2, $y_this-100+3, $y_this+1);
+		}else{
+			echo "Error: qtr messed up. " . $q_this;
+			die();
+		}
+
+		# spring 13, fall 13, winter 14 HOUSING spring 14
+
+		$rankings = self::getMultipliers();
+		$totals = array();
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT nu_email,total
+				FROM totals
+				WHERE qtr IN (".implode(",",$qtrs).")
+				ORDER BY qtr");
+			$statement->execute();
+			$totals = $statement->fetchAll(PDO::FETCH_GROUP|PDO::FETCH_COLUMN);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		$mult_count = count($rankings);
+		$qtrs_count = count($qtrs);
+		for($i=0; $i<$mult_count; $i++){
+			$sum = 0;
+			for($j=0; $j<$qtrs_count; $j++){
+				$t = $totals[$rankings[$i]['nu_email']][$j];
+				$rankings[$i][$qtrs[$j]] = $t;
+				$sum += (int) $t;
+			}
+
+			$rankings[$i]['total'] = $sum;
+			$rankings[$i]['total_w_mult'] = $sum * $rankings[$i]['mult'];
+		}
+
+		return array('rankings' => $rankings, 'qtrs' => $qtrs);
 	}
 
 	public function updateTotals ()
