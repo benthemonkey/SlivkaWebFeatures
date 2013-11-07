@@ -4,8 +4,8 @@
   <?php include('header.html'); ?>
   <title>Breakdown - Slivka Points Center</title>
   <style type="text/css">
-  table{
-	font-size: 12px;
+  .event-list{
+  	font-size: 12px;
   }
 
   .chart{
@@ -18,62 +18,69 @@
 		<div class="content">
 			<?php include('nav.html'); ?>
 			<div class="row">
-				<div class="col-md-3">
-					<legend>Filters</legend>
-					<div class="col">
-						<form>
-							<fieldset>
-								<div class="row">
-									<div class="form-group col-md-12">
-										<label for="slivkan" class="control-label">Slivkan:</label>
-										<select id="slivkan" class="form-control">
-											<option value="">Select One</option>
-										</select>
-									</div>
-								</div>
-								<div class="row">
-									<div class="form-group col-md-12">
-										<label for="daterange" class="control-label">Date Range:</label>
-										<input id="daterange" class="form-control text-center">
-									</div>
-								</div>
-								<div class="row">
-									<div class="form-group col-md-12">
-										<label for="showUnattended">Show Unattended:</label>
-										<div class="make-switch">
-											<input type="checkbox" name="showUnattended" id="showUnattended" checked>
-										</div>
-									</div>
-								</div>
-							</fieldset>
-						</form>
-					</div>
-				</div>
-				<div class="col-md-9">
+				<div class="col-lg-12">
 					<legend>Points Breakdown</legend>
-					<div class="col">
-						<div class="row" id="breakdown" style="display: none">
-							<div class="col-md-6">
-								<div id="attendedByCommittee" class="chart"></div>
-								<table class="table table-bordered table-condensed table-striped">
+					<div class="row">
+						<div class="col">
+							<div class="form-group col-md-3">
+								<label for="slivkan" class="control-label">Slivkan:</label>
+								<select id="slivkan" class="form-control">
+									<option value="">Select One</option>
+								</select>
+							</div>
+							<div class="breakdown col-md-6 pull-right" style="display:none;">
+								<table class="table table-bordered table-condensed">
 									<thead>
 										<tr>
-											<th>Events <span class="slivkan-submit">Ford</span> Attended</th>
+											<th>Type</th>
+											<th>Events</th>
+											<th>IMs</th>
+											<th>Helper</th>
+											<th>Committee</th>
+											<th>Position</th>
+											<th>Total</th>
 										</tr>
 									</thead>
-									<tbody id="attended">
+									<tbody>
+										<tr>
+											<th>Subtotal</th>
+											<td id="eventPoints"></td>
+											<td id="imPoints"></td>
+											<td id="helperPoints"></td>
+											<td id="committeePoints"></td>
+											<td id="positionPoints"></td>
+											<td id="totalPoints"></td>
+										</tr>
 									</tbody>
 								</table>
 							</div>
-							<div class="col-md-6" id="unattended-col">
-								<div id="unattendedByCommittee" class="chart"></div>
+						</div>
+					</div>
+					<div class="col breakdown" style="display:none;">
+						<div class="row">
+							<div class="col-md-4">
+								<div class="chart" id="eventsChart"></div>
+								<div class="chart" id="imsChart"></div>
+							</div>
+							<div class="col-md-4 event-list">
 								<table class="table table-bordered table-condensed table-striped">
 									<thead>
 										<tr>
-											<th>Events <span class="slivkan-submit">Ford</span> Didn't</th>
+											<th>Events Attended</th>
 										</tr>
 									</thead>
-									<tbody id="unattended" class="fade in">
+									<tbody id="attendedEvents">
+									</tbody>
+								</table>
+							</div>
+							<div class="col-md-4 event-list">
+								<table class="table table-bordered table-condensed table-striped">
+									<thead>
+										<tr>
+											<th>Events Unattended</th>
+										</tr>
+									</thead>
+									<tbody id="unattendedEvents">
 									</tbody>
 								</table>
 							</div>

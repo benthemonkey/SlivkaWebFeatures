@@ -4,6 +4,9 @@ require_once "./PointsCenter.php";
 $points_center = new PointsCenter();
 $points = $points_center->getSlivkanPoints($_GET['nu_email']);
 $events = $points_center->getEvents($_GET['start'],$_GET['end']);
+$counts = $points_center->getSlivkanPointsByCommittee($_GET['nu_email']);
+$ims = $points_center->getSlivkanIMPoints($_GET['nu_email']);
+$other = $points_center->getSlivkanBonusPoints($_GET['nu_email']);
 
 $attended = array();
 $unattended = array();
@@ -16,19 +19,8 @@ foreach($events as $e){
 	}
 }
 
-$unattended_count = count($unattended); $unattended_types = array(); $unattended_committees = array();
-for($i=0; $i<$unattended_count; $i++){
-	$unattended_types[$unattended[$i]['type']] += 1;
-	$unattended_committees[$unattended[$i]['committee']] += 1;
-}
+echo json_encode(array('events'=>array('counts'=>$counts, 'attended'=>$attended, 'unattended'=>$unattended),
+	'ims'=>$ims, 'helper'=>$other['helper'], 'committee'=>$other['committee'], 'position'=>$other['position']));
 
-$attended_count = count($attended); $attended_types = array(); $attended_committees = array();
-for($i=0; $i<$attended_count; $i++){
-	$attended_types[$attended[$i]['type']] += 1;
-	$attended_committees[$attended[$i]['committee']] += 1;
-}
-
-echo json_encode(array('attended'=>array('events'=>$attended,'types'=>$attended_types,'committees'=>$attended_committees),
-	'unattended'=>array('events'=>$unattended,'types'=>$unattended_types,'committees'=>$unattended_committees)));
 
 ?>

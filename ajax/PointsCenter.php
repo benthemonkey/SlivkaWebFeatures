@@ -276,6 +276,104 @@ class PointsCenter
 		return $events;
 	}
 
+	public function getSlivkanPointsByCommittee ($nu_email)
+	{
+		self::initializeConnection();
+		$points = array();
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT committee, count(nu_email) AS count
+				FROM points LEFT JOIN events
+					ON points.event_name=events.event_name
+					WHERE nu_email=:nu_email AND type!='im' AND points.qtr=:qtr
+				GROUP BY events.committee");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->bindValue(":nu_email", $nu_email);
+			$statement->execute();
+			$points = $statement->fetchAll(PDO::FETCH_ASSOC);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		return $points;
+	}
+
+	public function getSlivkanIMPoints ($nu_email)
+	{
+		self::initializeConnection();
+		$im_points = array();
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT events.description, count(points.nu_email) AS count
+				FROM points LEFT JOIN events
+					ON points.event_name=events.event_name
+					WHERE points.nu_email=:nu_email AND events.type='im' AND events.qtr=:qtr
+					GROUP BY nu_email, events.description");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->bindValue(":nu_email", $nu_email);
+			$statement->execute();
+			$im_points = $statement->fetchAll(PDO::FETCH_ASSOC);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		return $im_points;
+	}
+
+	public function getSlivkanBonusPoints ($nu_email)
+	{
+		self::initializeConnection();
+		$helper_points = 0;
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT sum(helper)
+				FROM (
+					SELECT nu_email, helper
+					FROM bonuspoints
+					WHERE nu_email=:nu_email AND qtr=:qtr
+
+					UNION ALL
+
+					SELECT nu_email, count(nu_email) AS helper
+					FROM helperpoints WHERE nu_email=:nu_email AND qtr=:qtr) AS h");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->bindValue(":nu_email", $nu_email);
+			$statement->execute();
+			$helper_points = $statement->fetch(PDO::FETCH_COLUMN);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		$bonus = array();
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT *
+				FROM bonuspoints
+				WHERE nu_email=:nu_email AND qtr=:qtr");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->bindValue(":nu_email", $nu_email);
+			$statement->execute();
+			$bonus = $statement->fetch(PDO::FETCH_NAMED);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		if($bonus){
+			$committee_points = $bonus['committee'];
+			$position_points = $bonus['other1']+$bonus['other2']+$bonus['other3'];
+		}else{
+			$committee_points = 0;
+			$position_points = 0;
+		}
+
+
+		return array("helper" => $helper_points, "committee" => $committee_points, "position" => $position_points);
+	}
+
 	public function getBonusPoints ()
 	{
 		self::initializeConnection();

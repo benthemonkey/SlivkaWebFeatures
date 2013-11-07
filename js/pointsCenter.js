@@ -49,14 +49,6 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 			//nav
 			$('.nav li').eq(0).addClass('active');
 
-			//Remove stale values of start and end
-			if(localStorage.spc_brk_start && localStorage.spc_brk_start.search(/\//) !== -1){
-				localStorage.spc_brk_start = '';
-			}
-			if(localStorage.spc_brk_end && localStorage.spc_brk_end.search(/\//) !== -1){
-				localStorage.spc_brk_end = '';
-			}
-
 			$.ajax({
 				async: true,
 				dataType: 'json',
@@ -74,121 +66,101 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 						$('#slivkan').val(localStorage.spc_brk_slivkan);
 						breakdown.getSlivkanPoints();
 					}
-
-					if(!localStorage.spc_brk_showUnattended){ $('#showUnattended').click(); }
-
-					$('#daterange').daterangepicker({
-						format: 'MMM Do',
-						startDate: moment(localStorage.spc_brk_start || quarter_start),
-						endDate: moment(localStorage.spc_brk_end || quarter_end),
-						minDate: moment(quarter_start),
-						maxDate: moment(quarter_end),
-						ranges: {
-							'Last 7 Days': [moment().subtract('days', 6), moment()],
-							'Last 30 Days': [moment().subtract('days', 29), moment()],
-							'Since Quarter Started': [moment(quarter_start), moment(quarter_end)]
-						},
-						buttonClasses: 'btn',
-						applyClass: 'btn-primary'
-					},function(start, end) {
-						localStorage.spc_brk_start = start.format('YYYY-MM-DD');
-						localStorage.spc_brk_end = end.format('YYYY-MM-DD');
-
-						if($('#slivkan').val().length > 0){
-							breakdown.getSlivkanPoints();
-						}
-					}).val(moment(localStorage.spc_brk_start || quarter_start).format('MMM Do') + ' - ' + moment(localStorage.spc_brk_end || quarter_end).format('MMM Do'));
 				}
 			});
 
 			$('#slivkan')		.on('change', breakdown.getSlivkanPoints);
-			$('.make-switch')	.on('switch-change', breakdown.toggleShowUnattended);
-		},
-		toggleShowUnattended: function(event,data){
-			if(data.value){
-				$('#unattended-col').slideDown();
-				localStorage.spc_brk_showUnattended = 1;
-			}else{
-				$('#unattended-col').slideUp();
-				localStorage.spc_brk_showUnattended = '';
-			}
 		},
 		getSlivkanPoints: function(){
-			var nu_email = $('#slivkan').val(),
-			start = localStorage.spc_brk_start || quarter_start,
-			end = localStorage.spc_brk_end || quarter_end;
+			var nu_email = $('#slivkan').val();
 
 			if(nu_email.length > 0){
-				localStorage.spc_brk_slivkan = $('#slivkan').val();
+				localStorage.spc_brk_slivkan = nu_email;
 
-				$('.slivkan-submit').html($('#slivkan option:selected').html());
-
-				$('#breakdown').fadeOut(function(){
+				$('.breakdown').fadeOut(function(){
 					$('#attended').empty();
-					$('#attendedByCommittee').empty();
-					$('#unattended').empty();
-					$('#unattendedByCommittee').empty();
 
-					$.ajax({
-						async: true,
-						dataType: 'json',
-						url: 'ajax/getPointsBreakdown.php',
-						data: {nu_email: nu_email, start: start, end: end},
-						success: function(data){
-							var events = data.attended.events, tableData, c;
+					$.getJSON('ajax/getPointsBreakdown.php',{nu_email: nu_email, start: quarter_start, end: quarter_end}, function(data){
+						var i, eventData = [],
+							imData = [],
+							event_total = 0,
+							im_total = 0,
+							im_extra = 0;
 
-							if(events.length > 0){
-								for(var i=events.length-1; 0<=i; i--){
-									$('<tr />').addClass(events[i].committee).appendTo('#attended');
-									$('<td />').html(events[i].event_name).appendTo('#attended tr:last');
-								}
-
-								$('#attendedByCommittee').css('height','250px');
-								tableData = [];
-								for(c in data.attended.committees){
-									if(data.attended.committees.hasOwnProperty(c)){
-										tableData.push([c,data.attended.committees[c]]);
-									}
-								}
-
-								breakdown.drawChart(tableData,'Attended Events Committee Distribution','attendedByCommittee');
-							}else{
-								$('<tr />').appendTo('#attended');
-								$('<td />').html('None :(').appendTo('#attended tr:last');
-
-								$('#attendedByCommittee').css('height','0');
+						if(data.events.attended.length > 0){
+							for(i=data.events.attended.length-1; i>=0; i--){
+								$('<tr />').appendTo('#attendedEvents');
+								$('<td />').text(data.events.attended[i].event_name).appendTo('#attendedEvents tr:last');
 							}
-
-							events = data.unattended.events;
-							if(events.length > 0){
-								for(var j=events.length-1; 0<=j; j--){
-									$('<tr />').addClass(events[j].committee).appendTo('#unattended');
-									$('<td />').html(events[j].event_name).appendTo('#unattended tr:last');
-								}
-
-								$('#unattendedByCommittee').css('height','250px');
-								tableData = [];
-								for(c in data.unattended.committees){
-									if(data.unattended.committees.hasOwnProperty(c)){
-										tableData.push([c,data.unattended.committees[c]]);
-									}
-								}
-								breakdown.drawChart(tableData,'Unattended Events Committee Distribution','unattendedByCommittee');
-							}else{
-								$('<tr />').appendTo('#unattended');
-								$('<td />').html('None :D').appendTo('#unattended tr:last');
-
-								$('#unattendedByCommittee').css('height','0');
-							}
-
-							$('#breakdown').fadeIn();
+						}else{
+							$('<tr />').appendTo('#attendedEvents');
+							$('<td />').html('None :(').appendTo('#attendedEvents tr:last');
 						}
+
+						if(data.events.unattended.length > 0){
+							for(i=data.events.unattended.length-1; i>=0; i--){
+								$('<tr />').appendTo('#unattendedEvents');
+								$('<td />').text(data.events.unattended[i].event_name).appendTo('#unattendedEvents tr:last');
+							}
+						}else{
+							$('<tr />').appendTo('#unattendedEvents');
+							$('<td />').html('None :)').appendTo('#unattendedEvents tr:last');
+						}
+
+						for(i=0; i<data.events.counts.length; i++){
+							eventData.push([data.events.counts[i].committee,parseInt(data.events.counts[i].count,10)]);
+
+							event_total += parseInt(data.events.counts[i].count, 10);
+						}
+
+						$('#eventPoints').text(event_total);
+						breakdown.drawChart(eventData, 'Event Points (' + event_total + ' Total)', 'eventsChart');
+
+						if(data.ims.length > 0){
+							$('#imsChart').show();
+							for(i=0; i<data.ims.length; i++){
+								data.ims[i].count = parseInt(data.ims[i].count, 10);
+
+								imData.push([data.ims[i].description,data.ims[i].count]);
+
+								if(data.ims[i].count >= 3){
+									im_total += data.ims[i].count;
+								} else {
+									im_extra += data.ims[i].count;
+								}
+							}
+
+							if(im_total > 15){
+								im_extra += im_total - 15;
+								im_total = 15;
+							}
+
+							breakdown.drawChart(imData,
+								['IMs (',im_total,' Points, ',im_extra,(im_extra==1 ? ' Doesn\'t':' Don\'t'),' Count)'].join(''),
+								'imsChart');
+						}else{
+							$('#imsChart').hide();
+						}
+
+						$('#imPoints').text(im_total);
+						$('#helperPoints').text(data.helper);
+						$('#committeePoints').text(data.committee);
+						$('#positionPoints').text(data.position);
+
+						$('#totalPoints').text(
+							[event_total,im_total,data.helper,data.committee,data.position].map(function(n){
+								return parseInt(n,10);
+							}).reduce(function(a,b){
+								return a+b;
+							}));
+
+						$('.breakdown').fadeIn();
 					});
 				});
 			}
 		},
 		drawChart: function(tableData,title_in,id){
-			setTimeout(function(){
+			//setTimeout(function(){
 				$('#'+id).highcharts({
 					credits: {
 						enabled: false
@@ -208,7 +180,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 						data: tableData
 					}]
 				});
-			},500);
+			//},500);
 		}
 	},
 
