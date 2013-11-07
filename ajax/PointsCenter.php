@@ -49,7 +49,7 @@ class PointsCenter
 				"SELECT first_name,last_name,year,major,suite,photo
 				FROM directory
 				WHERE qtr_final IS NULL
-				ORDER BY first_name");
+				ORDER BY full_name");
 			$statement->execute();
 			$directory = $statement->fetchAll(PDO::FETCH_ASSOC);
 		} catch (PDOException $e) {
@@ -68,7 +68,7 @@ class PointsCenter
 				"SELECT full_name,nu_email,gender,wildcard,committee,photo,suite,year
 				FROM directory
 				WHERE qtr_final IS NULL OR qtr_final >= :qtr
-				ORDER BY first_name");
+				ORDER BY full_name");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
 			$slivkans = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -95,7 +95,7 @@ class PointsCenter
 			$statement = self::$dbConn->prepare(
 				"SELECT nu_email,full_name
 				FROM directory
-				ORDER BY first_name");
+				ORDER BY full_name");
 			$statement->execute();
 			$slivkans = $statement->fetchAll();
 
@@ -514,7 +514,7 @@ class PointsCenter
 				"SELECT nu_email,full_name,gender,qtr_joined,qtrs_away,qtr_final
 				FROM directory
 				WHERE qtr_final IS NULL OR qtr_final >= :qtr
-				ORDER BY first_name");
+				ORDER BY full_name");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
 			$slivkans = $statement->fetchAll(PDO::FETCH_ASSOC);
