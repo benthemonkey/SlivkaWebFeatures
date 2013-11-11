@@ -28,7 +28,7 @@
 									<option value="">Select One</option>
 								</select>
 							</div>
-							<div class="breakdown col-md-6 pull-right" style="display:none;">
+							<div class="col-md-6 pull-right">
 								<table class="table table-bordered table-condensed">
 									<thead>
 										<tr>

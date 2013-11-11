@@ -66,10 +66,10 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 						$('#slivkan').val(localStorage.spc_brk_slivkan);
 						breakdown.getSlivkanPoints();
 					}
+
+					$('#slivkan').on('change', breakdown.getSlivkanPoints);
 				}
 			});
-
-			$('#slivkan')		.on('change', breakdown.getSlivkanPoints);
 		},
 		getSlivkanPoints: function(){
 			var nu_email = $('#slivkan').val();
@@ -78,7 +78,8 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 				localStorage.spc_brk_slivkan = nu_email;
 
 				$('.breakdown').fadeOut(function(){
-					$('#attended').empty();
+					$('#attendedEvents').empty();
+					$('#unattendedEvents').empty();
 
 					$.getJSON('ajax/getPointsBreakdown.php',{nu_email: nu_email, start: quarter_start, end: quarter_end}, function(data){
 						var i, eventData = [],
@@ -89,22 +90,26 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 
 						if(data.events.attended.length > 0){
 							for(i=data.events.attended.length-1; i>=0; i--){
-								$('<tr />').appendTo('#attendedEvents');
-								$('<td />').text(data.events.attended[i].event_name).appendTo('#attendedEvents tr:last');
+								$('#attendedEvents')
+									.append($('<tr/>')
+										.append($('<td/>').text(data.events.attended[i].event_name)));
 							}
 						}else{
-							$('<tr />').appendTo('#attendedEvents');
-							$('<td />').html('None :(').appendTo('#attendedEvents tr:last');
+							$('#attendedEvents')
+								.append($('<tr/>')
+									.append($('<td/>').text('None :(')));
 						}
 
 						if(data.events.unattended.length > 0){
 							for(i=data.events.unattended.length-1; i>=0; i--){
-								$('<tr />').appendTo('#unattendedEvents');
-								$('<td />').text(data.events.unattended[i].event_name).appendTo('#unattendedEvents tr:last');
+								$('#unattendedEvents')
+									.append($('<tr/>')
+										.append($('<td/>').text(data.events.unattended[i].event_name)));
 							}
 						}else{
-							$('<tr />').appendTo('#unattendedEvents');
-							$('<td />').html('None :)').appendTo('#unattendedEvents tr:last');
+							$('#unattendedEvents')
+								.append($('<tr/>')
+									.append($('<td/>').text('None :)')));
 						}
 
 						for(i=0; i<data.events.counts.length; i++){
@@ -160,7 +165,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 			}
 		},
 		drawChart: function(tableData,title_in,id){
-			//setTimeout(function(){
+			setTimeout(function(){
 				$('#'+id).highcharts({
 					credits: {
 						enabled: false
@@ -180,7 +185,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 						data: tableData
 					}]
 				});
-			//},500);
+			},500);
 		}
 	},
 
