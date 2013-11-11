@@ -35,9 +35,9 @@
 											<th>Type</th>
 											<th>Events</th>
 											<th>IMs</th>
-											<th>Helper</th>
-											<th>Committee</th>
-											<th>Position</th>
+											<th><abbr title="Helper Points">Help</abbr></th>
+											<th><abbr title="Committee Points">Cmte</abbr></th>
+											<th><abbr title="Position-Related Points">Pos</abbr></th>
 											<th>Total</th>
 										</tr>
 									</thead>

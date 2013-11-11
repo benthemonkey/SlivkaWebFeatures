@@ -556,8 +556,8 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 
 			$.getJSON('./ajax/sendPointsCorrection.php',data,function(response){
 				$('#response').text('Response: '+response.message);
-				$('#form-actions').html('<button type="button" class="btn btn-primary" href="table.php">View Points</button>'+
-					'<button type="button" class="btn btn-default" href="correction.php">Submit Another</button>');
+				$('#form-actions').html('<a class="btn btn-primary" href="table.php">View Points</a>'+
+					'<a class="btn btn-default" href="correction.php">Submit Another</a>');
 				$('#response').fadeIn();
 			});
 		}
