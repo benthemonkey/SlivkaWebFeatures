@@ -502,7 +502,7 @@ class PointsCenter
 			$totals_by_suite[$s] = round($totals_by_suite[$s] / $counts_by_suite[$s], 2);
 		}
 
-		return array('points_table' => $points_table, 'events' => $events, 'by_year' => $totals_by_year, 'by_suite' => $totals_by_suite);
+		return array('points_table' => array_values($points_table), 'events' => $events, 'by_year' => $totals_by_year, 'by_suite' => $totals_by_suite);
 	}
 
 	public function getMultipliers ()

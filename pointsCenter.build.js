@@ -61,12 +61,10 @@ require.config({
 });
 
 require(["jquery","js/pointsCenter"],function($,spc) {
-	$(document).ready(function(){
-		page = window.location.pathname.split("/");
-		page = page[page.length-1];
-		page = page.substr(0,page.length-4);
+	page = window.location.pathname.split("/");
+	page = page[page.length-1];
+	page = page.substr(0,page.length-4);
 
-		if(page == "index" || page === ""){ page = "breakdown"; }
-		spc[page].init();
-	});
+	if(page == "index" || page === ""){ page = "breakdown"; }
+	spc[page].init();
 });

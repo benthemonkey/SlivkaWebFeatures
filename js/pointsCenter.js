@@ -194,8 +194,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 			//nav
 			$('.nav li').eq(1).addClass('active');
 
-			var aDataSet = [],
-			event_names = [],
+			var event_names = [],
 			event_dates = [],
 			event_targets = [],
 			totals_targets = [],
@@ -243,12 +242,6 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					}
 					//end filling years and suites
 
-					for(row in data.points_table){
-						if(data.points_table.hasOwnProperty(row)){
-							aDataSet.push(data.points_table[row]);
-						}
-					}
-
 					for(i=0; i<events.length; i++){
 						var en = events[i].event_name,
 						name = en.substr(0,en.length-11),
@@ -267,14 +260,14 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					}
 
 					var oTable = $('#table').dataTable({
-						aaData: aDataSet,
+						aaData: data.points_table,
 						aoColumnDefs: [
 						{ aTargets: [0], sTitle: 'Name', sWidth: nameColWidth+'px', sClass: 'name'},
 						{ aTargets: [1], bVisible: false },
 						{ aTargets: event_targets, sWidth: eventColWidth+'px', fnCreatedCell: function(nTd, sData){
 							if(sData == '1'){$(nTd).addClass('green');}
-							else if(sData == '1.1' || sData == '0.1'){$(nTd).addClass('gold'); $(nTd).html($(nTd).html().substr(0,1));}
-							else if(sData == '1.2' || sData == '0.2'){$(nTd).addClass('blue'); $(nTd).html($(nTd).html().substr(0,1));}
+							else if(sData == '1.1' || sData == '0.1'){$(nTd).addClass('gold').html($(nTd).html().substr(0,1));}
+							else if(sData == '1.2' || sData == '0.2'){$(nTd).addClass('blue').html($(nTd).html().substr(0,1));}
 						}},
 						{ aTargets: event_targets.concat(totals_targets), sTitle: '', asSorting: ['desc','asc']},
 						{ aTargets: totals_targets, sClass: 'totals', sWidth: totalsColWidth+'px'}
@@ -294,7 +287,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 									'<"filter filter3">',
 									'<"btn btn-default show-stats">',
 								'>',
-							'><"header-row">',
+							'><"#header-row">',
 							'<"row"<"col-lg-12"rt>>'].join('')
 					});
 
@@ -395,32 +388,11 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 							'<option value="10">10</option>',
 						'</select></label>'].join('')).appendTo('.filter4');
 
-					$('#count-filter').on('change',function(event){
-						var count = event.target.value,
-						columns = $('#columns').find('li');
-
-						for(var i=0; i<event_targets.length; i++){
-							if(i < count || count == -1){
-								oTable.fnSetColumnVis(event_targets.length - i + 2, true, false);
-								columns.eq(event_targets.length - i).show();
-							}else{
-								oTable.fnSetColumnVis(event_targets.length - i + 2, false, false);
-								columns.eq(event_targets.length - i).hide();
-							}
-						}
-
-						oTable.fnDraw();
-
-						var cols_width = nameColWidth + (eventColWidth+1)*(count == -1 ? event_targets.length : count) +
-							(totalsColWidth+1)*totals_targets.length + 50;
-						$('.container').css('min-width', cols_width+'px');
-
-					});*/
+					$('#count-filter').on('change',columnFilter);*/
 
 					var cols_width = nameColWidth+(eventColWidth+1)*event_targets.length + (totalsColWidth+1)*totals_targets.length + 50;
 
 					$('.container').css('min-width',cols_width+'px');
-					$('.header-row').attr('id','columns');
 
 					for(i=0; i<event_names.length; i++){
 						$('<li />').text(event_names[i]).popover({
@@ -431,18 +403,18 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 								(events[i].description.length > 0 ? '<br/>Description: ' + events[i].description : '')].join(''),
 							placement: 'bottom',
 							container: '#table'
-						}).appendTo('#columns');
+						}).appendTo('#header-row');
 					}
 
 					//Append 'totals' column labels
-					$('<li />').addClass('totals-label').text('Events Total').appendTo('#columns');
-					$('<li />').addClass('totals-label').text('Helper Points').appendTo('#columns');
-					$('<li />').addClass('totals-label').text('IM Sports').appendTo('#columns');
-					$('<li />').addClass('totals-label').text('Standing Committees').appendTo('#columns');
-					$('<li />').addClass('totals-label').text('Position-Related').appendTo('#columns');
-					$('<li />').addClass('totals-label').text('Total').appendTo('#columns');
+					$('<li />').addClass('totals-label').text('Events Total').appendTo('#header-row');
+					$('<li />').addClass('totals-label').text('Helper Points').appendTo('#header-row');
+					$('<li />').addClass('totals-label').text('IM Sports').appendTo('#header-row');
+					$('<li />').addClass('totals-label').text('Standing Committees').appendTo('#header-row');
+					$('<li />').addClass('totals-label').text('Position-Related').appendTo('#header-row');
+					$('<li />').addClass('totals-label').text('Total').appendTo('#header-row');
 
-					columns = $('#columns').find('li');
+					columns = $('#header-row').addClass('hr').find('li');
 
 					//event handler for column labels
 					var headers = $('#table').find('th');

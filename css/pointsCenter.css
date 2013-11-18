@@ -1,6 +1,6 @@
 body{
   background: transparent url('../img/slivka-wallpaper-half.jpg') repeat-y top center;
-  background-clip: border-box;
+  background-size: cover;
 }
 
 legend{
