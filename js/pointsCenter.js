@@ -118,7 +118,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 							event_total += parseInt(data.events.counts[i].count, 10);
 						}
 
-						$('#eventPoints').text(event_total);
+						$('.eventPoints').text(event_total);
 						breakdown.drawChart(eventData, 'Event Points (' + event_total + ' Total)', 'eventsChart');
 
 						if(data.ims.length > 0){
@@ -147,12 +147,12 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 							$('#imsChart').hide();
 						}
 
-						$('#imPoints').text(im_total);
-						$('#helperPoints').text(data.helper);
-						$('#committeePoints').text(data.committee);
-						$('#positionPoints').text(data.position);
+						$('.imPoints').text(im_total);
+						$('.helperPoints').text(data.helper);
+						$('.committeePoints').text(data.committee);
+						$('.positionPoints').text(data.position);
 
-						$('#totalPoints').text(
+						$('.totalPoints').text(
 							[event_total,im_total,data.helper,data.committee,data.position].map(function(n){
 								return parseInt(n,10);
 							}).reduce(function(a,b){

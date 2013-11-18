@@ -28,28 +28,62 @@
 									<option value="">Select One</option>
 								</select>
 							</div>
-							<div class="col-md-6 pull-right">
+							<div class="col-md-6 pull-right hidden-xs">
 								<table class="table table-bordered table-condensed">
 									<thead>
 										<tr>
 											<th>Type</th>
 											<th>Events</th>
 											<th>IMs</th>
-											<th><abbr title="Helper Points">Help</abbr></th>
-											<th><abbr title="Committee Points">Cmte</abbr></th>
-											<th><abbr title="Position-Related Points">Pos</abbr></th>
+											<th>Helper</th>
+											<th>Committee</th>
+											<th>Position</th>
 											<th>Total</th>
 										</tr>
 									</thead>
 									<tbody>
 										<tr>
 											<th>Subtotal</th>
-											<td id="eventPoints"></td>
-											<td id="imPoints"></td>
-											<td id="helperPoints"></td>
-											<td id="committeePoints"></td>
-											<td id="positionPoints"></td>
-											<td id="totalPoints"></td>
+											<td class="eventPoints"></td>
+											<td class="imPoints"></td>
+											<td class="helperPoints"></td>
+											<td class="committeePoints"></td>
+											<td class="positionPoints"></td>
+											<td class="totalPoints"></td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="visible-xs">
+								<table class="table table-bordered table-condensed">
+									<thead>
+										<th>Type</th>
+										<th>Subtotal</th>
+									</thead>
+									<tbody>
+										<tr>
+											<td>Events</td>
+											<td class="eventPoints"></td>
+										</tr>
+										<tr>
+											<td>IMs</td>
+											<td class="imPoints"></td>
+										</tr>
+										<tr>
+											<td>Helper</td>
+											<td class="helperPoints"></td>
+										</tr>
+										<tr>
+											<td>Committee</td>
+											<td class="committeePoints"></td>
+										</tr>
+										<tr>
+											<td>Position</td>
+											<td class="positionPoints"></td>
+										</tr>
+										<tr>
+											<td>Total</td>
+											<td class="totalPoints"></td>
 										</tr>
 									</tbody>
 								</table>
