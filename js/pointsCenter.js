@@ -198,7 +198,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 			event_dates = [],
 			event_targets = [],
 			totals_targets = [],
-			events, columns,
+			events, oTable, columns,
 
 			nameColWidth = 140,
 			eventColWidth = 16,
@@ -209,36 +209,23 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 				dataType: 'json',
 				url: 'ajax/getPointsTable.php',
 				success: function(data){
-					var by_year = [], by_suite = [];
 					events = data.events;
 
 					// filling years and suites tables
-					for(var row in data.by_year){
-						if(data.by_year.hasOwnProperty(row)){
-							by_year.push([row, data.by_year[row]]);
-						}
+					data.by_year.sort(function(a,b){
+						return b[1]-a[1];
+					});
+
+					for(var i=0; i<data.by_year.length; i++){
+						$('<tr><td>'+data.by_year[i][0]+'</td><td>'+data.by_year[i][1]+'</td></tr>').appendTo('#years');
 					}
 
-					by_year.sort(function(a,b){ return b[1] - a[1]; });
+					data.by_suite.sort(function(a,b){
+						return b[1]-a[1];
+					});
 
-					for(var i=0; i<by_year.length; i++){
-						$('<tr />').appendTo('#years');
-						$('<td />').text(by_year[i][0]).appendTo('#years tr:last');
-						$('<td />').text(by_year[i][1]).appendTo('#years tr:last');
-					}
-
-					for(row in data.by_suite){
-						if(data.by_suite.hasOwnProperty(row)){
-							by_suite.push([row, data.by_suite[row]]);
-						}
-					}
-
-					by_suite.sort(function(a,b){ return b[1] - a[1]; });
-
-					for(i=0; i<by_suite.length; i++){
-						$('<tr />').appendTo('#suites');
-						$('<td />').text(by_suite[i][0]).appendTo('#suites tr:last');
-						$('<td />').text(by_suite[i][1]).appendTo('#suites tr:last');
+					for(i=0; i<data.by_suite.length; i++){
+						$('<tr><td>'+data.by_suite[i][0]+'</td><td>'+data.by_suite[i][1]+'</td></tr>').appendTo('#suites');
 					}
 					//end filling years and suites
 
@@ -259,7 +246,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 						totals_targets.push(first_totals_target + i);
 					}
 
-					var oTable = $('#table').dataTable({
+					oTable = $('#table').dataTable({
 						aaData: data.points_table,
 						aoColumnDefs: [
 						{ aTargets: [0], sTitle: 'Name', sWidth: nameColWidth+'px', sClass: 'name'},
@@ -423,32 +410,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					});
 				}
 			});
-		}/*,
-		animationQueue: { show: [], hide: [] },
-		processAnimationQueue: function(){
-			var oTable = $('#table').dataTable(),
-			columns = $('#columns').find('li');
-
-			if(table.animationQueue.show.length > 0){
-				ind = table.animationQueue.show.shift();
-				oTable.fnSetColumnVis(ind, true);
-				columns.eq(ind-2).show({
-					duration: 600,
-					complete: function(){
-						table.processAnimationQueue();
-					}
-				});
-			}else if(table.animationQueue.hide.length > 0){
-				ind = table.animationQueue.hide.shift();
-				oTable.fnSetColumnVis(ind, false);
-				columns.eq(ind-2).hide({
-					duration: 600,
-					complete: function(){
-						table.processAnimationQueue();
-					}
-				});
-			}
-		}*/
+		}
 	},
 
 	correction = {
@@ -1302,18 +1264,22 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 		init: function(){
 			$.getJSON('./ajax/getRankings.php',function(data){
 				var males = [], females = [], tmp, row, i, j,
-					colDefs = [{ sTitle: 'Name', sClass: 'name'}];
+					colDefs = [{ sTitle: 'Name', sClass: 'name', sWidth: '140px'}];
 
 				for(i=0; i<data.qtrs.length; i++){
 					colDefs.push({
-						sTitle: data.qtrs[i]+''
+						sTitle: data.qtrs[i]+'',
+						sWidth: '20px'
 					});
 				}
 
 				colDefs.push(
-					{ sTitle: 'Total' },
-					{ sTitle: 'Mult' },
-					{ sTitle: 'Total w/ Mult' });
+					{ sTitle: 'Total',
+						sWidth: '20px' },
+					{ sTitle: 'Mult',
+						sWidth: '20px' },
+					{ sTitle: 'Total w/ Mult',
+						sWidth: '30px' });
 
 				for(i=0; i<data.rankings.length; i++){
 					row = data.rankings[i];
@@ -1336,14 +1302,16 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					aaData: males,
 					aoColumns: colDefs,
 					aaSorting: [[data.qtrs.length + 3,'desc']],
-					bPaginate: false
+					bPaginate: false,
+					bAutoWidth: false
 				});
 
 				$('#females_table').dataTable({
 					aaData: females,
 					aoColumns: colDefs,
 					aaSorting: [[data.qtrs.length + 3,'desc']],
-					bPaginate: false
+					bPaginate: false,
+					bAutoWidth: false
 				});
 			});
 		}

@@ -4,7 +4,7 @@ include_once "./swift/swift_required.php";
 
 class PointsCenter
 {
-	private static $qtr = 1303; # This is the only place quarter must be updated
+	public $qtr = 1303; # This is the only place quarter must be updated
 
 	private static $dbConn = null;
 	public function __construct ()
@@ -46,12 +46,15 @@ class PointsCenter
 		$directory = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT first_name,last_name,year,major,suite,photo
-				FROM directory
-				WHERE qtr_final IS NULL
-				ORDER BY full_name");
+				"SELECT CONCAT(slivkans.first_name, ' ', slivkans.last_name) AS full_name,
+					slivkans.year,slivkans.major,suites.suite,slivkans.photo
+				FROM slivkans
+				LEFT JOIN suites ON slivkans.nu_email=suites.nu_email AND suites.qtr=:qtr
+				WHERE slivkans.qtr_joined <= :qtr AND (slivkans.qtr_final IS NULL OR slivkans.qtr_final >= :qtr)
+				ORDER BY slivkans.first_name,slivkans.last_name");
+			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
-			$directory = $statement->fetchAll(PDO::FETCH_ASSOC);
+			$directory = $statement->fetchAll(PDO::FETCH_NUM);
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();
@@ -65,10 +68,13 @@ class PointsCenter
 		$slivkans = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT full_name,nu_email,gender,wildcard,committee,photo,suite,year
-				FROM directory
-				WHERE qtr_final IS NULL OR qtr_final >= :qtr
-				ORDER BY full_name");
+				"SELECT CONCAT(slivkans.first_name, ' ', slivkans.last_name) AS full_name,
+					slivkans.nu_email,slivkans.gender,slivkans.wildcard,committees.committee,slivkans.photo,suites.suite,slivkans.year
+				FROM slivkans
+				LEFT JOIN committees ON slivkans.nu_email=committees.nu_email AND committees.qtr=:qtr
+				LEFT JOIN suites ON slivkans.nu_email=suites.nu_email AND suites.qtr=:qtr
+				WHERE slivkans.qtr_joined <= :qtr AND (slivkans.qtr_final IS NULL OR slivkans.qtr_final >= :qtr)
+				ORDER BY slivkans.first_name,slivkans.last_name");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
 			$slivkans = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -85,32 +91,6 @@ class PointsCenter
 		}
 
 		return $slivkans;
-	}
-
-	public function getAllSlivkans ()
-	{
-		self::initializeConnection();
-		$slivkans = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT nu_email,full_name
-				FROM directory
-				ORDER BY full_name");
-			$statement->execute();
-			$slivkans = $statement->fetchAll();
-
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-
-		$return = array();
-
-		foreach($slivkans as $s){
-			$return[$s['nu_email']] = $s['full_name'];
-		}
-
-		return $return;
 	}
 
 	public function getNicknames ()
@@ -182,7 +162,6 @@ class PointsCenter
 	{
 		self::initializeConnection();
 		$IMs = array();
-
 		try {
 			$statement = self::$dbConn->prepare(
 				"SELECT event_name
@@ -399,7 +378,7 @@ class PointsCenter
 		return $bonus_points;
 	}
 
-	public function getPointsTable ()
+	public function getPointsTable ($assoc = false)
 	{
 		$quarter_info = self::getQuarterInfo();
 		$slivkans = self::getSlivkans();
@@ -494,15 +473,19 @@ class PointsCenter
 			$totals_by_suite[$suite] += array_sum(array_slice($points_table[$s], $events_total_ind, 3));
 		}
 
-		foreach(array_keys($totals_by_year) as $y){
-			$totals_by_year[$y] = round($totals_by_year[$y] / $counts_by_year[$y], 2);
+		foreach($totals_by_year as $y => $total){
+			$by_year[] = array($y, round($total / $counts_by_year[$y], 2));
 		}
 
-		foreach(array_keys($totals_by_suite) as $s){
-			$totals_by_suite[$s] = round($totals_by_suite[$s] / $counts_by_suite[$s], 2);
+		foreach($totals_by_suite as $s => $total){
+			$by_suite[] = array($s, round($total / $counts_by_suite[$s], 2));
 		}
 
-		return array('points_table' => array_values($points_table), 'events' => $events, 'by_year' => $totals_by_year, 'by_suite' => $totals_by_suite);
+		if(!$assoc){
+			$points_table = array_values($points_table);
+		}
+
+		return array('points_table' => $points_table, 'events' => $events, 'by_year' => $by_year, 'by_suite' => $by_suite);
 	}
 
 	public function getMultipliers ()
@@ -512,7 +495,7 @@ class PointsCenter
 		try {
 			$statement = self::$dbConn->prepare(
 				"SELECT nu_email,full_name,gender,qtr_joined,qtrs_away,qtr_final
-				FROM directory
+				FROM slivkans
 				WHERE qtr_final IS NULL OR qtr_final >= :qtr
 				ORDER BY full_name");
 			$statement->bindValue(":qtr", self::$qtr);
@@ -585,9 +568,9 @@ class PointsCenter
 		for($i=0; $i<$mult_count; $i++){
 			$sum = 0;
 			for($j=0; $j<$qtrs_count; $j++){
-				$t = $totals[$rankings[$i]['nu_email']][$j];
+				$t = (int) $totals[$rankings[$i]['nu_email']][$j] OR 0;
 				$rankings[$i][$qtrs[$j]] = $t;
-				$sum += (int) $t;
+				$sum += $t;
 			}
 
 			$rankings[$i]['total'] = $sum;
@@ -599,18 +582,20 @@ class PointsCenter
 
 	public function updateTotals ()
 	{
-		$points_table = self::getPointsTable();
+		$points_table = self::getPointsTable(true);
 		$points_table = $points_table['points_table'];
 
 		$sql = "INSERT INTO totals (nu_email, total, qtr) VALUES ";
 
 		$fills = array();
 		$values = array();
-		foreach(array_keys($points_table) as $s){
+		foreach($points_table as $s => $row){
 			$fills[] = "(?,?,?)";
-			$values = array_merge($values,array($s,array_pop($points_table[$s]),self::$qtr));
+			$values = array_merge($values,array($s,array_pop($row),self::$qtr));
 		}
 		$sql .= implode(", ",$fills) . " ON DUPLICATE KEY UPDATE total=VALUES(total)";
+
+		print_r($values);
 
 		try {
 			$statement = self::$dbConn->prepare($sql);
@@ -621,6 +606,28 @@ class PointsCenter
 		}
 
 		return true;
+	}
+
+	public function getAbstentions ()
+	{
+		self::initializeConnection();
+		$abstentions = array();
+
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT nu_email
+				FROM slivkans
+				WHERE qtr_final=:qtr");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->execute();
+			$abstentions = $statement->fetchAll(PDO::FETCH_COLUMN);
+
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		return $abstentions;
 	}
 
 	public function submitPointsForm ($get)
@@ -991,10 +998,13 @@ class PointsCenter
 		$courses = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT nu_email,qtr
+				"SELECT CONCAT(slivkans.first_name, ' ', slivkans.last_name) AS full_name,
+					courses.nu_email,courses.qtr
 				FROM courses
-				WHERE courses LIKE :course");
+				INNER JOIN slivkans ON courses.nu_email=slivkans.nu_email
+				WHERE courses.courses LIKE :course AND slivkans.qtr_joined <= :qtr AND (slivkans.qtr_final IS NULL OR slivkans.qtr_final >= :qtr)");
 			$statement->bindValue(":course", "%".$department." ".$number."%");
+			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
 			$courses = $statement->fetchAll(PDO::FETCH_ASSOC);
 		} catch (PDOException $e) {
