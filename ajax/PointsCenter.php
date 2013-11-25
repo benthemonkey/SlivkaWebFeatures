@@ -494,10 +494,11 @@ class PointsCenter
 		$slivkans = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT nu_email,full_name,gender,qtr_joined,qtrs_away,qtr_final
+				"SELECT CONCAT(first_name,' ',last_name) AS full_name,
+					nu_email,gender,qtr_joined,qtrs_away,qtr_final
 				FROM slivkans
 				WHERE qtr_final IS NULL OR qtr_final >= :qtr
-				ORDER BY full_name");
+				ORDER BY first_name, last_name");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
 			$slivkans = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -506,8 +507,9 @@ class PointsCenter
 			echo "Error: " . $e->getMessage();
 			die();
 		}
+		$count = count($slivkans);
 
-		for($s=0; $s<count($slivkans); $s++){
+		for($s=0; $s<$count; $s++){
 			$y_join = round($slivkans[$s]['qtr_joined'],-2);
 			$q_join = $slivkans[$s]['qtr_joined'] - $y_join;
 
