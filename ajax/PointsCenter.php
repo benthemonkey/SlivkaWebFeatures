@@ -4,7 +4,7 @@ include_once "./swift/swift_required.php";
 
 class PointsCenter
 {
-	public $qtr = 1303; # This is the only place quarter must be updated
+	private static $qtr = 1303; # This is the only place quarter must be updated
 
 	private static $dbConn = null;
 	public function __construct ()
@@ -17,6 +17,11 @@ class PointsCenter
 		if (is_null(self::$dbConn)) {
 			self::$dbConn = DatabasePDO::getInstance();
 		}
+	}
+
+	public function setQuarter ($qtr)
+	{
+		self::$qtr = $qtr;
 	}
 
 	public function getQuarterInfo ()
