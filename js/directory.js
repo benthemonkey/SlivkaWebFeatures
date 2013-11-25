@@ -1,4 +1,4 @@
-$(document).ready(function($) {
+jQuery(document).ready(function($) {
     'use strict';
     $.getJSON('http://slivka.northwestern.edu/points/ajax/getDirectory.php',function(data){
         var path = 'http://slivka.northwestern.edu/points/img/slivkans/';
@@ -36,7 +36,7 @@ $(document).ready(function($) {
             }
         });
 
-        $('td').css('height','auto');
+        //$('td').css('height','auto');
 
         if(localStorage.directorypass){
             $('#directorypass').val(localStorage.directorypass);

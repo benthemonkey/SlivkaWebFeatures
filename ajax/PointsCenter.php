@@ -9,6 +9,7 @@ class PointsCenter
 	private static $dbConn = null;
 	public function __construct ()
 	{
+		error_reporting(E_ALL & ~E_NOTICE);
 		self::initializeConnection();
 	}
 
@@ -51,7 +52,7 @@ class PointsCenter
 		$directory = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT CONCAT(slivkans.first_name, ' ', slivkans.last_name) AS full_name,
+				"SELECT slivkans.first_name,slivkans.last_name,
 					slivkans.year,slivkans.major,suites.suite,slivkans.photo
 				FROM slivkans
 				LEFT JOIN suites ON slivkans.nu_email=suites.nu_email AND suites.qtr=:qtr
@@ -421,17 +422,25 @@ class PointsCenter
 				if(!$is_im){
 					$points_table[$s][$events_total_ind]++;
 				}else{
+					if(!array_key_exists($s,$im_points)){
+						$im_points[$s] = array();
+					}
+
 					$im_points[$s][$events[$e]['description']]++;
 				}
 			}
 
-			foreach($helperpoints[$event_name] as $s){
-				$points_table[$s][2+$e] += 0.1;
-				$points_table[$s][$helper_points_ind]++;
+			if(array_key_exists($event_name, $helperpoints)){
+				foreach($helperpoints[$event_name] as $s){
+					$points_table[$s][2+$e] += 0.1;
+					$points_table[$s][$helper_points_ind]++;
+				}
 			}
 
-			foreach($committeeattendance[$event_name] as $s){
-				$points_table[$s][2+$e] += 0.2;
+			if(array_key_exists($event_name, $committeeattendance)){
+				foreach($committeeattendance[$event_name] as $s){
+					$points_table[$s][2+$e] += 0.2;
+				}
 			}
 		}
 
