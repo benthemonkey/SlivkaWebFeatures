@@ -6,5 +6,5 @@ $slivkans = $points_center->getSlivkans();
 $nicknames = $points_center->getNicknames();
 $fellows = $points_center->getFellows();
 
-echo json_encode(array("slivkans"=>$slivkans,"nicknames"=>$nicknames,"fellows"=>$fellows,"quarter_info"=>$quarter_info));
+echo json_encode(array("quarter_info"=>$quarter_info,"slivkans"=>$slivkans,"nicknames"=>$nicknames,"fellows"=>$fellows));
 ?>

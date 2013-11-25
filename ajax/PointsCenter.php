@@ -1,5 +1,5 @@
 <?php
-require_once "./DatabasePDO.php";
+require_once "./datastoreVars.php";
 include_once "./swift/swift_required.php";
 
 class PointsCenter
@@ -7,27 +7,35 @@ class PointsCenter
 	private static $qtr = 1303; # This is the only place quarter must be updated
 
 	private static $dbConn = null;
-	public function __construct ()
+
+	public function __construct ($qtr)
 	{
 		error_reporting(E_ALL & ~E_NOTICE);
+		#ini_set('display_errors', '1');
 		self::initializeConnection();
+
+		if ($qtr) {
+			self::$qtr = $qtr;
+		}
 	}
 
 	private static function initializeConnection ()
 	{
 		if (is_null(self::$dbConn)) {
-			self::$dbConn = DatabasePDO::getInstance();
-		}
-	}
+            $dsn = $GLOBALS['DB_TYPE'] . ":host=" . $GLOBALS['DB_HOST'] . ";dbname=" . $GLOBALS['DB_NAME'];
+            try {
+                self::$dbConn = new PDO($dsn, $GLOBALS['DB_USER'], $GLOBALS['DB_PASS']);
+            } catch (PDOException $e) {
+                echo "Error: " . $e->getMessage();
+                die();
+            }
 
-	public function setQuarter ($qtr)
-	{
-		self::$qtr = $qtr;
+            self::$dbConn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		}
 	}
 
 	public function getQuarterInfo ()
 	{
-		self::initializeConnection();
 		$quarter_info;
 		try {
 			$statement = self::$dbConn->prepare(
@@ -48,7 +56,6 @@ class PointsCenter
 
 	public function getDirectory ()
 	{
-		self::initializeConnection();
 		$directory = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -70,7 +77,6 @@ class PointsCenter
 
 	public function getSlivkans ()
 	{
-		self::initializeConnection();
 		$slivkans = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -101,7 +107,6 @@ class PointsCenter
 
 	public function getNicknames ()
 	{
-		self::initializeConnection();
 		$nicknames = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -118,7 +123,6 @@ class PointsCenter
 
 	public function getFellows ()
 	{
-		self::initializeConnection();
 		$fellows = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -136,7 +140,6 @@ class PointsCenter
 
 	public function getEvents ($start,$end)
 	{
-		self::initializeConnection();
 		$events = array();
 
 		if(!$start){
@@ -166,7 +169,6 @@ class PointsCenter
 
 	public function getIMs ($team)
 	{
-		self::initializeConnection();
 		$IMs = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -186,7 +188,6 @@ class PointsCenter
 
 	public function getPoints ()
 	{
-		self::initializeConnection();
 		$points = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -205,7 +206,6 @@ class PointsCenter
 
 	public function getHelperPoints ()
 	{
-		self::initializeConnection();
 		$helper_points = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -224,7 +224,6 @@ class PointsCenter
 
 	public function getCommitteeAttendance ()
 	{
-		self::initializeConnection();
 		$committee_attendance = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -243,7 +242,6 @@ class PointsCenter
 
 	public function getSlivkanPoints ($nu_email)
 	{
-		self::initializeConnection();
 		$events = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -263,7 +261,6 @@ class PointsCenter
 
 	public function getSlivkanPointsByCommittee ($nu_email)
 	{
-		self::initializeConnection();
 		$points = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -286,7 +283,6 @@ class PointsCenter
 
 	public function getSlivkanIMPoints ($nu_email)
 	{
-		self::initializeConnection();
 		$im_points = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -309,7 +305,6 @@ class PointsCenter
 
 	public function getSlivkanBonusPoints ($nu_email)
 	{
-		self::initializeConnection();
 		$helper_points = 0;
 		try {
 			$statement = self::$dbConn->prepare(
@@ -361,7 +356,6 @@ class PointsCenter
 
 	public function getBonusPoints ()
 	{
-		self::initializeConnection();
 		$bonus_points = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -504,7 +498,6 @@ class PointsCenter
 
 	public function getMultipliers ()
 	{
-		self::initializeConnection();
 		$slivkans = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -626,7 +619,6 @@ class PointsCenter
 
 	public function getAbstentions ()
 	{
-		self::initializeConnection();
 		$abstentions = array();
 
 		try {
@@ -648,17 +640,14 @@ class PointsCenter
 
 	public function submitPointsForm ($get)
 	{
-		#write to log
-		$f = fopen("log.txt","a");
-		fwrite($f, "\n" . json_encode($get));
-		fclose($f);
-
 		$real_event_name = $get['event_name'] . " " . $get['date'];
 
-		self::initializeConnection();
 		if($get['helper_points'] === NULL){ $get['helper_points'] = array(""); }
 		if($get['committee_members'] === NULL){ $get['committee_members'] = array(""); }
 		if($get['fellows'] === NULL){ $get['fellows'] = array(""); }
+
+		# Begin PDO Transaction
+		self::$dbConn->beginTransaction();
 
 		try {
 			$statement = self::$dbConn->prepare(
@@ -681,13 +670,14 @@ class PointsCenter
 			$statement->execute();
 		} catch (PDOException $e) {
 			echo json_encode(array("error" => $e->getMessage(), "step" => "1"));
+			self::$dbConn->rollBack();
 			die();
 		}
 
 		try {
 			$statement = self::$dbConn->prepare(
-				"INSERT INTO events SET event_name=:event_name, date=:date, qtr=:qtr,
-				filled_by=:filled_by, committee=:committee, description=:description, type=:type, attendees=:attendees");
+				"INSERT INTO events (event_name,date,qtr,filled_by,committee,description,type,attendees)
+				VALUES (:event_name, :date, :qtr, :filled_by, :committee, :description, :type, :attendees)");
 			$statement->bindValue(":event_name", $real_event_name);
 			$statement->bindValue(":date", $get['date']);
 			$statement->bindValue(":qtr", self::$qtr);
@@ -700,88 +690,76 @@ class PointsCenter
 			$statement->execute();
 		} catch (PDOException $e) {
 			echo json_encode(array("error" => $e->getMessage(), "step" => "2"));
+			self::$dbConn->rollBack();
 			die();
 		}
 
-		$a_sql = "INSERT INTO points (nu_email, event_name, qtr) VALUES ";
-		$a_fills = array();
-		$a_values = array();
-		foreach($get['attendees'] as $a){
-			$a_fills[] = "(?,?,?)";
-			$a_values = array_merge($a_values,array($a,$real_event_name,self::$qtr));
-		}
-		$a_sql .= implode(", ",$a_fills);
-
 		try {
-			$statement = self::$dbConn->prepare($a_sql);
-			$statement->execute($a_values);
+			$statement = self::$dbConn->prepare(
+				"INSERT INTO points (nu_email, event_name, qtr)
+				VALUES (?,?,?)");
+
+			foreach($get['attendees'] as $a){
+				$statement->execute(array($a,$real_event_name,self::$qtr));
+			}
 		} catch (PDOException $e) {
 			echo json_encode(array("error" => $e->getMessage(), "step" => "3"));
+			self::$dbConn->rollBack();
 			die();
 		}
 
 		if ($get['helper_points'][0] != ""){
-			$h_sql = "INSERT INTO helperpoints (nu_email, event_name, qtr) VALUES ";
-			$h_fills = array();
-			$h_values = array();
-			foreach($get['helper_points'] as $h){
-				$h_fills[] = "(?,?,?)";
-				$h_values = array_merge($h_values,array($h,$real_event_name,self::$qtr));
-			}
-			$h_sql .= implode(", ",$h_fills);
-
 			try {
-				$statement = self::$dbConn->prepare($h_sql);
-				$statement->execute($h_values);
+				$statement = self::$dbConn->prepare(
+					"INSERT INTO helperpoints (nu_email, event_name, qtr)
+					VALUES (?,?,?)");
+
+				foreach($get['helper_points'] as $h){
+					$statement->execute(array($h,$real_event_name,self::$qtr));
+				}
 			} catch (PDOException $e) {
 				echo json_encode(array("error" => $e->getMessage(), "step" => "4"));
+				self::$dbConn->rollBack();
 				die();
 			}
 		}
 
 		if ($get['committee_members'][0] != ""){
-			$c_sql = "INSERT INTO committeeattendance (nu_email, event_name, qtr) VALUES ";
-			$c_fills = array();
-			$c_values = array();
-			foreach($get['committee_members'] as $c){
-				$c_fills[] = "(?,?,?)";
-				$c_values = array_merge($c_values,array($c,$real_event_name,self::$qtr));
-			}
-			$c_sql .= implode(", ",$c_fills);
-
 			try {
-				$statement = self::$dbConn->prepare($c_sql);
-				$statement->execute($c_values);
+				$statement = self::$dbConn->prepare(
+					"INSERT INTO committeeattendance (nu_email, event_name, qtr)
+					VALUES (?,?,?)");
+
+				foreach($get['committee_members'] as $c){
+					$statement->execute(array($c,$real_event_name,self::$qtr));
+				}
 			} catch (PDOException $e) {
 				echo json_encode(array("error" => $e->getMessage(), "step" => "5"));
+				self::$dbConn->rollBack();
 				die();
 			}
 		}
 
 		if ($get['fellows'][0] != ""){
-			$f_sql = "INSERT INTO fellowattendance (full_name, event_name, qtr) VALUES ";
-			$f_fills = array();
-			$f_values = array();
-			foreach($get['fellows'] as $f){
-				$f_fills[] = "(?,?,?)";
-				$f_values = array_merge($f_values,array($f,$real_event_name,self::$qtr));
-			}
-			$f_sql .= implode(", ",$f_fills);
-
 			try {
-				$statement = self::$dbConn->prepare($f_sql);
-				$statement->execute($f_values);
+				$statement = self::$dbConn->prepare(
+					"INSERT INTO fellowattendance (full_name, event_name, qtr)
+					VALUES (?,?,?)");
+
+				foreach($get['fellows'] as $f){
+					$statement->execute(array($f,$real_event_name,self::$qtr));
+				}
 			} catch (PDOException $e) {
 				echo json_encode(array("error" => $e->getMessage(), "step" => "6"));
+				self::$dbConn->rollBack();
 				die();
 			}
 		}
 
-		return true;
+		return self::$dbConn->commit();
 	}
 
 	public function submitPointsCorrectionForm($get,$key){
-		self::initializeConnection();
 
 		try {
 			$statement = self::$dbConn->prepare(
@@ -821,8 +799,8 @@ class PointsCenter
 
 		try {
 			$statement = self::$dbConn->prepare(
-				"INSERT INTO pointscorrection SET
-				message_key=:message_key, nu_email=:nu_email, event_name=:event_name, comments=:comments");
+				"INSERT INTO pointscorrection (message_key,nu_email,event_name,comments)
+				VALUES (:message_key, :nu_email, :event_name, :comments)");
 			$statement->bindValue(":message_key", $key);
 			$statement->bindValue(":nu_email", $get['sender_email']);
 			$statement->bindValue(":event_name", $get['event_name']);
@@ -850,14 +828,13 @@ class PointsCenter
 			<li><a href=\"http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php?key=$key&reply=$enc3\">Not sure</a></li>
 		</ul>
 
-		<p style=\"padding: 10; width: 70%\">If you received this email in error, please contact BenSRothman@gmail.com</p>";
+		<p style=\"padding: 10; width: 70%\">If you received this email in error, please contact " . $GLOBALS['VP_EMAIL'] . "</p>";
 
 		return self::sendEmail($filled_by,"Slivka Points Correction (Automated)",$html);
 	}
 
 	public function pointsCorrectionReply($get)
 	{
-		self::initializeConnection();
 
 		if($get['reply']==md5('1')){ $code = 1; }
 		elseif($get['reply']==md5('2')){ $code = 2;}
@@ -940,23 +917,23 @@ class PointsCenter
 
 			<p style=\"padding: 10; width: 70%\"><a href=\"http://slivka.northwestern.edu/points/table.php\" target=\"_blank\">View Points</a></p>
 
-			<p style=\"padding: 10; width: 70%\">If you received this email in error, please contact BenSRothman@gmail.com</p>";
+			<p style=\"padding: 10; width: 70%\">If you received this email in error, please contact " . $GLOBALS['VP_EMAIL'] . "</p>";
 
 		return self::sendEmail($result['nu_email'],"Slivka Points Correction Response Posted (Automated)",$html);
 	}
 
 	private function sendEmail($to_email,$subject,$body)
 	{
-		$from = array("BenSRothman@gmail.com" =>"Ben Rothman");
+		$from = array($GLOBALS['VP_EMAIL'] => $GLOBALS['VP_NAME']);
 
 		$to = array(
 			$to_email . "@u.northwestern.edu" => $to_email,
-			'BenSRothman+mailbot@gmail.com' => 'Bens Copy'
+			$GLOBALS['VP_EMAIL_BOT'] => $GLOBALS['VP_NAME'] . "'s Copy"
 		);
 
 		$transport = Swift_SmtpTransport::newInstance('smtp.gmail.com', 465, 'ssl')
-			->setUsername("bensrothman@gmail.com")
-			->setPassword(DatabasePDO::$GMAIL_PASS);
+			->setUsername($GLOBALS['VP_EMAIL'])
+			->setPassword($GLOBALS['VP_EMAIL_PASS']);
 
 		$mailer = Swift_Mailer::newInstance($transport);
 
@@ -975,7 +952,6 @@ class PointsCenter
 
 	public function getCoursesInDept ($department)
 	{
-		self::initializeConnection();
 		$courses = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -1010,7 +986,6 @@ class PointsCenter
 
 	public function getCourseListing ($department,$number)
 	{
-		self::initializeConnection();
 		$courses = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -1033,7 +1008,6 @@ class PointsCenter
 
 	public function submitCourseDatabaseEntryForm ($nu_email,$courses,$qtr)
 	{
-		self::initializeConnection();
 		try {
 			$statement = self::$dbConn->prepare(
 				"INSERT INTO courses
@@ -1041,7 +1015,7 @@ class PointsCenter
 				VALUES (?,?,?)");
 			$statement->execute(array($nu_email,$courses,$qtr));
 		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage() . "<br/>Tell Ben";
+			echo "Error: " . $e->getMessage() . "<br/>Tell the VP";
 			die();
 		}
 

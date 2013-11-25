@@ -18,7 +18,7 @@ $result = $points_center->submitCourseDatabaseEntryForm($nu_email,$courses,$qtr)
 if ($result){
 	echo "SUCCESS! Your Courses: " . $courses_filtered;
 }else{
-	echo "Something went wrong. Tell Ben.";
+	echo "Something went wrong. Tell the VP.";
 }
 
 ?>

@@ -208,6 +208,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 				async: true,
 				dataType: 'json',
 				url: 'ajax/getPointsTable.php',
+				//data: {qtr: 1302},
 				success: function(data){
 					events = data.events;
 
@@ -1148,25 +1149,28 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 			}
 		},
 		submitPointsForm: function(){
-			var data = {
-				date: $('#date').val(),
-				type: type.toLowerCase().replace(' ','_'),
-				committee: $('#committee').val(),
-				event_name: $('#event').val(),
-				description: $('#description').val(),
-				filled_by: slivkans[slivkans.indexOfKey('full_name',$('#filled-by').val())].nu_email,
-				comments: $('#comments').val(),
-				attendees: [],
-				helper_points: [],
-				committee_members: [],
-				fellows: []
-			};
+			var name, nu_email, val,
+				data = {
+					date: $('#date').val(),
+					type: type.toLowerCase().replace(' ','_'),
+					committee: $('#committee').val(),
+					event_name: $('#event').val(),
+					description: $('#description').val(),
+					filled_by: slivkans[slivkans.indexOfKey('full_name',$('#filled-by').val())].nu_email,
+					comments: $('#comments').val(),
+					attendees: [],
+					helper_points: [],
+					committee_members: [],
+					fellows: []
+				};
 
 			$('#slivkan-entry-tab').find('.slivkan-entry').each(function(){
-				var name = $(this).val();
+				name = $(this).val();
 				if(name.length > 0){
-					var nu_email = slivkans[slivkans.indexOfKey('full_name',name)].nu_email;
+					nu_email = slivkans[slivkans.indexOfKey('full_name',name)].nu_email;
+
 					data.attendees.push(nu_email);
+
 					if($(this).parent().find('.helper-point').hasClass('active')){
 						data.helper_points.push(nu_email);
 					}else if($(this).parent().find('.committee-point').hasClass('active')){
@@ -1176,16 +1180,15 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 			});
 
 			$('.fellow-entry').each(function(){
-				var name = $(this).val();
+				name = $(this).val();
+
 				if(name.length > 0){
 					data.fellows.push(name);
 				}
 			});
 
 			//clear receipt:
-			$('.results-row').remove();
-
-			var val;
+			$('#receipt').empty();
 
 			for(var obj in data){
 				if(data.hasOwnProperty(obj)){
@@ -1196,12 +1199,16 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					}
 
 					$('<tr class="results-row" />').append(
-						$('<td class="results-label" />').html(obj)
+						$('<td class="results-label" />').text(obj)
 					).append(
-						$('<td class="results" />').html(val)
-					).appendTo('#receipt tbody');
+						$('<td class="results" />').text(val)
+					).appendTo('#receipt');
 				}
 			}
+
+			$('<tr class="warning" />').append($('<td>Status</td>'))
+				.append($('<td id="results-status">Unsubmitted</td>'))
+				.appendTo('#receipt');
 
 			$('#submit-results').modal('show');
 
@@ -1210,10 +1217,10 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 				$.getJSON('./ajax/submitPointsForm.php',data,function(data_in){
 					$('#results-status').parent().removeClass('warning');
 					if(data_in.error){
-						$('#results-status').html('Error in Step '+data_in.step).parent().addClass('error');
+						$('#results-status').text('Error in Step '+data_in.step).parent().addClass('error');
 					}else{
 						$('#unconfirmed').fadeOut({complete: function(){$('#confirmed').fadeIn();}});
-						$('#results-status').html('Success!').parent().addClass('success');
+						$('#results-status').text('Success!').parent().addClass('success');
 
 						submission.resetForm('force');
 					}

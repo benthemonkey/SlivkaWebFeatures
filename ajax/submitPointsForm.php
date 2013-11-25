@@ -6,5 +6,7 @@ $out = $points_center->submitPointsForm($_GET);
 
 if($out){
 	echo json_encode(array("error" => NULL));
+}else{
+	echo json_encode(array("error" => "PDO Commit", "step" => "7"));
 }
 ?>

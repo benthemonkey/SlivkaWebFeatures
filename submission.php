@@ -213,13 +213,8 @@
 					<h3>Form Receipt</h3>
 				</div>
 				<div class="modal-body">
-					<table class="table table-bordered table-condensed" id="receipt">
-						<tbody>
-							<tr class="warning">
-								<td>Status</td>
-								<td id="results-status">Unsubmitted</td>
-							</tr>
-						</tbody>
+					<table class="table table-bordered table-condensed">
+						<tbody id="receipt"></tbody>
 					</table>
 				</div>
 				<div class="modal-footer">
