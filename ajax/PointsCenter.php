@@ -344,14 +344,14 @@ class PointsCenter
 
 		if($bonus){
 			$committee_points = $bonus['committee'];
-			$position_points = $bonus['other1']+$bonus['other2']+$bonus['other3'];
+			$other_points = $bonus['other1']+$bonus['other2']+$bonus['other3'];
 		}else{
 			$committee_points = 0;
-			$position_points = 0;
+			$other_points = 0;
 		}
 
 
-		return array("helper" => $helper_points, "committee" => $committee_points, "position" => $position_points);
+		return array("helper" => $helper_points, "committee" => $committee_points, "other" => $other_points);
 	}
 
 	public function getBonusPoints ()

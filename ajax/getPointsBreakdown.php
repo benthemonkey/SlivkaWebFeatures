@@ -20,7 +20,7 @@ foreach($events as $e){
 }
 
 echo json_encode(array('events'=>array('counts'=>$counts, 'attended'=>$attended, 'unattended'=>$unattended),
-	'ims'=>$ims, 'helper'=>$other['helper'], 'committee'=>$other['committee'], 'position'=>$other['position']));
+	'ims'=>$ims, 'helper'=>$other['helper'], 'committee'=>$other['committee'], 'other'=>$other['other']));
 
 
 ?>

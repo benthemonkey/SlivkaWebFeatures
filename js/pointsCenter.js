@@ -150,10 +150,10 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 						$('.imPoints').text(im_total);
 						$('.helperPoints').text(data.helper);
 						$('.committeePoints').text(data.committee);
-						$('.positionPoints').text(data.position);
+						$('.otherPoints').text(data.other);
 
 						$('.totalPoints').text(
-							[event_total,im_total,data.helper,data.committee,data.position].map(function(n){
+							[event_total,im_total,data.helper,data.committee,data.other].map(function(n){
 								return parseInt(n,10);
 							}).reduce(function(a,b){
 								return a+b;
@@ -399,7 +399,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					$('<li />').addClass('totals-label').text('Helper Points').appendTo('#header-row');
 					$('<li />').addClass('totals-label').text('IM Sports').appendTo('#header-row');
 					$('<li />').addClass('totals-label').text('Standing Committees').appendTo('#header-row');
-					$('<li />').addClass('totals-label').text('Position-Related').appendTo('#header-row');
+					$('<li />').addClass('totals-label').text('Other').appendTo('#header-row');
 					$('<li />').addClass('totals-label').text('Total').appendTo('#header-row');
 
 					columns = $('#header-row').addClass('hr').find('li');

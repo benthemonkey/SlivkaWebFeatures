@@ -37,7 +37,7 @@
 											<th>IMs</th>
 											<th>Helper</th>
 											<th>Committee</th>
-											<th>Position</th>
+											<th>Other</th>
 											<th>Total</th>
 										</tr>
 									</thead>
@@ -48,7 +48,7 @@
 											<td class="imPoints"></td>
 											<td class="helperPoints"></td>
 											<td class="committeePoints"></td>
-											<td class="positionPoints"></td>
+											<td class="otherPoints"></td>
 											<td class="totalPoints"></td>
 										</tr>
 									</tbody>
@@ -78,8 +78,8 @@
 											<td class="committeePoints"></td>
 										</tr>
 										<tr>
-											<td>Position</td>
-											<td class="positionPoints"></td>
+											<td>Other</td>
+											<td class="otherPoints"></td>
 										</tr>
 										<tr>
 											<td>Total</td>
