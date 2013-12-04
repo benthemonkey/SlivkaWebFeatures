@@ -556,7 +556,7 @@ class PointsCenter
 		}
 
 		# spring 13, fall 13, winter 14 HOUSING spring 14
-
+		$abstentions = self::getAbstentions();
 		$rankings = self::getMultipliers();
 		$totals = array();
 		try {
@@ -584,9 +584,10 @@ class PointsCenter
 
 			$rankings[$i]['total'] = $sum;
 			$rankings[$i]['total_w_mult'] = $sum * $rankings[$i]['mult'];
+			$rankings[$i]['abstains'] = in_array($rankings[$i]['nu_email'], $abstentions);
 		}
 
-		return array('rankings' => $rankings, 'qtrs' => $qtrs);
+		return array('rankings' => $rankings, 'qtrs' => $qtrs, 'males' => $GLOBALS['HOUSING_MALES'], 'females' => $GLOBALS['HOUSING_FEMALES']);
 	}
 
 	public function updateTotals ()
@@ -594,21 +595,14 @@ class PointsCenter
 		$points_table = self::getPointsTable(true);
 		$points_table = $points_table['points_table'];
 
-		$sql = "INSERT INTO totals (nu_email, total, qtr) VALUES ";
-
-		$fills = array();
-		$values = array();
-		foreach($points_table as $s => $row){
-			$fills[] = "(?,?,?)";
-			$values = array_merge($values,array($s,array_pop($row),self::$qtr));
-		}
-		$sql .= implode(", ",$fills) . " ON DUPLICATE KEY UPDATE total=VALUES(total)";
-
-		print_r($values);
-
 		try {
-			$statement = self::$dbConn->prepare($sql);
-			$statement->execute($values);
+			$statement = self::$dbConn->prepare(
+				"INSERT INTO totals (nu_email, total, qtr)
+				VALUES (?,?,?)
+				ON DUPLICATE KEY UPDATE total=VALUES(total)");
+			foreach($points_table as $s => $row){
+				$statement->execute(array($s,array_pop($row),self::$qtr));
+			}
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();
@@ -625,7 +619,7 @@ class PointsCenter
 			$statement = self::$dbConn->prepare(
 				"SELECT nu_email
 				FROM slivkans
-				WHERE qtr_final=:qtr");
+				WHERE qtr_final<=:qtr+1");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
 			$abstentions = $statement->fetchAll(PDO::FETCH_COLUMN);

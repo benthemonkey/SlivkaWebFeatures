@@ -1,7 +1,7 @@
 <?php
 header('Content-type: text/html; charset=utf-8');
 require_once "./PointsCenter.php";
-$points_center = new PointsCenter();
+$points_center = new PointsCenter($_GET['qtr']);
 $points = $points_center->getSlivkanPoints($_GET['nu_email']);
 $events = $points_center->getEvents($_GET['start'],$_GET['end']);
 $counts = $points_center->getSlivkanPointsByCommittee($_GET['nu_email']);

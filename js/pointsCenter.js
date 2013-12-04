@@ -1269,11 +1269,12 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 
 	rankings = {
 		init: function(){
-			$.getJSON('./ajax/getRankings.php',function(data){
-				var males = [], females = [], tmp, row, i, j,
+			$.getJSON('./ajax/getRankings.php',{qtr:1402},function(data){
+				var males = [], females = [], tmp, row, i, j, mtable, ftable,
+					numQtrs = data.qtrs.length,
 					colDefs = [{ sTitle: 'Name', sClass: 'name', sWidth: '140px'}];
 
-				for(i=0; i<data.qtrs.length; i++){
+				for(i=0; i<numQtrs; i++){
 					colDefs.push({
 						sTitle: data.qtrs[i]+'',
 						sWidth: '20px'
@@ -1286,17 +1287,18 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					{ sTitle: 'Mult',
 						sWidth: '20px' },
 					{ sTitle: 'Total w/ Mult',
-						sWidth: '30px' });
+						sWidth: '30px' },
+					{ bVisible: false });
 
 				for(i=0; i<data.rankings.length; i++){
 					row = data.rankings[i];
 					tmp = [row.full_name];
 
-					for(j=0; j<data.qtrs.length; j++){
+					for(j=0; j<numQtrs; j++){
 						tmp.push(parseInt(row[data.qtrs[j]],10));
 					}
 
-					tmp.push(row.total, row.mult, row.total_w_mult);
+					tmp.push(row.total, row.mult, row.total_w_mult, row.abstains);
 
 					if(row.gender == 'm'){
 						males.push(tmp);
@@ -1305,21 +1307,49 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					}
 				}
 
-				$('#males_table').dataTable({
+				//apply styles for cutoffs
+				males.sort(function(a,b){ return b[numQtrs + 3] - a[numQtrs + 3]; });
+				females.sort(function(a,b){ return b[numQtrs + 3] - a[numQtrs + 3]; });
+
+				mtable = $('#males_table').dataTable({
 					aaData: males,
 					aoColumns: colDefs,
-					aaSorting: [[data.qtrs.length + 3,'desc']],
+					aaSorting: [[numQtrs + 3,'desc']],
 					bPaginate: false,
 					bAutoWidth: false
 				});
 
-				$('#females_table').dataTable({
+				ftable = $('#females_table').dataTable({
 					aaData: females,
 					aoColumns: colDefs,
-					aaSorting: [[data.qtrs.length + 3,'desc']],
+					aaSorting: [[numQtrs + 3,'desc']],
 					bPaginate: false,
 					bAutoWidth: false
 				});
+
+				j=0;
+				row = mtable.find('tr');
+
+				for(i=0; i<males.length; i++){
+					if(males[i][numQtrs+4]){
+						row.eq(i+1).addClass('red');
+					}else if(j<data.males){
+						row.eq(i+1).addClass('green');
+						j++;
+					}
+				}
+
+				j=0;
+				row = ftable.find('tr');
+
+				for(i=0; i<females.length; i++){
+					if(females[i][numQtrs+4]){
+						row.eq(i+1).addClass('red');
+					}else if(j<data.males){
+						row.eq(i+1).addClass('green');
+						j++;
+					}
+				}
 			});
 		}
 	};
