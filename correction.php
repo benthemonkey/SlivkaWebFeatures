@@ -29,7 +29,7 @@
 						<div class="form-group col-lg-12">
 							<label class="col-md-3 control-label" for="comments">Comments:</label>
 							<div class="col-md-9">
-								<textarea name="comments" id="comments" row="3" class="form-control"></textarea>
+								<textarea name="comments" id="comments" row="3" class="form-control" placeholder="Where you sat, specific details of the event, etc."></textarea>
 								<span class="help-block">The person who took points will see your comments.</span>
 							</div>
 						</div>

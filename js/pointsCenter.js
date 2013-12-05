@@ -451,6 +451,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 
 			if(!correction.validateFilledBy()){ valid = false; errors.push('Your Name'); }
 			if($('#event-name').val() == 'Select One'){ valid = false; errors.push('Event Name'); }
+			if($('#comments').val() === ''){ valid = false; errors.push('Comments'); }
 
 			if(valid){
 				$('#submit-error').fadeOut();
@@ -1269,7 +1270,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 
 	rankings = {
 		init: function(){
-			$.getJSON('./ajax/getRankings.php',{qtr:1402},function(data){
+			$.getJSON('./ajax/getRankings.php',{qtr:1401},function(data){
 				var males = [], females = [], tmp, row, i, j, mtable, ftable,
 					numQtrs = data.qtrs.length,
 					colDefs = [{ sTitle: 'Name', sClass: 'name', sWidth: '140px'}];
