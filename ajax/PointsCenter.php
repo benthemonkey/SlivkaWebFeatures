@@ -598,7 +598,7 @@ class PointsCenter
 
 			$rankings[$i]['total'] = $sum;
 			$rankings[$i]['total_w_mult'] = $sum * $rankings[$i]['mult'];
-			$rankings[$i]['abstains'] = in_array($rankings[$i]['nu_email'], $abstentions) OR $rankings[$i]['total_w_mult'] < $house_meetings;
+			$rankings[$i]['abstains'] = in_array($rankings[$i]['nu_email'], $abstentions) || $rankings[$i]['total_w_mult'] < $house_meetings;
 		}
 
 		return array('rankings' => $rankings, 'qtrs' => $qtrs, 'males' => $GLOBALS['HOUSING_MALES'], 'females' => $GLOBALS['HOUSING_FEMALES']);
