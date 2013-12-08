@@ -4,7 +4,7 @@
   <?php include('header.html'); ?>
   <title>Breakdown - Slivka Points Center</title>
   <style type="text/css">
-  .event-list{
+  .breakdown{
   	font-size: 12px;
   }
 
@@ -93,10 +93,19 @@
 					<div class="col breakdown" style="display:none;">
 						<div class="row">
 							<div class="col-md-4">
+								<table class="table table-bordered table-condensed table-striped" id="otherPointsTable" style="display:none;">
+									<thead>
+										<tr>
+											<th>Other Points Breakdown</th>
+											<th>Pts</th>
+										</tr>
+									</thead>
+									<tbody id="otherPointsTableBody"></tbody>
+								</table>
 								<div class="chart" id="eventsChart"></div>
 								<div class="chart" id="imsChart"></div>
 							</div>
-							<div class="col-md-4 event-list">
+							<div class="col-md-4">
 								<table class="table table-bordered table-condensed table-striped">
 									<thead>
 										<tr>
@@ -107,7 +116,7 @@
 									</tbody>
 								</table>
 							</div>
-							<div class="col-md-4 event-list">
+							<div class="col-md-4">
 								<table class="table table-bordered table-condensed table-striped">
 									<thead>
 										<tr>

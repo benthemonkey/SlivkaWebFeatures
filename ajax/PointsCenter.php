@@ -4,7 +4,7 @@ include_once "./swift/swift_required.php";
 
 class PointsCenter
 {
-	private static $qtr = 1303; # This is the only place quarter must be updated
+	private static $qtr = 0;
 
 	private static $dbConn = null;
 
@@ -16,6 +16,8 @@ class PointsCenter
 
 		if ($qtr) {
 			self::$qtr = $qtr;
+		} else {
+			self::$qtr = $GLOBALS['QTR'];
 		}
 	}
 
@@ -350,8 +352,13 @@ class PointsCenter
 			$other_points = 0;
 		}
 
+		$other_breakdown = array(
+			array($bonus['other1_name'], $bonus['other1']),
+			array($bonus['other2_name'], $bonus['other2']),
+			array($bonus['other3_name'], $bonus['other3']));
 
-		return array("helper" => $helper_points, "committee" => $committee_points, "other" => $other_points);
+
+		return array("helper" => $helper_points, "committee" => $committee_points, "other" => $other_points, "other_breakdown" => $other_breakdown);
 	}
 
 	public function getBonusPoints ()
@@ -538,7 +545,7 @@ class PointsCenter
 
 	public function getRankings ()
 	{
-		$is_housing = true;
+		$is_housing = $GLOBALS['IS_HOUSING'] == true;
 		# figure out how many qtrs to consider
 		# if its spring, you're trying to get final housing rankings.
 		$y_this = round(self::$qtr,-2);
@@ -596,6 +603,11 @@ class PointsCenter
 				$sum += $t;
 			}
 
+			# give multiplier for current qtr if it isnt housing
+			if (!$is_housing) {
+				$rankings[$i]['mult'] += 0.1;
+			}
+
 			$rankings[$i]['total'] = $sum;
 			$rankings[$i]['total_w_mult'] = $sum * $rankings[$i]['mult'];
 			$rankings[$i]['abstains'] = in_array($rankings[$i]['nu_email'], $abstentions) || $rankings[$i]['total_w_mult'] < $house_meetings;
@@ -627,14 +639,24 @@ class PointsCenter
 
 	public function getAbstentions ()
 	{
+		$q = self::$qtr - round(self::$qtr,-2);
+
+		#round up to closest "YY02"
+		if ($q == 3) {
+			$qtr_final = round(self::$qtr,-2) + 100 + 2;
+		} else {
+			$qtr_final = round(self::$qtr,-2) + 2;
+		}
+
 		$abstentions = array();
 
 		try {
 			$statement = self::$dbConn->prepare(
 				"SELECT nu_email
 				FROM slivkans
-				WHERE qtr_final<=:qtr+1");
+				WHERE qtr_final>=:qtr AND qtr_final<=:qtr_final");
 			$statement->bindValue(":qtr", self::$qtr);
+			$statement->bindValue(":qtr_final", $qtr_final);
 			$statement->execute();
 			$abstentions = $statement->fetchAll(PDO::FETCH_COLUMN);
 

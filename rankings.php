@@ -5,6 +5,12 @@
   <title>Rankings</title>
   <link rel="stylesheet" href="./bower_components/datatables/media/css/jquery.dataTables.css" />
   <style>
+  .legend {
+    padding: 10px;
+    text-align: center;
+    font-size: 16px;
+  }
+
   tr.even.red { background-color: #FFA1A1!important; }
   tr.odd.red  { background-color: #FF8F8F!important; }
 
@@ -23,6 +29,14 @@
     <div class="content">
       <?php include('nav.html'); ?>
       <div class="col-lg-12">
+        <div class="row" style="margin-bottom:10px">
+          <div class="col-lg-6 legend" style="background-color:#00D10E;">
+            Above Points Cutoff (<strong>*NOT FINAL*</strong>)
+          </div>
+          <div class="col-lg-6 legend" style="background-color:#FF8F8F;">
+            Abstaining from Housing or Below Points Minimum
+          </div>
+        </div>
         <ul class="nav nav-tabs" id="tabs">
           <li class="active"><a href="#males" data-toggle="tab"><span>Males</span></a></li>
           <li><a href="#females" data-toggle="tab"><span>Females</span></a></li>

@@ -80,13 +80,15 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 				$('.breakdown').fadeOut(function(){
 					$('#attendedEvents').empty();
 					$('#unattendedEvents').empty();
+					$('#otherPointsTableBody').empty();
 
 					$.getJSON('ajax/getPointsBreakdown.php',{nu_email: nu_email, start: quarter_start, end: quarter_end}, function(data){
 						var i, eventData = [],
 							imData = [],
 							event_total = 0,
 							im_total = 0,
-							im_extra = 0;
+							im_extra = 0,
+							has_other = false;
 
 						if(data.events.attended.length > 0){
 							for(i=data.events.attended.length-1; i>=0; i--){
@@ -110,6 +112,23 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 							$('#unattendedEvents')
 								.append($('<tr/>')
 									.append($('<td/>').text('None :)')));
+						}
+
+						for(i=0; i<data.other_breakdown.length; i++){
+							if(data.other_breakdown[i][0]){
+								$('#otherPointsTableBody')
+									.append($('<tr/>')
+										.append($('<td/>').text(data.other_breakdown[i][0]))
+										.append($('<td/>').text(data.other_breakdown[i][1])));
+
+								has_other = true;
+							}
+						}
+
+						if(has_other){
+							$('#otherPointsTable').show();
+						}else{
+							$('#otherPointsTable').hide();
 						}
 
 						for(i=0; i<data.events.counts.length; i++){
@@ -1270,7 +1289,9 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 
 	rankings = {
 		init: function(){
-			$.getJSON('./ajax/getRankings.php',{qtr:1401},function(data){
+			$('.nav li').eq(5).addClass('active');
+
+			$.getJSON('./ajax/getRankings.php',function(data){
 				var males = [], females = [], tmp, row, i, j, mtable, ftable,
 					numQtrs = data.qtrs.length,
 					colDefs = [{ sTitle: 'Name', sClass: 'name', sWidth: '140px'}];
@@ -1317,7 +1338,8 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					aoColumns: colDefs,
 					aaSorting: [[numQtrs + 3,'desc']],
 					bPaginate: false,
-					bAutoWidth: false
+					bAutoWidth: false,
+					sDom: 't'
 				});
 
 				ftable = $('#females_table').dataTable({
@@ -1325,7 +1347,8 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					aoColumns: colDefs,
 					aaSorting: [[numQtrs + 3,'desc']],
 					bPaginate: false,
-					bAutoWidth: false
+					bAutoWidth: false,
+					sDom: 't'
 				});
 
 				j=0;
