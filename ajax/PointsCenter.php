@@ -572,6 +572,20 @@ class PointsCenter
 			die();
 		}
 
+		$house_meetings;
+
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT count(type)
+				FROM events
+				WHERE qtr IN (".implode(",",$qtrs).") AND type='house_meeting'");
+			$statement->execute();
+			$house_meetings = $statement->fetch(PDO::FETCH_COLUMN);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
 		$mult_count = count($rankings);
 		$qtrs_count = count($qtrs);
 		for($i=0; $i<$mult_count; $i++){
@@ -584,7 +598,7 @@ class PointsCenter
 
 			$rankings[$i]['total'] = $sum;
 			$rankings[$i]['total_w_mult'] = $sum * $rankings[$i]['mult'];
-			$rankings[$i]['abstains'] = in_array($rankings[$i]['nu_email'], $abstentions);
+			$rankings[$i]['abstains'] = in_array($rankings[$i]['nu_email'], $abstentions) OR $rankings[$i]['total_w_mult'] < $house_meetings;
 		}
 
 		return array('rankings' => $rankings, 'qtrs' => $qtrs, 'males' => $GLOBALS['HOUSING_MALES'], 'females' => $GLOBALS['HOUSING_FEMALES']);
