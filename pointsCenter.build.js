@@ -3,16 +3,17 @@ require.config({
 		bootstrap: "bower_components/bootstrap/dist/js/bootstrap",
 		"bootstrap-daterangepicker": "bower_components/bootstrap-daterangepicker/daterangepicker",
 		"bootstrap-multiselect": "bower_components/bootstrap-multiselect/js/bootstrap-multiselect",
-		"bootstrap-switch": "bower_components/bootstrap-switch/static/js/bootstrap-switch",
-		datatables: "bower_components/datatables/media/js/jquery.dataTables",
+		"bootstrap-switch": "bower_components/bootstrap-switch/build/js/bootstrap-switch",
 		highcharts: "bower_components/Highcharts-3.0.5/js/highcharts.src",
 		hogan: "bower_components/hogan/web/builds/2.0.0/hogan-2.0.0.amd",
 		jquery: "bower_components/jquery/jquery",
 		moment: "bower_components/moment/moment",
 		nprogress: "bower_components/nprogress/nprogress",
 		add2home: "bower_components/add-to-homescreen/src/add2home",
+		tablesorter: "bower_components/jquery.tablesorter/js/jquery.tablesorter",
 		stayInWebApp: "bower_components/stayInWebApp/jquery.stayInWebApp",
-		typeahead: "bower_components/typeahead.js/dist/typeahead"
+		typeahead: "bower_components/typeahead.js/dist/typeahead",
+		datatables: "bower_components/datatables/media/js/jquery.dataTables"
 	},
 	shim: {
 		bootstrap: [
@@ -42,6 +43,12 @@ require.config({
 			],
 			exports: "NProgress"
 		},
+		tablesorter: {
+			deps: [
+				"jquery"
+			],
+			exports: "jquery"
+		},
 		typeahead: [
 			"jquery"
 		]
@@ -51,7 +58,6 @@ require.config({
 		"bootstrap-daterangepicker",
 		"bootstrap-multiselect",
 		"bootstrap-switch",
-		"datatables",
 		"highcharts",
 		"jquery",
 		"add2home",

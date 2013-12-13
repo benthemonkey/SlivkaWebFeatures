@@ -1,12 +1,40 @@
+table.dataTable{
+  table-layout: fixed;
+  margin-left: 140px;
+}
+
 table.dataTable td{
+  /*width: 16px;*/
 	padding: 0;
   text-align: center;
   border-top: 1px solid gray;
 }
 
+table.dataTable th{
+  width: 16px;
+}
+
+.gender{
+  display: none;
+}
+
+.eventHeader{
+  width: 16px;
+  white-space: nowrap;
+}
+
+.nameHeader{
+  width: 140px;
+  position: absolute;
+  margin-left: -140px;
+}
+
 table.dataTable .name{
   text-align: left;
   padding-left: 5px;
+  position: absolute;
+  width: 140px;
+  margin-left: -140px;
 }
 
 .tablecol{
@@ -16,6 +44,11 @@ table.dataTable .name{
   padding-bottom: 15px;
 }
 
+.table-wrapper{
+  overflow-x: scroll;
+  width: 100%;
+}
+
 /*overriding default style*/
 .alert{
   margin-bottom: 0;
@@ -23,18 +56,17 @@ table.dataTable .name{
 
 .hr{
   padding-left: 141px; /* name column width + 1 */
+  -webkit-line-break: after-white-space;
   list-style: none;
   margin-top: 120px;
   height: 20px;
   position: relative;
-  display: block;
 }
 
 .hr li{
   text-align: left;
-  float: left;
-  width: 16px;
-  display: block;
+  width: 17px;
+  display: inline-block;
   position: relative;
   -webkit-transform: rotate(-55deg); /*-10, 10 */
      -moz-transform: rotate(-55deg);
@@ -64,6 +96,10 @@ li.totals-label{
   display: inline-block;
   vertical-align: top;
   margin: 0 5px;
+}
+
+td.totals{
+  width: 20px;
 }
 
 tr.even td.name, tr.even td.totals{ background-color: #FFFFFE; }

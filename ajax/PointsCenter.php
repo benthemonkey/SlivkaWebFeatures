@@ -1,6 +1,6 @@
 <?php
-require_once "./datastoreVars.php";
-include_once "./swift/swift_required.php";
+require_once __DIR__ . "/datastoreVars.php";
+include_once __DIR__ . "/swift/swift_required.php";
 
 class PointsCenter
 {
@@ -11,7 +11,7 @@ class PointsCenter
 	public function __construct ($qtr)
 	{
 		error_reporting(E_ALL & ~E_NOTICE);
-		#ini_set('display_errors', '1');
+		ini_set('display_errors', '1');
 		self::initializeConnection();
 
 		if ($qtr) {

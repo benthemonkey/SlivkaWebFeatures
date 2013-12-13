@@ -1,4 +1,4 @@
-define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstrap-daterangepicker','bootstrap-multiselect'],function ($,NProgress,moment,Hogan) {
+define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstrap-daterangepicker','bootstrap-multiselect','tablesorter'],function ($,NProgress,moment,Hogan) {
 	'use strict';
 	var slivkans, nicknames, fellows, type = 'Other', valid_event_name = false, quarter_start, quarter_end;
 
@@ -221,14 +221,28 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 
 			nameColWidth = 140,
 			eventColWidth = 16,
-			totalsColWidth = 20;
+			totalsColWidth = 20,
+			data = JSON.parse(window.points_table);
 
-			$.ajax({
-				async: true,
-				dataType: 'json',
-				url: 'ajax/getPointsTable.php',
-				//data: {qtr: 1302},
-				success: function(data){
+			$('#table').tablesorter({
+				cancelSelection: true,
+				showProcessing: true,
+				sortInitialOrder: 'desc'
+			}).on('sortStart', NProgress.start)
+				.on('sortEnd', NProgress.done);
+
+			// var colorClasses = function(nTd, sData){
+			// 	if(sData == '1'){$(nTd).addClass('green');}
+			// 	else if(sData == '1.1' || sData == '0.1'){$(nTd).addClass('gold').html($(nTd).html().substr(0,1));}
+			// 	else if(sData == '1.2' || sData == '0.2'){$(nTd).addClass('blue').html($(nTd).html().substr(0,1));}
+			// };
+
+			// $.ajax({
+			// 	async: true,
+			// 	dataType: 'json',
+			// 	url: 'ajax/getPointsTable.php',
+			// 	//data: {qtr: 1302},
+			// 	success: function(data){
 					events = data.events;
 
 					// filling years and suites tables
@@ -249,7 +263,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					}
 					//end filling years and suites
 
-					for(i=0; i<events.length; i++){
+					/*for(i=0; i<events.length; i++){
 						var en = events[i].event_name,
 						name = en.substr(0,en.length-11),
 						date = en.substr(en.length-5);
@@ -267,17 +281,12 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					}
 
 					oTable = $('#table').dataTable({
-						aaData: data.points_table,
+						//aaData: data.points_table,
 						aoColumnDefs: [
-						{ aTargets: [0], sTitle: 'Name', sWidth: nameColWidth+'px', sClass: 'name'},
+						{ aTargets: [0], sTitle: 'Name'},
 						{ aTargets: [1], bVisible: false },
-						{ aTargets: event_targets, sWidth: eventColWidth+'px', fnCreatedCell: function(nTd, sData){
-							if(sData == '1'){$(nTd).addClass('green');}
-							else if(sData == '1.1' || sData == '0.1'){$(nTd).addClass('gold').html($(nTd).html().substr(0,1));}
-							else if(sData == '1.2' || sData == '0.2'){$(nTd).addClass('blue').html($(nTd).html().substr(0,1));}
-						}},
 						{ aTargets: event_targets.concat(totals_targets), sTitle: '', asSorting: ['desc','asc']},
-						{ aTargets: totals_targets, sClass: 'totals', sWidth: totalsColWidth+'px'}
+						{ aTargets: totals_targets, sClass: 'totals'}
 						],
 						bPaginate: false,
 						bAutoWidth: false,
@@ -380,7 +389,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					$('.multiselect').multiselect({
 						buttonClass: 'btn btn-default',
 						onChange: columnFilter
-					});
+					});*/
 
 					$('.show-stats').text('Stats').attr({
 							'data-toggle': 'modal',
@@ -414,12 +423,12 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					}
 
 					//Append 'totals' column labels
-					$('<li />').addClass('totals-label').text('Events Total').appendTo('#header-row');
+					/*$('<li />').addClass('totals-label').text('Events Total').appendTo('#header-row');
 					$('<li />').addClass('totals-label').text('Helper Points').appendTo('#header-row');
 					$('<li />').addClass('totals-label').text('IM Sports').appendTo('#header-row');
 					$('<li />').addClass('totals-label').text('Standing Committees').appendTo('#header-row');
 					$('<li />').addClass('totals-label').text('Other').appendTo('#header-row');
-					$('<li />').addClass('totals-label').text('Total').appendTo('#header-row');
+					$('<li />').addClass('totals-label').text('Total').appendTo('#header-row');*/
 
 					columns = $('#header-row').addClass('hr').find('li');
 
@@ -428,8 +437,8 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					columns.each(function(index){
 						$(this).on('click',function(){ headers.eq(index+1).click(); });
 					});
-				}
-			});
+				//}
+			//});
 		}
 	},
 
