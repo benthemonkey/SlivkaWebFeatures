@@ -207,25 +207,26 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 	table = {
 		init: function(){
-			var event_names = [],
-			event_dates = [],
-			event_targets = [],
-			totals_targets = [],
-			events, oTable, columns,
-
-			nameColWidth = 140,
+			var nameColWidth = 140,
 			eventColWidth = 16,
 			totalsColWidth = 20,
-			data = JSON.parse(window.points_table);
-
-			var lastScroll = 0,
+			lastScroll = 0,
 			delay = (function(){
 				var timer = 0;
 				return function(callback, ms){
 					clearTimeout (timer);
 					timer = setTimeout(callback, ms);
 				};
-			})();
+			})(),
+			adjustWidth = function(){
+				var width = ($('.table-wrapper').width() - nameColWidth - 6*totalsColWidth - 3) + 'px';
+				$('.endHeader').css({
+					'width': width,
+					'min-width': width,
+					'max-width': width
+				});
+			},
+			data = JSON.parse(window.points_table);
 
 			$('.table-wrapper').scroll(function(){
 				delay(function(){
@@ -238,6 +239,11 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 					}
 				}, 100);
 			});
+
+			$(window).resize(function(){
+				delay(adjustWidth, 500);
+			});
+			adjustWidth();
 
 			$('#table').tablesorter({
 				cancelSelection: true,
@@ -265,124 +271,26 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				});
 			}
 
-			// var colorClasses = function(nTd, sData){
-			// 	if(sData == '1'){$(nTd).addClass('green');}
-			// 	else if(sData == '1.1' || sData == '0.1'){$(nTd).addClass('gold').html($(nTd).html().substr(0,1));}
-			// 	else if(sData == '1.2' || sData == '0.2'){$(nTd).addClass('blue').html($(nTd).html().substr(0,1));}
-			// };
+			// filling years and suites tables
+			data.by_year.sort(function(a,b){
+				return b[1]-a[1];
+			});
 
-			// $.ajax({
-			// 	async: true,
-			// 	dataType: 'json',
-			// 	url: 'ajax/getPointsTable.php',
-			// 	//data: {qtr: 1302},
-			// 	success: function(data){
-					events = data.events;
+			for(var i=0; i<data.by_year.length; i++){
+				$('<tr><td>'+data.by_year[i][0]+'</td><td>'+data.by_year[i][1]+'</td></tr>').appendTo('#years');
+			}
 
-					// filling years and suites tables
-					data.by_year.sort(function(a,b){
-						return b[1]-a[1];
-					});
+			data.by_suite.sort(function(a,b){
+				return b[1]-a[1];
+			});
 
-					for(var i=0; i<data.by_year.length; i++){
-						$('<tr><td>'+data.by_year[i][0]+'</td><td>'+data.by_year[i][1]+'</td></tr>').appendTo('#years');
-					}
-
-					data.by_suite.sort(function(a,b){
-						return b[1]-a[1];
-					});
-
-					for(i=0; i<data.by_suite.length; i++){
-						$('<tr><td>'+data.by_suite[i][0]+'</td><td>'+data.by_suite[i][1]+'</td></tr>').appendTo('#suites');
-					}
-					//end filling years and suites
-
-					/*for(i=0; i<events.length; i++){
-						var en = events[i].event_name,
-						name = en.substr(0,en.length-11),
-						date = en.substr(en.length-5);
-
-						event_targets.push(i+2);
-
-						event_names.push(name);
-						event_dates.push(date);
-					}
-
-					var first_totals_target = data.events.length+2;
-
-					for(i=0; i<6; i++){
-						totals_targets.push(first_totals_target + i);
-					}
-
-					oTable = $('#table').dataTable({
-						//aaData: data.points_table,
-						aoColumnDefs: [
-						{ aTargets: [0], sTitle: 'Name'},
-						{ aTargets: [1], bVisible: false },
-						{ aTargets: event_targets.concat(totals_targets), sTitle: '', asSorting: ['desc','asc']},
-						{ aTargets: totals_targets, sClass: 'totals'}
-						],
-						bPaginate: false,
-						bAutoWidth: false,
-						oLanguage: {
-							sSearch: 'Name:<br/>'
-						},
-						sDom: ['',
-							'<"row table-controls"',
-								'<"col-md-4 table-info"i>',
-								'<"col-md-8"',
-									'<"filter"f>',
-									'<"filter filter1">',
-									'<"filter filter2">',
-									'<"filter filter3">',
-									'<"btn btn-default show-stats">',
-								'>',
-							'><"#header-row">',
-							'<"row"<"col-lg-12"rt>>'].join('')
-					});
-
-					//table info
-					$('#table_info').wrap('<div class="alert alert-info" />');
-					$('<div />').text('Hover over names for info, click arrows to sort.').prependTo('.alert-info');
-					$(['',
-						'<table id="legend" class="legend"><tr class="odd">',
-							'<td style="background-color: white;">Colors: </td>',
-							'<td class="green">Point</td>',
-							'<td class="blue">Committee</td>',
-							'<td class="gold">Helper</td>',
-							'<td style="background-color: #FF8F8F;">None</td>',
-						'</tr></table>'].join('')).appendTo('.table-info');
+			for(i=0; i<data.by_suite.length; i++){
+				$('<tr><td>'+data.by_suite[i][0]+'</td><td>'+data.by_suite[i][1]+'</td></tr>').appendTo('#suites');
+			}
+			//end filling years and suites
 
 					//name filter
-					$('#table_filter input').addClass('form-control');
-
-					$(['',
-						'<label>Gender:<br/><select class="form-control" id="gender-filter">',
-							'<option value="">All</option>',
-							'<option value="m">Male</option>',
-							'<option value="f">Female</option>',
-						'</select></label>'].join('')).appendTo('.filter1');
-
-					$(['',
-						'<label>IMs:<br/><select class="form-control" id="im-filter">',
-							'<option value="0">All</option>',
-							'<option value="1">No IMs</option>',
-							'<option value="2">Only IMs</option>',
-						'</select></label>'].join('')).appendTo('.filter2');
-
-					$(['',
-						'<label>Committee:<br/><select class="multiselect" multiple="multiple" id="committee-filter">',
-							'<option selected>Exec</option>',
-							'<option selected>Academic</option>',
-							'<option selected>Facilities</option>',
-							'<option selected>Faculty</option>',
-							'<option selected>Historian</option>',
-							'<option selected>IT</option>',
-							'<option selected>Philanthropy</option>',
-							'<option selected>Social</option>',
-							'<option selected>CA</option>',
-							'<option selected>Other</option>',
-						'</select></label>'].join('')).appendTo('.filter3');
+					/*$('#table_filter input').addClass('form-control');
 
 					$('#gender-filter').on('change',function(){
 						var option = $('#gender-filter').val();
@@ -423,56 +331,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 					$('.multiselect').multiselect({
 						buttonClass: 'btn btn-default',
 						onChange: columnFilter
-					});
-
-					$('.show-stats').text('Stats').attr({
-							'data-toggle': 'modal',
-							'data-target': '#stats'
-						}).css('margin','16px 5px 0');*/
-
-					/*$(['',
-						'<label>Limit Cols:<br/><select class="form-control" id="count-filter">',
-							'<option value="-1">All</option>',
-							'<option value="30">30</option>',
-							'<option value="20">20</option>',
-							'<option value="10">10</option>',
-						'</select></label>'].join('')).appendTo('.filter4');
-
-					$('#count-filter').on('change',columnFilter);*/
-
-					/*var cols_width = nameColWidth+(eventColWidth+1)*event_targets.length + (totalsColWidth+1)*totals_targets.length + 50;
-
-					$('.container').css('min-width',cols_width+'px');
-
-					for(i=0; i<event_names.length; i++){
-						$('<li />').text(event_names[i]).popover({
-							trigger: 'hover',
-							html: true,
-							title: event_names[i],
-							content: ['Date: ',event_dates[i],'<br/>Attendees: ',events[i].attendees,
-								(events[i].description.length > 0 ? '<br/>Description: ' + events[i].description : '')].join(''),
-							placement: 'bottom',
-							container: '#table'
-						}).appendTo('#header-row');
-					}
-
-					//Append 'totals' column labels
-					$('<li />').addClass('totals-label').text('Events Total').appendTo('#header-row');
-					$('<li />').addClass('totals-label').text('Helper Points').appendTo('#header-row');
-					$('<li />').addClass('totals-label').text('IM Sports').appendTo('#header-row');
-					$('<li />').addClass('totals-label').text('Standing Committees').appendTo('#header-row');
-					$('<li />').addClass('totals-label').text('Other').appendTo('#header-row');
-					$('<li />').addClass('totals-label').text('Total').appendTo('#header-row');
-
-					columns = $('#header-row').addClass('hr').find('li');
-
-					//event handler for column labels
-					var headers = $('#table').find('th');
-					columns.each(function(index){
-						$(this).on('click',function(){ headers.eq(index+1).click(); });
 					});*/
-				//}
-			//});
 		}
 	},
 

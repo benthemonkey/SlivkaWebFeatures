@@ -13,8 +13,7 @@ require.config({
 		add2home: "bower_components/add-to-homescreen/src/add2home",
 		tablesorter: "bower_components/jquery.tablesorter/js/jquery.tablesorter",
 		stayInWebApp: "bower_components/stayInWebApp/jquery.stayInWebApp",
-		typeahead: "bower_components/typeahead.js/dist/typeahead",
-		datatables: "bower_components/datatables/media/js/jquery.dataTables"
+		typeahead: "bower_components/typeahead.js/dist/typeahead"
 	},
 	shim: {
 		bootstrap: [
@@ -56,23 +55,23 @@ require.config({
 		typeahead: [
 			"jquery"
 		]
-	},
-	deps: [
-		"bootstrap",
-		"bootstrap-daterangepicker",
-		"bootstrap-multiselect",
-		"bootstrap-switch",
-		"datatables",
-		"highcharts",
-		"jquery",
-		"add2home",
-		"stayInWebApp",
-		"tablesorter",
-		"typeahead"
-	]
+	}
 });
 
-require(["jquery","js/pointsCenter"],function($,spc) {
+require([
+	"jquery",
+	"js/pointsCenter",
+	"bootstrap",
+	"bootstrap-daterangepicker",
+	"bootstrap-multiselect",
+	"bootstrap-switch",
+	"datatables",
+	"highcharts",
+	"add2home",
+	"stayInWebApp",
+	"tablesorter",
+	"typeahead"
+	], function($,spc) {
 	var page = window.location.pathname;
 	page = page.substring(page.lastIndexOf("/")+1, page.length-4);
 

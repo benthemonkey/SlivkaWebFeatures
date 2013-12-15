@@ -5,7 +5,7 @@
 
 .table-wrapper{
   overflow-x: scroll;
-  margin: 0 11px;
+  margin: 0 15px;
   padding-bottom: 15px;
 }
 
@@ -18,6 +18,10 @@
 .points-table td{
 	padding: 0;
   text-align: center;
+  border-left: 1px solid gray;
+}
+
+.points-table td:last-child{
   border-right: 1px solid gray;
 }
 
@@ -25,51 +29,47 @@
   height: 100%;
 }
 
+td.name{
+  width: 141px;
+  text-align: left;
+  position: absolute;
+  padding-left: 5px;
+  margin-left: -140px;
+}
+
 .gender{
   display: none;
 }
 
 .nameHeader{
-  width: 141px;
-  height: 188px;
+  width: 140px;
+  height: 184px;
   position: absolute;
   margin-left: -140px;
   padding: 0;
   background-color: white;
   z-index: 1;
-  background-position: right;
 }
 
-.nameHeader div{
+.nameHeader > div > div {
   width: 100%;
-  height: 170px;
+  height: 172px;
   background-color: white;
-  -webkit-transform:skew(-30deg,0deg) translateX(48px);
-     -moz-transform:skew(-30deg,0deg) translateX(48px);
-      -ms-transform:skew(-30deg,0deg) translateX(48px);
-       -o-transform:skew(-30deg,0deg) translateX(48px);
-          transform:skew(-30deg,0deg) translateX(48px);
+  -webkit-transform:skew(-30deg,0deg) translateX(49px);
+     -moz-transform:skew(-30deg,0deg) translateX(49px);
+      -ms-transform:skew(-30deg,0deg) translateX(49px);
+       -o-transform:skew(-30deg,0deg) translateX(49px);
+          transform:skew(-30deg,0deg) translateX(49px);
 }
 
 .nameHeader span{
   position: absolute;
   bottom: 0;
-}
-
-.nameHeader > div > span{
-  margin-left: -3px;
-  -webkit-transform:skew(30deg,0deg);
-     -moz-transform:skew(30deg,0deg);
-      -ms-transform:skew(30deg,0deg);
-       -o-transform:skew(30deg,0deg);
-          transform:skew(30deg,0deg);
-}
-
-.points-table .name{
-  width: 142px;
-  text-align: left;
-  position: absolute;
-  margin-left: -140px;
+  width: 136px;
+  height: 14px;
+  padding-left: 5px;
+  border-left: 1px solid gray;
+  background-position: right!important;
 }
 
 /*overriding default style*/
@@ -81,23 +81,20 @@
   margin: 16px 5px 0;
 }
 
-.eventHeader{
-  width: 16px;
-  min-width: 16px;
-  max-width: 16px;
-}
-
 th{
-  height: 188px;
+  position: relative;
+  height: 184px;
   padding: 0;
+  font-weight: normal;
   line-height: 0.8;
 }
 
 .slantedHeader{
-  position: relative;
+  position: absolute;
+  top: 0;
   left: 49px;
+  width: 16px;
   height: 170px;
-  font-weight: normal;
   -webkit-transform:skew(-30deg,0deg);
      -moz-transform:skew(-30deg,0deg);
       -ms-transform:skew(-30deg,0deg);
@@ -125,11 +122,19 @@ th{
 }
 
 .sort-icon{
-  position: relative;
+  position: absolute;
   width: 100%;
-  height: 18px;
+  height: 14px;
+  bottom: 0;
   padding: 0;
   border-left: 1px solid gray;
+  background: url('../bower_components/jquery.tablesorter/css/images/black-unsorted.gif') no-repeat center;
+}
+
+.eventHeader{
+  width: 16px;
+  min-width: 16px;
+  max-width: 16px;
 }
 
 .totalsHeader{
@@ -195,16 +200,19 @@ tbody tr:nth-child(odd)  td.blue.sorting_1 { background-color: #409FFF; }
 
 .gold { background-color: #FFCC66; }
 
-.tablesorter-header .sort-icon {
-  background: url('../bower_components/datatables/media/images/sort_both.png') no-repeat bottom center;
+.tablesorter-header .sort-icon, .nameHeader.tablesorter-header span {
+  background: url('../bower_components/jquery.tablesorter/css/images/black-unsorted.gif') no-repeat;
+  background-position: center;
 }
 
-.tablesorter-headerAsc .sort-icon {
-  background: url('../bower_components/datatables/media/images/sort_asc.png') no-repeat bottom center;
+.tablesorter-headerAsc .sort-icon, .nameHeader.tablesorter-headerAsc span {
+  background: url('../bower_components/jquery.tablesorter/css/images/black-asc.gif') no-repeat;
+  background-position: center;
 }
 
-.tablesorter-headerDesc .sort-icon {
-  background: url('../bower_components/datatables/media/images/sort_desc.png') no-repeat bottom center;
+.tablesorter-headerDesc .sort-icon, .nameHeader.tablesorter-headerDesc span {
+  background: url('../bower_components/jquery.tablesorter/css/images/black-desc.gif') no-repeat;
+  background-position: center;
 }
 
 th:active {

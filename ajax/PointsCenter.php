@@ -169,6 +169,28 @@ class PointsCenter
 		return $events;
 	}
 
+	public function getRecentEvents ($count = 20, $offset = 0)
+	{
+		$events = array();
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT event_name,date,type,attendees,committee,description
+				FROM events
+				WHERE qtr=:qtr
+				ORDER BY date DESC, id DESC
+				LIMIT :offset,:count");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->bindValue(":offset", $offset, PDO::PARAM_INT);
+			$statement->bindValue(":count", $count, PDO::PARAM_INT);
+			$statement->execute();
+			$events = $statement->fetchAll(PDO::FETCH_NAMED);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+		return $events;
+	}
+
 	public function getIMs ($team)
 	{
 		$IMs = array();
@@ -199,6 +221,26 @@ class PointsCenter
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
 			$points = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+		return $points;
+	}
+
+	public function getEventTotals ()
+	{
+		$points = array();
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT nu_email, count(points.event_name) AS total
+				FROM points INNER JOIN events
+				ON points.event_name=events.event_name
+				WHERE events.type<>'im' AND events.qtr=:qtr
+				GROUP BY nu_email");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->execute();
+			$points = $statement->fetchAll(PDO::FETCH_KEY_PAIR);
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();
@@ -242,14 +284,14 @@ class PointsCenter
 		return $committee_attendance;
 	}
 
-	public function getIMPoints ($nu_email)
+	public function getIMPoints ()
 	{
 		$im_points = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT nu_email, sum(count) AS total
+				"SELECT nu_email, LEAST(SUM(count),15) AS total
 				FROM (
-					SELECT points.nu_email, count(points.nu_email) AS count, events.description
+					SELECT points.nu_email, COUNT(points.nu_email) AS count, events.description
 					FROM points
 					INNER JOIN events
 					ON points.event_name=events.event_name
@@ -260,7 +302,7 @@ class PointsCenter
 				GROUP BY nu_email");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
-			$im_points = $statement->fetchAll(PDO::FETCH_ASSOC);
+			$im_points = $statement->fetchAll(PDO::FETCH_KEY_PAIR);
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();
@@ -393,9 +435,17 @@ class PointsCenter
 		$bonus_points = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT nu_email,helper,committee,other1_name,other1,other2_name,other2,other3_name,other3
+				"SELECT bonuspoints.nu_email, IFNULL(helperpointcounts.count,0)+bonuspoints.helper AS helper,
+					bonuspoints.committee, bonuspoints.other1+bonuspoints.other2+bonuspoints.other3 AS other
 				FROM bonuspoints
-				WHERE qtr=:qtr");
+				LEFT OUTER JOIN (
+					SELECT nu_email, count(event_name) AS count
+					FROM helperpoints
+					WHERE qtr=:qtr
+					GROUP BY nu_email
+				) AS helperpointcounts
+					ON bonuspoints.nu_email=helperpointcounts.nu_email
+					WHERE bonuspoints.qtr=:qtr");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
 			$bonus_points = $statement->fetchAll(PDO::FETCH_GROUP|PDO::FETCH_ASSOC);
@@ -404,9 +454,8 @@ class PointsCenter
 			die();
 		}
 
-		#fixing wierd extra nested array in return
-		foreach(array_keys($bonus_points) as $b){
-			$bonus_points[$b] = $bonus_points[$b][0];
+		foreach(array_keys($bonus_points) AS $s){
+			$bonus_points[$s] = $bonus_points[$s][0];
 		}
 
 		return $bonus_points;
@@ -414,30 +463,43 @@ class PointsCenter
 
 	public function getPointsTable ()
 	{
-		$quarter_info = self::getQuarterInfo();
+		#$quarter_info = self::getQuarterInfo();
 		$slivkans = self::getSlivkans();
 		$events = self::getEvents();#$quarter_info['start_date'],$quarter_info['end_date']
 		$points = self::getPoints();
+		$event_totals = self::getEventTotals();
+		$im_points = self::getIMPoints();
+		$bonus_points = self::getBonusPoints();
+
 		$helperpoints = self::getHelperPoints();
 		$committeeattendance = self::getCommitteeAttendance();
-		$bonuspoints = self::getBonusPoints();
+
 
 		$points_table = array(); #table that is slivkan count by event count + 6
-		$years_suites = array(); #for stats later
-		$im_points = array();
+
+		# statistics holders:
+		$totals_by_year = array();
+		$totals_by_suite = array();
 
 		#form points_table
 		$events_count = count($events);
-		$events_total_ind		= $events_count + 2;
-		$helper_points_ind		= $events_count + 3;
-		$im_points_ind			= $events_count + 4;
-		$committee_points_ind	= $events_count + 5;
-		$bonus_points_ind		= $events_count + 6;
 		$total_ind				= $events_count + 7;
 
 		for($s=0; $s < count($slivkans); $s++){
-			$points_table[$slivkans[$s]['nu_email']] = array_merge(array($slivkans[$s]['full_name'], $slivkans[$s]['gender']), array_fill('1', $events_count+6, 0));
-			$years_suites[$slivkans[$s]['nu_email']] = array('year' => $slivkans[$s]['year'], 'suite' => $slivkans[$s]['suite']);
+			$nu_email = $slivkans[$s]['nu_email'];
+
+			$subtotal = $event_totals[$nu_email] + $bonus_points[$nu_email]['helper'] + $im_points[$nu_email];
+			$total = $subtotal + $bonus_points[$nu_email]['committee'] + $bonus_points[$nu_email]['other'];
+
+			$totals_by_year[$slivkans[$s]['year']][] = $subtotal;
+			$totals_by_suite[$slivkans[$s]['suite']][] = $subtotal;
+
+			$points_table[$nu_email] = array_merge(
+				array($slivkans[$s]['full_name'], $slivkans[$s]['gender']),
+				array_fill(0, $events_count, 0),
+				array((int) $event_totals[$nu_email], (int) $bonus_points[$nu_email]['helper'],
+					(int) $im_points[$nu_email], (int) $bonus_points[$nu_email]['committee'],
+					(int) $bonus_points[$nu_email]['other'], $total));
 		}
 
 		for($e=0; $e < $events_count; $e++){
@@ -446,86 +508,32 @@ class PointsCenter
 
 			foreach($points[$event_name] as $s){
 				$points_table[$s][2+$e] = 1;
+			}
 
-				if(!$is_im){
-					$points_table[$s][$events_total_ind]++;
-				}else{
-					if(!array_key_exists($s,$im_points)){
-						$im_points[$s] = array();
+			if(!$is_im){
+				if(array_key_exists($event_name, $helperpoints)){
+					foreach($helperpoints[$event_name] as $s){
+						$points_table[$s][2+$e] += 0.1;
 					}
-
-					$im_points[$s][$events[$e]['description']]++;
 				}
-			}
 
-			if(array_key_exists($event_name, $helperpoints)){
-				foreach($helperpoints[$event_name] as $s){
-					$points_table[$s][2+$e] += 0.1;
-					$points_table[$s][$helper_points_ind]++;
-				}
-			}
-
-			if(array_key_exists($event_name, $committeeattendance)){
-				foreach($committeeattendance[$event_name] as $s){
-					$points_table[$s][2+$e] += 0.2;
+				if(array_key_exists($event_name, $committeeattendance)){
+					foreach($committeeattendance[$event_name] as $s){
+						$points_table[$s][2+$e] += 0.2;
+					}
 				}
 			}
 		}
 
-		#handling IMs
-		foreach(array_keys($im_points) as $s){
-			$im_points_total = 0;
-
-			foreach($im_points[$s] as $im){
-				if($im >= 3){ $im_points_total += $im; }
-			}
-			if($im_points_total > 15){ $im_points_total = 15; }
-
-			$points_table[$s][$im_points_ind] = $im_points_total;
+		foreach($totals_by_year as $y => $totals){
+			$by_year[] = array($y, round(array_sum($totals)/count($totals), 2));
 		}
 
-		foreach(array_keys($bonuspoints) as $s){
-			$points_table[$s][$helper_points_ind] += $bonuspoints[$s]['helper']; #bonus helper points
-			$points_table[$s][$committee_points_ind] = (int)$bonuspoints[$s]['committee'];
-			$points_table[$s][$bonus_points_ind] =
-				$bonuspoints[$s]['other1'] +
-				$bonuspoints[$s]['other2'] +
-				$bonuspoints[$s]['other3'];
+		foreach($totals_by_suite as $s => $totals){
+			$by_suite[] = array($s, round(array_sum($totals)/count($totals), 2));
 		}
 
-		# statistics holders:
-		$counts_by_year = array();
-		$totals_by_year = array();
-		$counts_by_suite = array();
-		$totals_by_suite = array();
-
-		#run through whole points table to finish up
-		foreach(array_keys($points_table) as $s){
-			#handling helper points max
-			if($points_table[$s][$helper_points_ind] > 5){ $points_table[$s][$helper_points_ind] = 5; }
-
-			$points_table[$s][$total_ind] = array_sum(array_slice($points_table[$s], $events_total_ind, 5));
-
-			$year = $years_suites[$s]['year'];
-			$suite = $years_suites[$s]['suite'];
-
-			$counts_by_year[$year]++;
-			$totals_by_year[$year] += array_sum(array_slice($points_table[$s], $events_total_ind, 3));
-			$counts_by_suite[$suite]++;
-			$totals_by_suite[$suite] += array_sum(array_slice($points_table[$s], $events_total_ind, 3));
-		}
-
-		foreach($totals_by_year as $y => $total){
-			$by_year[] = array($y, round($total / $counts_by_year[$y], 2));
-		}
-
-		foreach($totals_by_suite as $s => $total){
-			$by_suite[] = array($s, round($total / $counts_by_suite[$s], 2));
-		}
-
-		$points_table = array_values($points_table);
-
-		return array('points_table' => $points_table, 'events' => $events, 'by_year' => $by_year, 'by_suite' => $by_suite);
+		return array('points_table' => array_values($points_table), 'events' => $events, 'by_year' => $by_year, 'by_suite' => $by_suite);
 	}
 
 	public function getMultipliers ()

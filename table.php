@@ -76,7 +76,7 @@ $points_table = $points_center->getPointsTable();
 					<table id="table" class="points-table">
 						<thead>
 							<tr>
-								<th class="nameHeader"><span>Name</span></th>
+								<th class="nameHeader"><div><div></div></div><span>Name</span></th>
 								<th style="display:none;"></th>
 								<?php
 									for($i=0; $i<count($points_table['events']); $i++){
@@ -147,7 +147,7 @@ $points_table = $points_center->getPointsTable();
 											echo '<td class="name">' . $td . '</td>';
 										}else if($i == 1){
 											echo '<td class="gender gender-' . $td . '"></td>';
-										}else if($i > $rowcount - 7){
+										}else if($i >= $rowcount - 6){
 											echo '<td class="totals">' . $td . '</td>';
 										}else if($td == 1){
 											echo '<td class="green">1</td>';
@@ -159,7 +159,7 @@ $points_table = $points_center->getPointsTable();
 											echo '<td>' . $td . '</td>';
 										}
 									}
-									echo "</tr>\n";
+									echo "<td></td></tr>\n";
 								}
 							?>
 						</tbody>
