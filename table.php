@@ -16,81 +16,113 @@ $points_table = $points_center->getPointsTable();
 	<div class="container">
 		<div class="content">
 			<?php include('nav.html'); ?>
-			<div class="tablecol">
+			<div class="wrapper">
 				<div class="row">
-					<div class="col-md-4">
-						<div class="alert alert-info">
-							<div>Hover of names for info, click arrows to sort.</div>
+					<div class="col-lg-12">
+						<div class="col-md-4">
+							<div class="alert alert-info">
+								<div>Hover over names for info, click arrows to sort.</div>
+							</div>
+							<table id="legend" class="legend">
+								<tr class="odd" style="background-color: white;">
+									<td>Colors: </td>
+									<td class="green">Point</td>
+									<td class="blue">Committee</td>
+									<td class="gold">Helper</td>
+									<td style="background-color: #FF8F8F;">None</td>
+								</tr>
+							</table>
 						</div>
-						<table id="legend" class="legend">
-							<tr class="odd">
-								<td style="background-color: white;">Colors: </td>
-								<td class="green">Point</td>
-								<td class="blue">Committee</td>
-								<td class="gold">Helper</td>
-								<td style="background-color: #FF8F8F;">None</td>
-							</tr>
-						</table>
-					</div>
-					<div class="col-md-8">
-						<div class="filter">
-							<label>Gender:<br/>
-								<select class="form-control" id="gender-filter">
-									<option value="">All</option>
-									<option value="m">Male</option>
-									<option value="f">Female</option>
-								</select>
-							</label>
-						</div>
-						<div class="filter">
-							<label>IMs:<br/>
-								<select class="form-control" id="im-filter">
-									<option value="0">All</option>
-									<option value="1">No IMs</option>
-									<option value="2">Only IMs</option>
-								</select>
-							</label>
-						</div>
-						<div class="filter">
-							<label>Committee:<br/>
-								<select class="multiselect" multiple="multiple" id="committee-filter">
-									<option selected>Exec</option>
-									<option selected>Academic</option>
-									<option selected>Facilities</option>
-									<option selected>Faculty</option>
-									<option selected>Historian</option>
-									<option selected>IT</option>
-									<option selected>Philanthropy</option>
-									<option selected>Social</option>
-									<option selected>CA</option>
-									<option selected>Other</option>
-								</select>
-							</label>
+						<div class="col-md-8">
+							<div class="filter">
+								<label>Gender:<br/>
+									<select class="form-control" id="gender-filter">
+										<option value="">All</option>
+										<option value="m">Male</option>
+										<option value="f">Female</option>
+									</select>
+								</label>
+							</div>
+							<div class="filter">
+								<label>IMs:<br/>
+									<select class="form-control" id="im-filter">
+										<option value="0">All</option>
+										<option value="1">No IMs</option>
+										<option value="2">Only IMs</option>
+									</select>
+								</label>
+							</div>
+							<div class="filter">
+								<label>Committee:<br/>
+									<select class="multiselect" multiple="multiple" id="committee-filter">
+										<option selected>Exec</option>
+										<option selected>Academic</option>
+										<option selected>Facilities</option>
+										<option selected>Faculty</option>
+										<option selected>Historian</option>
+										<option selected>IT</option>
+										<option selected>Philanthropy</option>
+										<option selected>Social</option>
+										<option selected>CA</option>
+										<option selected>Other</option>
+									</select>
+								</label>
+							</div>
+							<a href="#stats" class="btn btn-default show-stats" data-toggle="modal">Stats</a>
 						</div>
 					</div>
 				</div>
 				<div class="table-wrapper">
-					<ul class="hr">
-						<?php
-							for($i=0; $i<count($points_table['events']); $i++){
-								echo '<li>' . substr($points_table['events'][$i]['event_name'],0,-10) . '</li>';
-							}
-						?>
-					</ul>
-					<table id="table" class="dataTable">
+					<table id="table" class="points-table">
 						<thead>
 							<tr>
-								<th class="nameHeader">Name</th>
+								<th class="nameHeader"><span>Name</span></th>
 								<th style="display:none;"></th>
 								<?php
-									for($i=0; $i<count($points_table['points_table'][0])-8; $i++){
-										echo '<th class="eventHeader">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>';
-									}
-
-									for($i=0; $i<6; $i++){
-										echo '<th class="totalsLabel">tot</th>';
+									for($i=0; $i<count($points_table['events']); $i++){
+										echo '<th class="eventHeader"><div class="slantedHeader"><span>' . substr($points_table['events'][$i]['event_name'],0,-11) . '</span></div><div class="sort-icon"></div></th>' . "\n";
 									}
 								?>
+								<th class="totalsHeader">
+									<div class="slantedHeader">
+										<span>Events Total</span>
+									</div>
+									<div class="sort-icon"></div>
+								</th>
+								<th class="totalsHeader">
+									<div class="slantedHeader">
+										<span>Helper Points</span>
+									</div>
+									<div class="sort-icon"></div>
+								</th>
+								<th class="totalsHeader">
+									<div class="slantedHeader">
+										<span>IM Sports</span>
+									</div>
+									<div class="sort-icon"></div>
+								</th>
+								<th class="totalsHeader">
+									<div class="slantedHeader">
+										<span>Standing Committees</span>
+									</div>
+									<div class="sort-icon"></div>
+								</th>
+								<th class="totalsHeader">
+									<div class="slantedHeader">
+										<span>Other</span>
+									</div>
+									<div class="sort-icon"></div>
+								</th>
+								<th class="totalsHeader">
+									<div class="slantedHeader">
+										<span>Total</span>
+									</div>
+									<div class="sort-icon"></div>
+								</th>
+								<th class="endHeader">
+									<div class="slantedHeader"></div>
+									<div class="sort-icon"></div>
+								</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -98,9 +130,6 @@ $points_table = $points_center->getPointsTable();
 								$odd = true;
 
 								foreach($points_table['points_table'] AS $tr){
-									$first = true;
-									$second = false;
-
 									if($odd){
 										$odd = false;
 										echo '<tr class="odd">';
@@ -108,20 +137,24 @@ $points_table = $points_center->getPointsTable();
 										$odd = true;
 										echo '<tr class="even">';
 									}
-									foreach($tr AS $td){
-										if($first){
-											$first = false;
-											$second = true;
+
+									$rowcount = count($tr);
+
+									for($i=0; $i<$rowcount; $i++){
+										$td = $tr[$i];
+
+										if($i == 0){
 											echo '<td class="name">' . $td . '</td>';
-										}else if($second){
-											$second = false;
-											echo '<td class="gender">' . $td . '</td>';
+										}else if($i == 1){
+											echo '<td class="gender gender-' . $td . '"></td>';
+										}else if($i > $rowcount - 7){
+											echo '<td class="totals">' . $td . '</td>';
 										}else if($td == 1){
 											echo '<td class="green">1</td>';
 										}else if($td == 1.1 || $td == 0.1){
-											echo '<td class="blue">1</td>';
-										}else if($td == 1.2 || $td == 0.2){
 											echo '<td class="gold">1</td>';
+										}else if($td == 1.2 || $td == 0.2){
+											echo '<td class="blue">1</td>';
 										}else{
 											echo '<td>' . $td . '</td>';
 										}

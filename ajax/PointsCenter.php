@@ -11,7 +11,7 @@ class PointsCenter
 	public function __construct ($qtr)
 	{
 		error_reporting(E_ALL & ~E_NOTICE);
-		ini_set('display_errors', '1');
+		#ini_set('display_errors', '1');
 		self::initializeConnection();
 
 		if ($qtr) {
@@ -242,6 +242,33 @@ class PointsCenter
 		return $committee_attendance;
 	}
 
+	public function getIMPoints ($nu_email)
+	{
+		$im_points = array();
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT nu_email, sum(count) AS total
+				FROM (
+					SELECT points.nu_email, count(points.nu_email) AS count, events.description
+					FROM points
+					INNER JOIN events
+					ON points.event_name=events.event_name
+					WHERE events.type='im' AND points.qtr=:qtr
+					GROUP BY points.nu_email, events.description
+				) AS ims
+				WHERE ims.count >= 3
+				GROUP BY nu_email");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->execute();
+			$im_points = $statement->fetchAll(PDO::FETCH_ASSOC);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		return $im_points;
+	}
+
 	public function getSlivkanPoints ($nu_email)
 	{
 		$events = array();
@@ -385,11 +412,11 @@ class PointsCenter
 		return $bonus_points;
 	}
 
-	public function getPointsTable ($assoc = false)
+	public function getPointsTable ()
 	{
 		$quarter_info = self::getQuarterInfo();
 		$slivkans = self::getSlivkans();
-		$events = self::getEvents($quarter_info['start_date'],$quarter_info['end_date']);
+		$events = self::getEvents();#$quarter_info['start_date'],$quarter_info['end_date']
 		$points = self::getPoints();
 		$helperpoints = self::getHelperPoints();
 		$committeeattendance = self::getCommitteeAttendance();
@@ -496,9 +523,7 @@ class PointsCenter
 			$by_suite[] = array($s, round($total / $counts_by_suite[$s], 2));
 		}
 
-		if(!$assoc){
-			$points_table = array_values($points_table);
-		}
+		$points_table = array_values($points_table);
 
 		return array('points_table' => $points_table, 'events' => $events, 'by_year' => $by_year, 'by_suite' => $by_suite);
 	}
@@ -618,7 +643,7 @@ class PointsCenter
 
 	public function updateTotals ()
 	{
-		$points_table = self::getPointsTable(true);
+		$points_table = self::getPointsTable();
 		$points_table = $points_table['points_table'];
 
 		try {

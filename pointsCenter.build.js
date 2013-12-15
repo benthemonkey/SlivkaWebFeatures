@@ -4,6 +4,7 @@ require.config({
 		"bootstrap-daterangepicker": "bower_components/bootstrap-daterangepicker/daterangepicker",
 		"bootstrap-multiselect": "bower_components/bootstrap-multiselect/js/bootstrap-multiselect",
 		"bootstrap-switch": "bower_components/bootstrap-switch/build/js/bootstrap-switch",
+		datatables: "bower_components/datatables/media/js/jquery.dataTables",
 		highcharts: "bower_components/Highcharts-3.0.5/js/highcharts.src",
 		hogan: "bower_components/hogan/web/builds/2.0.0/hogan-2.0.0.amd",
 		jquery: "bower_components/jquery/jquery",
@@ -26,6 +27,9 @@ require.config({
 			"jquery"
 		],
 		"bootstrap-switch": [
+			"jquery"
+		],
+		"datatables": [
 			"jquery"
 		],
 		highcharts: [
@@ -58,19 +62,23 @@ require.config({
 		"bootstrap-daterangepicker",
 		"bootstrap-multiselect",
 		"bootstrap-switch",
+		"datatables",
 		"highcharts",
 		"jquery",
 		"add2home",
 		"stayInWebApp",
+		"tablesorter",
 		"typeahead"
 	]
 });
 
 require(["jquery","js/pointsCenter"],function($,spc) {
-	page = window.location.pathname.split("/");
-	page = page[page.length-1];
-	page = page.substr(0,page.length-4);
+	var page = window.location.pathname;
+	page = page.substring(page.lastIndexOf("/")+1, page.length-4);
 
 	if(page == "index" || page === ""){ page = "breakdown"; }
+
+	$("." + page + "-link").addClass("active");
+
 	spc[page].init();
 });

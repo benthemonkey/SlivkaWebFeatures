@@ -1,4 +1,4 @@
-define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstrap-daterangepicker','bootstrap-multiselect','tablesorter'],function ($,NProgress,moment,Hogan) {
+define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hogan) {
 	'use strict';
 	var slivkans, nicknames, fellows, type = 'Other', valid_event_name = false, quarter_start, quarter_end;
 
@@ -46,9 +46,6 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 
 	breakdown = {
 		init: function () {
-			//nav
-			$('.nav li').eq(0).addClass('active');
-
 			$.ajax({
 				async: true,
 				dataType: 'json',
@@ -210,9 +207,6 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 
 	table = {
 		init: function(){
-			//nav
-			$('.nav li').eq(1).addClass('active');
-
 			var event_names = [],
 			event_dates = [],
 			event_targets = [],
@@ -224,12 +218,52 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 			totalsColWidth = 20,
 			data = JSON.parse(window.points_table);
 
+			var lastScroll = 0,
+			delay = (function(){
+				var timer = 0;
+				return function(callback, ms){
+					clearTimeout (timer);
+					timer = setTimeout(callback, ms);
+				};
+			})();
+
+			$('.table-wrapper').scroll(function(){
+				delay(function(){
+					var scroll = $('.table-wrapper').scrollLeft(),
+						round = lastScroll < scroll ? Math.ceil : Math.floor;
+
+					if(lastScroll != scroll){
+						lastScroll = round(scroll/eventColWidth) * eventColWidth;
+						$('.table-wrapper').scrollLeft(lastScroll);
+					}
+				}, 100);
+			});
+
 			$('#table').tablesorter({
 				cancelSelection: true,
+				delayInit: true,
 				showProcessing: true,
 				sortInitialOrder: 'desc'
 			}).on('sortStart', NProgress.start)
 				.on('sortEnd', NProgress.done);
+
+			var headers = $('th');
+
+			for(i=0; i<data.events.length; i++){
+				var en = data.events[i].event_name,
+					name = en.substr(0,en.length-11),
+					date = en.substr(en.length-5);
+
+				headers.eq(i+2).popover({
+					trigger: 'hover',
+					html: true,
+					title: name,
+					content: ['Date: ',date,'<br/>Attendees: ',data.events[i].attendees,
+						(data.events[i].description.length > 0 ? '<br/>Description: ' + data.events[i].description : '')].join(''),
+					placement: 'bottom',
+					container: '#table'
+				});
+			}
 
 			// var colorClasses = function(nTd, sData){
 			// 	if(sData == '1'){$(nTd).addClass('green');}
@@ -389,12 +423,12 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					$('.multiselect').multiselect({
 						buttonClass: 'btn btn-default',
 						onChange: columnFilter
-					});*/
+					});
 
 					$('.show-stats').text('Stats').attr({
 							'data-toggle': 'modal',
 							'data-target': '#stats'
-						}).css('margin','16px 5px 0');
+						}).css('margin','16px 5px 0');*/
 
 					/*$(['',
 						'<label>Limit Cols:<br/><select class="form-control" id="count-filter">',
@@ -406,7 +440,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 
 					$('#count-filter').on('change',columnFilter);*/
 
-					var cols_width = nameColWidth+(eventColWidth+1)*event_targets.length + (totalsColWidth+1)*totals_targets.length + 50;
+					/*var cols_width = nameColWidth+(eventColWidth+1)*event_targets.length + (totalsColWidth+1)*totals_targets.length + 50;
 
 					$('.container').css('min-width',cols_width+'px');
 
@@ -423,12 +457,12 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					}
 
 					//Append 'totals' column labels
-					/*$('<li />').addClass('totals-label').text('Events Total').appendTo('#header-row');
+					$('<li />').addClass('totals-label').text('Events Total').appendTo('#header-row');
 					$('<li />').addClass('totals-label').text('Helper Points').appendTo('#header-row');
 					$('<li />').addClass('totals-label').text('IM Sports').appendTo('#header-row');
 					$('<li />').addClass('totals-label').text('Standing Committees').appendTo('#header-row');
 					$('<li />').addClass('totals-label').text('Other').appendTo('#header-row');
-					$('<li />').addClass('totals-label').text('Total').appendTo('#header-row');*/
+					$('<li />').addClass('totals-label').text('Total').appendTo('#header-row');
 
 					columns = $('#header-row').addClass('hr').find('li');
 
@@ -436,7 +470,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 					var headers = $('#table').find('th');
 					columns.each(function(index){
 						$(this).on('click',function(){ headers.eq(index+1).click(); });
-					});
+					});*/
 				//}
 			//});
 		}
@@ -444,9 +478,6 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 
 	correction = {
 		init: function(){
-			//nav
-			$('.nav li').eq(2).addClass('active');
-
 			$.getJSON('ajax/getSlivkans.php',function(data){
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
@@ -529,8 +560,6 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 
 	submission = {
 		init: function(){
-			//nav
-			$('.nav li').eq(3).addClass('active');
 			//prevent [Enter] from causing form submit
 			$(window).on('keydown',	function(event){
 				if(event.keyCode == 13) {
@@ -1260,8 +1289,7 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 
 	faq = {
 		init: function(){
-			//nav
-			$('.nav li').eq(4).addClass('active');
+			//nothing to do
 		}
 	},
 
@@ -1298,8 +1326,6 @@ define(['jquery','nprogress','moment','hogan','add2home','stayInWebApp','bootstr
 
 	rankings = {
 		init: function(){
-			$('.nav li').eq(5).addClass('active');
-
 			$.getJSON('./ajax/getRankings.php',function(data){
 				var males = [], females = [], tmp, row, i, j, mtable, ftable,
 					numQtrs = data.qtrs.length,
