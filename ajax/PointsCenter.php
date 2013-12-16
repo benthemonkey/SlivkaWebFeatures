@@ -232,26 +232,6 @@ class PointsCenter
 		return $points;
 	}
 
-	public function getEventTotals ()
-	{
-		$points = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT nu_email, count(points.event_name) AS total
-				FROM points INNER JOIN events
-				ON points.event_name=events.event_name
-				WHERE events.type<>'im' AND events.qtr=:qtr
-				GROUP BY nu_email");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->execute();
-			$points = $statement->fetchAll(PDO::FETCH_KEY_PAIR);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-		return $points;
-	}
-
 	public function getHelperPoints ()
 	{
 		$helper_points = array();
@@ -288,20 +268,34 @@ class PointsCenter
 		return $committee_attendance;
 	}
 
+	public function getEventTotals ()
+	{
+		$points = array();
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT nu_email, count(points.event_name) AS total
+				FROM points INNER JOIN events
+				ON points.event_name=events.event_name
+				WHERE events.type<>'im' AND events.qtr=:qtr
+				GROUP BY nu_email");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->execute();
+			$points = $statement->fetchAll(PDO::FETCH_KEY_PAIR);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+		return $points;
+	}
+
 	public function getIMPoints ()
 	{
 		$im_points = array();
 		try {
 			$statement = self::$dbConn->prepare(
 				"SELECT nu_email, LEAST(SUM(count),15) AS total
-				FROM (
-					SELECT nu_email, COUNT(nu_email) AS count, events.description
-					FROM points
-					LEFT JOIN events USING (event_name,qtr)
-					WHERE type='im' AND qtr=:qtr
-					GROUP BY nu_email, description
-				) AS ims
-				WHERE count >= 3
+				FROM imcounts
+				WHERE count >= 3 AND qtr=:qtr
 				GROUP BY nu_email");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
@@ -341,7 +335,7 @@ class PointsCenter
 				"SELECT committee, count(nu_email) AS count
 				FROM points LEFT JOIN events
 					ON points.event_name=events.event_name
-					WHERE nu_email=:nu_email AND type!='im' AND points.qtr=:qtr
+					WHERE nu_email=:nu_email AND type<>'im' AND points.qtr=:qtr
 				GROUP BY events.committee");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->bindValue(":nu_email", $nu_email);
@@ -360,11 +354,9 @@ class PointsCenter
 		$im_points = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT events.description, count(points.nu_email) AS count
-				FROM points LEFT JOIN events
-					ON points.event_name=events.event_name
-					WHERE points.nu_email=:nu_email AND events.type='im' AND events.qtr=:qtr
-					GROUP BY nu_email, events.description");
+				"SELECT sport, count
+				FROM imcounts
+				WHERE nu_email=:nu_email AND qtr=:qtr");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->bindValue(":nu_email", $nu_email);
 			$statement->execute();
@@ -382,16 +374,9 @@ class PointsCenter
 		$helper_points = 0;
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT sum(helper)
-				FROM (
-					SELECT nu_email, helper
-					FROM bonuspoints
-					WHERE nu_email=:nu_email AND qtr=:qtr
-
-					UNION ALL
-
-					SELECT nu_email, count(nu_email) AS helper
-					FROM helperpoints WHERE nu_email=:nu_email AND qtr=:qtr) AS h");
+				"SELECT count
+				FROM helperpointcounts
+				WHERE nu_email=:nu_email AND qtr=:qtr");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->bindValue(":nu_email", $nu_email);
 			$statement->execute();
@@ -417,6 +402,7 @@ class PointsCenter
 		}
 
 		if($bonus){
+			$helper_points += $bonus['helper'];
 			$committee_points = $bonus['committee'];
 			$other_points = $bonus['other1']+$bonus['other2']+$bonus['other3'];
 		}else{
@@ -439,16 +425,11 @@ class PointsCenter
 		try {
 			$statement = self::$dbConn->prepare(
 				"SELECT bonuspoints.nu_email, IFNULL(helperpointcounts.count,0)+bonuspoints.helper AS helper,
-					bonuspoints.committee, bonuspoints.other1+bonuspoints.other2+bonuspoints.other3 AS other
+					committee, other1+other2+other3 AS other
 				FROM bonuspoints
-				LEFT OUTER JOIN (
-					SELECT nu_email, count(event_name) AS count
-					FROM helperpoints
-					WHERE qtr=:qtr
-					GROUP BY nu_email
-				) AS helperpointcounts
-					ON bonuspoints.nu_email=helperpointcounts.nu_email
-					WHERE bonuspoints.qtr=:qtr");
+				LEFT OUTER JOIN helperpointcounts
+					USING (nu_email,qtr)
+					WHERE qtr=:qtr");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
 			$bonus_points = $statement->fetchAll(PDO::FETCH_GROUP|PDO::FETCH_ASSOC);
@@ -658,16 +639,22 @@ class PointsCenter
 
 	public function updateTotals ()
 	{
-		$points_table = self::getPointsTable();
-		$points_table = $points_table['points_table'];
+		$slivkans = self::getSlivkans();
+		$event_totals = self::getEventTotals();
+		$im_points = self::getIMPoints();
+		$bonus_points = self::getBonusPoints();
 
 		try {
 			$statement = self::$dbConn->prepare(
 				"INSERT INTO totals (nu_email, total, qtr)
 				VALUES (?,?,?)
 				ON DUPLICATE KEY UPDATE total=VALUES(total)");
-			foreach($points_table as $s => $row){
-				$statement->execute(array($s,array_pop($row),self::$qtr));
+
+			for($s=0; $s < count($slivkans); $s++){
+				$nu_email = $slivkans[$s]['nu_email'];
+				$total = $event_totals[$nu_email] + $im_points[$nu_email] + array_sum($bonus_points[$nu_email]);
+
+				$statement->execute(array($nu_email, $total, self::$qtr));
 			}
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
@@ -858,8 +845,7 @@ class PointsCenter
 			$statement->bindValue(":event_name", $get['event_name']);
 			$statement->execute();
 
-			$filled_by = $statement->fetchAll(PDO::FETCH_ASSOC);
-			$filled_by = $filled_by[0]['filled_by'];
+			$filled_by = $statement->fetch(PDO::FETCH_COLUMN);
 		} catch (PDOException $e) {
 			echo json_encode(array("message" => "Error: " . $e->getMessage()));
 			die();
@@ -905,7 +891,6 @@ class PointsCenter
 
 	public function pointsCorrectionReply($get)
 	{
-
 		if($get['reply']==md5('1')){ $code = 1; }
 		elseif($get['reply']==md5('2')){ $code = 2;}
 		elseif($get['reply']==md5('3')){ $code = 3;}
@@ -951,18 +936,6 @@ class PointsCenter
 				$statement->bindValue(":nu_email", $result['nu_email']);
 				$statement->bindValue(":event_name", $result['event_name']);
 				$statement->bindValue(":qtr", self::$qtr);
-				$statement->execute();
-			} catch (PDOException $e) {
-				echo "Error: " . $e->getMessage();
-				die();
-			}
-
-			try {
-				$statement = self::$dbConn->prepare(
-					"UPDATE events
-					SET attendees=attendees+1
-					WHERE event_name=:event_name");
-				$statement->bindValue(":event_name", $result['event_name']);
 				$statement->execute();
 			} catch (PDOException $e) {
 				echo "Error: " . $e->getMessage();
@@ -1059,11 +1032,11 @@ class PointsCenter
 		$courses = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT CONCAT(slivkans.first_name, ' ', slivkans.last_name) AS full_name,
+				"SELECT CONCAT(first_name, ' ', last_name) AS full_name,
 					courses.nu_email,courses.qtr
 				FROM courses
 				INNER JOIN slivkans ON courses.nu_email=slivkans.nu_email
-				WHERE courses.courses LIKE :course AND slivkans.qtr_joined <= :qtr AND (slivkans.qtr_final IS NULL OR slivkans.qtr_final >= :qtr)");
+				WHERE courses.courses LIKE :course AND qtr_joined <= :qtr AND (qtr_final IS NULL OR qtr_final >= :qtr)");
 			$statement->bindValue(":course", "%".$department." ".$number."%");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();

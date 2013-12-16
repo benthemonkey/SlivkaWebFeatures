@@ -28,7 +28,7 @@ $points_table = $points_center->getPointsTable($showall);
 							<strong>
 							<?php
 								if(!$showall){
-									echo '<a href="./table.php?all=1">Show All (slow)</a>';
+									echo '<a href="./table.php?all=1">Show All</a>';
 								}else{
 									echo '<a href="./table.php">Reset</a>';
 								}
@@ -87,7 +87,7 @@ $points_table = $points_center->getPointsTable($showall);
 						</label>
 					</div>
 					<a href="#stats" class="btn btn-default show-stats fix-top" data-toggle="modal">Stats</a>
-					<a href="./table.php" id="noFilter" class="btn btn-default filter btn-sm pull-right">Disable Sorting<br/>and Filtering (fast)</a>
+					<a href="./table.php" id="noFilter" class="btn btn-default filter btn-sm pull-right">Disable Sorting<br/>and Filtering</a>
 					<a href="./table.php" id="enableFilter" class="btn btn-default fix-top" style="display: none;">Enable Sorting and Filtering</a>
 				</div>
 			</div>

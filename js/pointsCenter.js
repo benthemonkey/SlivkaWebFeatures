@@ -13,9 +13,6 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 		return -1;
 	};
 
-	//mobile app support
-	$.stayInWebApp();
-
 	//bind ajax start and stop to nprogress
 	NProgress.configure({
 		trickleRate: 0.1
@@ -38,34 +35,29 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				valueKey: 'full_name',
 				local: slivkans,
 				template: ['<div class="slivkan-suggestion{{#dupe}} slivkan-dupe{{/dupe}}">{{full_name}}',
-				'{{#photo}}<img src="img/slivkans/{{photo}}.jpg" />{{/photo}}</div>'].join(''),
+					'{{#photo}}<img src="img/slivkans/{{photo}}.jpg" />{{/photo}}</div>'].join(''),
 				engine: Hogan
 			};
 		}
 	},
 
 	breakdown = {
-		init: function () {
-			$.ajax({
-				async: true,
-				dataType: 'json',
-				url: 'ajax/getSlivkans.php',
-				success: function (data) {
-					slivkans = data.slivkans;
-					quarter_start = data.quarter_info.start_date;
-					quarter_end = data.quarter_info.end_date;
+		init: function(){
+			$.getJSON('ajax/getSlivkans.php', function(data){
+				slivkans = data.slivkans;
+				quarter_start = data.quarter_info.start_date;
+				quarter_end = data.quarter_info.end_date;
 
-					for(var i=0; i<slivkans.length; i++){
-						$('<option />').attr('value',slivkans[i].nu_email).text(slivkans[i].full_name).appendTo('#slivkan');
-					}
-
-					if(localStorage.spc_brk_slivkan){
-						$('#slivkan').val(localStorage.spc_brk_slivkan);
-						breakdown.getSlivkanPoints();
-					}
-
-					$('#slivkan').on('change', breakdown.getSlivkanPoints);
+				for(var i=0; i<slivkans.length; i++){
+					$('<option />').attr('value',slivkans[i].nu_email).text(slivkans[i].full_name).appendTo('#slivkan');
 				}
+
+				if(localStorage.spc_brk_slivkan){
+					$('#slivkan').val(localStorage.spc_brk_slivkan);
+					breakdown.getSlivkanPoints();
+				}
+
+				$('#slivkan').on('change', breakdown.getSlivkanPoints);
 			});
 		},
 		getSlivkanPoints: function(){
@@ -142,7 +134,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 							for(i=0; i<data.ims.length; i++){
 								data.ims[i].count = parseInt(data.ims[i].count, 10);
 
-								imData.push([data.ims[i].description,data.ims[i].count]);
+								imData.push([data.ims[i].sport,data.ims[i].count]);
 
 								if(data.ims[i].count >= 3){
 									im_total += data.ims[i].count;
@@ -207,10 +199,14 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 	table = {
 		init: function(){
-			var oTable,
-				nameColWidth = 170,
+			window.points_table = JSON.parse(window.points_table);
+
+			var nameColWidth = 170,
 				eventColWidth = 20,
 				totalsColWidth = 24,
+				events = window.points_table.events,
+				by_year = window.points_table.by_year,
+				by_suite = window.points_table.by_suite,
 				lastScroll = 0,
 				delay = (function(){
 					var timer = 0;
@@ -226,8 +222,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 						'min-width': width,
 						'max-width': width
 					});
-				},
-				data = JSON.parse(window.points_table);
+				};
 
 			$('.table-wrapper').scroll(function(){
 				delay(function(){
@@ -248,7 +243,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 			$('.filter-row').show();
 			if(localStorage.spc_tab_noFilter != '1'){
-				oTable = $('#table').dataTable({
+				table.oTable = $('#table').dataTable({
 					aoColumnDefs: [
 						{ aTargets: ['_all'], asSorting: ['desc', 'asc'] },
 						{ aTargets: ['eventHeader'], fnCreatedCell: function(nTd, sData){
@@ -264,44 +259,20 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 				$('#name-filter').on('keyup',function(){
 					delay(function(){
-						oTable.fnFilter($('#name-filter').val());
+						table.oTable.fnFilter($('#name-filter').val());
 					}, 500);
 				});
 
 				$('#gender-filter').on('change',function(){
 					var option = $('#gender-filter').val();
-					oTable.fnFilter(option,1);
+					table.oTable.fnFilter(option,1);
 				});
 
-				var columnFilter = function(){
-					var committees = $('#committee-filter').find('option:selected').map(function(){ return this.innerHTML; }).get(),
-						ims = $('#im-filter').val(),
-						n = 0;
-
-					if(ims === '2'){
-						committees = [];
-						$('#committee-filter').parent().find('.dropdown-toggle').attr('disabled','disabled');
-					}else{
-						$('#committee-filter').parent().find('.dropdown-toggle').removeAttr('disabled');
-					}
-
-					for(i=0; i<data.events.length; i++){
-						if(committees.indexOf(data.events[i].committee) !== -1 && (ims !== '1' || data.events[i].type !== 'im') || (ims === '2' && data.events[i].type === 'im')){
-							oTable.fnSetColumnVis(i + 2,true,false);
-							n++;
-						}else{
-							oTable.fnSetColumnVis(i + 2,false,false);
-						}
-					}
-
-					oTable.fnDraw();
-				};
-
-				$('#im-filter').on('change',columnFilter);
+				$('#im-filter').on('change',table.columnFilter);
 
 				$('.multiselect').multiselect({
 					buttonClass: 'btn btn-default',
-					onChange: columnFilter
+					onChange: table.columnFilter
 				});
 			}else{
 				$('.filter').hide();
@@ -317,8 +288,8 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 			var headers = $('th');
 
-			for(i=0; i<data.events.length; i++){
-				var en = data.events[i].event_name,
+			for(i=0; i<events.length; i++){
+				var en = events[i].event_name,
 					name = en.substr(0,en.length-11),
 					date = en.substr(en.length-5);
 
@@ -326,30 +297,55 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 					trigger: 'hover',
 					html: true,
 					title: name,
-					content: ['Date: ',date,'<br/>Attendees: ',data.events[i].attendees,
-						(data.events[i].description.length > 0 ? '<br/>Description: ' + data.events[i].description : '')].join(''),
+					content: ['Date: ',date,'<br/>Attendees: ',events[i].attendees,
+						(events[i].description.length > 0 ? '<br/>Description: ' + events[i].description : '')].join(''),
 					placement: 'bottom',
 					container: '#table'
 				});
 			}
 
 			// filling years and suites tables
-			data.by_year.sort(function(a,b){
+			by_year.sort(function(a,b){
 				return b[1]-a[1];
 			});
 
-			for(var i=0; i<data.by_year.length; i++){
-				$('<tr><td>'+data.by_year[i][0]+'</td><td>'+data.by_year[i][1]+'</td></tr>').appendTo('#years');
+			for(var i=0; i<by_year.length; i++){
+				$('<tr><td>'+by_year[i][0]+'</td><td>'+by_year[i][1]+'</td></tr>').appendTo('#years');
 			}
 
-			data.by_suite.sort(function(a,b){
+			by_suite.sort(function(a,b){
 				return b[1]-a[1];
 			});
 
-			for(i=0; i<data.by_suite.length; i++){
-				$('<tr><td>'+data.by_suite[i][0]+'</td><td>'+data.by_suite[i][1]+'</td></tr>').appendTo('#suites');
+			for(i=0; i<by_suite.length; i++){
+				$('<tr><td>'+by_suite[i][0]+'</td><td>'+by_suite[i][1]+'</td></tr>').appendTo('#suites');
 			}
 			//end filling years and suites
+		},
+		oTable: null,
+		columnFilter: function(){
+			var events = window.points_table.events,
+				committees = $('#committee-filter').find('option:selected').map(function(){ return this.innerHTML; }).get(),
+				ims = $('#im-filter').val(),
+				n = 0;
+
+			if(ims === '2'){
+				committees = [];
+				$('#committee-filter').parent().find('.dropdown-toggle').attr('disabled','disabled');
+			}else{
+				$('#committee-filter').parent().find('.dropdown-toggle').removeAttr('disabled');
+			}
+
+			for(var i=0; i<events.length; i++){
+				if(committees.indexOf(events[i].committee) !== -1 && (ims !== '1' || events[i].type !== 'im') || (ims === '2' && events[i].type === 'im')){
+					table.oTable.fnSetColumnVis(i + 2,true,false);
+					n++;
+				}else{
+					table.oTable.fnSetColumnVis(i + 2,false,false);
+				}
+			}
+
+			table.oTable.fnDraw();
 		}
 	},
 
@@ -1281,7 +1277,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				for(i=0; i<females.length; i++){
 					if(females[i][numQtrs+4]){
 						row.eq(i+1).addClass('red');
-					}else if(j<data.males){
+					}else if(j<data.females){
 						row.eq(i+1).addClass('green');
 						j++;
 					}

@@ -29,6 +29,12 @@
 		<div class="content">
 			<?php include('nav.html'); ?>
 			<div class="col-lg-12">
+				<div class="row">
+					<div class="col-lg-12">
+						<p>These are the rankings as they would look if we were doing housing at the beginning of next quarter instead of at the beginning of Spring. Being below the points cutoff right now does not mean you can't live in Slivka next year.</p>
+						<p>This page won't show newly-added points immediately, so please be patient. The page will be available until the first day of classes after winter break.</p>
+					</div>
+				</div>
 				<div class="row" style="margin-bottom:10px">
 					<div class="col-lg-6 legend" style="background-color:#00D10E;">
 						Above Points Cutoff (<strong>*NOT FINAL*</strong>)

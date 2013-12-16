@@ -71,5 +71,8 @@ require([
 
 	$("." + page + "-link").addClass("active");
 
+	//mobile app support
+	$.stayInWebApp();
+
 	spc[page].init();
 });
