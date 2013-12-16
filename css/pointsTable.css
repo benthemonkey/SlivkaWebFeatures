@@ -1,8 +1,3 @@
-.wrapper{
-  font-size: 12px;
-  line-height: 16px;
-}
-
 .table-wrapper{
   overflow-x: scroll;
   margin: 0 15px;
@@ -11,8 +6,8 @@
 
 .points-table{
   table-layout: fixed;
-  margin-left: 140px;
-  overflow: hidden;
+  margin-left: 170px;
+  margin-top: 190px;
 }
 
 .points-table td{
@@ -21,20 +16,16 @@
   border-left: 1px solid gray;
 }
 
-.points-table td:last-child{
-  border-right: 1px solid gray;
-}
-
 .tablesorter-header-inner{
   height: 100%;
 }
 
 td.name{
-  width: 141px;
+  width: 171px;
   text-align: left;
   position: absolute;
   padding-left: 5px;
-  margin-left: -140px;
+  margin-left: -170px;
 }
 
 .gender{
@@ -42,30 +33,37 @@ td.name{
 }
 
 .nameHeader{
-  width: 140px;
-  height: 184px;
+  width: 170px;
+  height: 14px;
   position: absolute;
-  margin-left: -140px;
+  margin-left: -170px;
   padding: 0;
   background-color: white;
   z-index: 1;
 }
 
-.nameHeader > div > div {
+.nameHeader > div{
+  position: absolute;
+  bottom: 12px;
   width: 100%;
-  height: 172px;
+  height: 192px;
   background-color: white;
-  -webkit-transform:skew(-30deg,0deg) translateX(49px);
-     -moz-transform:skew(-30deg,0deg) translateX(49px);
-      -ms-transform:skew(-30deg,0deg) translateX(49px);
-       -o-transform:skew(-30deg,0deg) translateX(49px);
-          transform:skew(-30deg,0deg) translateX(49px);
+}
+
+.nameHeader > div > div{
+  height: 100%;
+  background-color: white;
+  -webkit-transform:skew(-30deg,0deg) translateX(55px);
+     -moz-transform:skew(-30deg,0deg) translateX(55px);
+      -ms-transform:skew(-30deg,0deg) translateX(55px);
+       -o-transform:skew(-30deg,0deg) translateX(55px);
+          transform:skew(-30deg,0deg) translateX(55px);
 }
 
 .nameHeader span{
   position: absolute;
   bottom: 0;
-  width: 136px;
+  width: 164px;
   height: 14px;
   padding-left: 5px;
   border-left: 1px solid gray;
@@ -77,13 +75,13 @@ td.name{
   margin-bottom: 0;
 }
 
-.show-stats{
-  margin: 16px 5px 0;
+.fix-top{
+  margin: 20px 5px 0;
 }
 
 th{
   position: relative;
-  height: 184px;
+  height: 14px;
   padding: 0;
   font-weight: normal;
   line-height: 0.8;
@@ -91,19 +89,16 @@ th{
 
 .slantedHeader{
   position: absolute;
-  top: 0;
-  left: 49px;
-  width: 16px;
-  height: 170px;
+  bottom: 14px;
+  left: 55px;
+  width: 20px;
+  height: 190px;
+  border-left: 1px solid gray;
   -webkit-transform:skew(-30deg,0deg);
      -moz-transform:skew(-30deg,0deg);
       -ms-transform:skew(-30deg,0deg);
        -o-transform:skew(-30deg,0deg);
           transform:skew(-30deg,0deg);
-  /*overflow: hidden;*/
-  border-left: 1px solid gray;
-  /*border-right: 1px solid gray;*/
-  /*border-top: 1px solid gray;*/
 }
 
 .slantedHeader span{
@@ -128,19 +123,18 @@ th{
   bottom: 0;
   padding: 0;
   border-left: 1px solid gray;
-  background: url('../bower_components/jquery.tablesorter/css/images/black-unsorted.gif') no-repeat center;
 }
 
 .eventHeader{
-  width: 16px;
-  min-width: 16px;
-  max-width: 16px;
-}
-
-.totalsHeader{
   width: 20px;
   min-width: 20px;
   max-width: 20px;
+}
+
+.totalsHeader{
+  width: 24px;
+  min-width: 24px;
+  max-width: 24px;
 }
 
 .totalsHeader span{
@@ -155,6 +149,10 @@ th{
 
 .endHeader .sort-icon{
   background-image: none!important;
+}
+
+.end{
+  background-color: white;
 }
 
 .legend{
@@ -174,44 +172,44 @@ th{
   margin: 0 5px;
 }
 
-tbody tr:nth-child(even) td.name, tbody tr:nth-child(even) td.totals{ background-color: #FFFFFF; }
-tbody tr:nth-child(odd)  td.name, tbody tr:nth-child(odd)  td.totals{ background-color: #F0F0F0; }
+tr:nth-child(even) td.name, tr:nth-child(even) td.totals{ background-color: #FFFFFF; }
+tr:nth-child(odd)  td.name, tr:nth-child(odd)  td.totals{ background-color: #F0F0F0; }
 
-tbody tr:nth-child(even) td.name.sorting_1, tbody tr:nth-child(even) td.totals.sorting_1 { background-color: #EFEFEF; }
-tbody tr:nth-child(odd)  td.name.sorting_1, tbody tr:nth-child(odd)  td.totals.sorting_1 { background-color: #D0D0D0; }
+tr:nth-child(even) td.name.sorting_1, tr:nth-child(even) td.totals.sorting_1 { background-color: #EFEFEF; }
+tr:nth-child(odd)  td.name.sorting_1, tr:nth-child(odd)  td.totals.sorting_1 { background-color: #D0D0D0; }
 
-tbody tr:nth-child(even) { background-color: #FFA1A1; }
-tbody tr:nth-child(odd)  { background-color: #FF8F8F; }
+.points-table tbody tr:nth-child(even) { background-color: #FFA1A1; }
+.points-table tbody tr:nth-child(odd)  { background-color: #FF8F8F; }
 
-tbody tr:nth-child(even) td.sorting_1 { background-color: #FF7070; }
-tbody tr:nth-child(odd)  td.sorting_1 { background-color: #FF5050; }
+tr:nth-child(even) td.sorting_1 { background-color: #FF7070; }
+tr:nth-child(odd)  td.sorting_1 { background-color: #FF5050; }
 
 tbody tr:nth-child(even) td.green { background-color: #00D10E; }
 tbody tr:nth-child(odd)  td.green { background-color: #00BF0D; }
 
-tbody tr:nth-child(even) td.green.sorting_1 { background-color: #00B30C; }
-tbody tr:nth-child(odd)  td.green.sorting_1 { background-color: #00A30B; }
+tr:nth-child(even) td.green.sorting_1 { background-color: #00B30C; }
+tr:nth-child(odd)  td.green.sorting_1 { background-color: #00A30B; }
 
 tbody tr:nth-child(even) td.blue { background-color: #99CCFF; }
 tbody tr:nth-child(odd)  td.blue { background-color: #80BFFF; }
 
-tbody tr:nth-child(even) td.blue.sorting_1 { background-color: #82BBFF; }
-tbody tr:nth-child(odd)  td.blue.sorting_1 { background-color: #409FFF; }
+tr:nth-child(even) td.blue.sorting_1 { background-color: #82BBFF; }
+tr:nth-child(odd)  td.blue.sorting_1 { background-color: #409FFF; }
 
-.gold { background-color: #FFCC66; }
+.gold { background-color: #FFCC66!important; }
 
-.tablesorter-header .sort-icon, .nameHeader.tablesorter-header span {
-  background: url('../bower_components/jquery.tablesorter/css/images/black-unsorted.gif') no-repeat;
+.sorting .sort-icon, .nameHeader.sorting span {
+  background: url('data:image/gif;base64,R0lGODlhBwAJAIAAACMtMP///yH5BAEAAAEALAAAAAAHAAkAAAINjGEJq8sOk4Qu0IZmKgA7') no-repeat;
   background-position: center;
 }
 
-.tablesorter-headerAsc .sort-icon, .nameHeader.tablesorter-headerAsc span {
-  background: url('../bower_components/jquery.tablesorter/css/images/black-asc.gif') no-repeat;
+.sorting_asc .sort-icon, .nameHeader.sorting_asc span {
+  background: url('data:image/gif;base64,R0lGODlhBwAEAIAAACMtMP///yH5BAEAAAEALAAAAAAHAAQAAAIHjGEJq8sOCwA7') no-repeat;
   background-position: center;
 }
 
-.tablesorter-headerDesc .sort-icon, .nameHeader.tablesorter-headerDesc span {
-  background: url('../bower_components/jquery.tablesorter/css/images/black-desc.gif') no-repeat;
+.sorting_desc .sort-icon, .nameHeader.sorting_desc span {
+  background: url('data:image/gif;base64,R0lGODlhBwAEAIAAACMtMP///yH5BAEAAAEALAAAAAAHAAQAAAIIhA+BGWoNWSgAOw==') no-repeat;
   background-position: center;
 }
 

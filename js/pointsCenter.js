@@ -207,26 +207,27 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 	table = {
 		init: function(){
-			var nameColWidth = 140,
-			eventColWidth = 16,
-			totalsColWidth = 20,
-			lastScroll = 0,
-			delay = (function(){
-				var timer = 0;
-				return function(callback, ms){
-					clearTimeout (timer);
-					timer = setTimeout(callback, ms);
-				};
-			})(),
-			adjustWidth = function(){
-				var width = ($('.table-wrapper').width() - nameColWidth - 6*totalsColWidth - 3) + 'px';
-				$('.endHeader').css({
-					'width': width,
-					'min-width': width,
-					'max-width': width
-				});
-			},
-			data = JSON.parse(window.points_table);
+			var oTable,
+				nameColWidth = 170,
+				eventColWidth = 20,
+				totalsColWidth = 24,
+				lastScroll = 0,
+				delay = (function(){
+					var timer = 0;
+					return function(callback, ms){
+						clearTimeout (timer);
+						timer = setTimeout(callback, ms);
+					};
+				})(),
+				adjustWidth = function(){
+					var width = ($('.table-wrapper').width() - nameColWidth - 6*totalsColWidth - 2) + 'px';
+					$('.endHeader').css({
+						'width': width,
+						'min-width': width,
+						'max-width': width
+					});
+				},
+				data = JSON.parse(window.points_table);
 
 			$('.table-wrapper').scroll(function(){
 				delay(function(){
@@ -245,13 +246,72 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 			});
 			adjustWidth();
 
-			$('#table').tablesorter({
-				cancelSelection: true,
-				delayInit: true,
-				showProcessing: true,
-				sortInitialOrder: 'desc'
-			}).on('sortStart', NProgress.start)
-				.on('sortEnd', NProgress.done);
+			if(localStorage.spc_tab_noFilter != '1'){
+				oTable = $('#table').dataTable({
+					aoColumnDefs: [
+						{ aTargets: ['_all'], asSorting: ['desc', 'asc'] },
+						{ aTargets: ['eventHeader'], fnCreatedCell: function(nTd, sData){
+							if(sData != '1'){
+								$(nTd).html($(nTd).html().substr(0,1));
+							}
+						}},
+						{ aTargets: [-1], bSortable: false }
+					],
+					bPaginate: false,
+					sDom: 't'
+				});
+
+				$('#name-filter').on('keyup',function(){
+					delay(function(){
+						oTable.fnFilter($('#name-filter').val());
+					}, 500);
+				});
+
+				$('#gender-filter').on('change',function(){
+					var option = $('#gender-filter').val();
+					oTable.fnFilter(option,1);
+				});
+
+				var columnFilter = function(){
+					var committees = $('#committee-filter').find('option:selected').map(function(){ return this.innerHTML; }).get(),
+						ims = $('#im-filter').val(),
+						n = 0;
+
+					if(ims === '2'){
+						committees = [];
+						$('#committee-filter').parent().find('.dropdown-toggle').attr('disabled','disabled');
+					}else{
+						$('#committee-filter').parent().find('.dropdown-toggle').removeAttr('disabled');
+					}
+
+					for(i=0; i<data.events.length; i++){
+						if(committees.indexOf(data.events[i].committee) !== -1 && (ims !== '1' || data.events[i].type !== 'im') || (ims === '2' && data.events[i].type === 'im')){
+							oTable.fnSetColumnVis(i + 2,true,false);
+							n++;
+						}else{
+							oTable.fnSetColumnVis(i + 2,false,false);
+						}
+					}
+
+					oTable.fnDraw();
+				};
+
+				$('#im-filter').on('change',columnFilter);
+
+				$('.multiselect').multiselect({
+					buttonClass: 'btn btn-default',
+					onChange: columnFilter
+				});
+			}else{
+				$('.filter').hide();
+				$('#enableFilter').on('click',function(){
+					localStorage.spc_tab_noFilter = 0;
+				}).show();
+			}
+
+			$('#noFilter').on('click',function(){
+				localStorage.spc_tab_noFilter = 1;
+			});
 
 			var headers = $('th');
 
@@ -288,50 +348,6 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				$('<tr><td>'+data.by_suite[i][0]+'</td><td>'+data.by_suite[i][1]+'</td></tr>').appendTo('#suites');
 			}
 			//end filling years and suites
-
-					//name filter
-					/*$('#table_filter input').addClass('form-control');
-
-					$('#gender-filter').on('change',function(){
-						var option = $('#gender-filter').val();
-						oTable.fnFilter(option,1);
-					});
-
-					var columnFilter = function(){
-						var committees = $('#committee-filter').find('option:selected').map(function(){ return this.innerHTML; }).get(),
-							ims = $('#im-filter').val(),
-							n = 0;
-
-						if(ims === '2'){
-							committees = [];
-							$('#committee-filter').parent().find('.dropdown-toggle').attr('disabled','disabled');
-						}else{
-							$('#committee-filter').parent().find('.dropdown-toggle').removeAttr('disabled');
-						}
-
-						for(i=0; i<events.length; i++){
-							if(committees.indexOf(events[i].committee) !== -1 && (ims !== '1' || events[i].type !== 'im') || (ims === '2' && events[i].type === 'im')){
-								oTable.fnSetColumnVis(event_targets[i],true,false);
-								columns.eq(i).show();
-								n++;
-							}else{
-								oTable.fnSetColumnVis(event_targets[i],false,false);
-								columns.eq(i).hide();
-							}
-						}
-
-						var cols_width = nameColWidth + (eventColWidth+1)*n + (totalsColWidth+1)*totals_targets.length + 50;
-						$('.container').css('min-width', cols_width+'px');
-
-						oTable.fnDraw();
-					};
-
-					$('#im-filter').on('change',columnFilter);
-
-					$('.multiselect').multiselect({
-						buttonClass: 'btn btn-default',
-						onChange: columnFilter
-					});*/
 		}
 	},
 

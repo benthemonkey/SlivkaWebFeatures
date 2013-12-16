@@ -11,7 +11,6 @@ require.config({
 		moment: "bower_components/moment/moment",
 		nprogress: "bower_components/nprogress/nprogress",
 		add2home: "bower_components/add-to-homescreen/src/add2home",
-		tablesorter: "bower_components/jquery.tablesorter/js/jquery.tablesorter",
 		stayInWebApp: "bower_components/stayInWebApp/jquery.stayInWebApp",
 		typeahead: "bower_components/typeahead.js/dist/typeahead"
 	},
@@ -28,7 +27,7 @@ require.config({
 		"bootstrap-switch": [
 			"jquery"
 		],
-		"datatables": [
+		datatables: [
 			"jquery"
 		],
 		highcharts: [
@@ -45,12 +44,6 @@ require.config({
 				"jquery"
 			],
 			exports: "NProgress"
-		},
-		tablesorter: {
-			deps: [
-				"jquery"
-			],
-			exports: "jquery"
 		},
 		typeahead: [
 			"jquery"
@@ -69,7 +62,6 @@ require([
 	"highcharts",
 	"add2home",
 	"stayInWebApp",
-	"tablesorter",
 	"typeahead"
 	], function($,spc) {
 	var page = window.location.pathname;

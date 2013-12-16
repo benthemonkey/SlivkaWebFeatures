@@ -36,6 +36,11 @@ class PointsCenter
 		}
 	}
 
+	public function getQuarter ()
+	{
+		return self::$qtr;
+	}
+
 	public function getQuarterInfo ()
 	{
 		$quarter_info;
@@ -46,14 +51,14 @@ class PointsCenter
 				WHERE qtr=:qtr");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
-			$quarter_info = $statement->fetchAll(PDO::FETCH_ASSOC);
+			$quarter_info = $statement->fetch(PDO::FETCH_ASSOC);
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();
 		}
 
-		$quarter_info[0]['im_teams'] = json_decode($quarter_info[0]['im_teams']);
-		return $quarter_info[0];
+		$quarter_info['im_teams'] = json_decode($quarter_info['im_teams']);
+		return $quarter_info;
 	}
 
 	public function getDirectory ()
@@ -61,12 +66,11 @@ class PointsCenter
 		$directory = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT slivkans.first_name,slivkans.last_name,
-					slivkans.year,slivkans.major,suites.suite,slivkans.photo
+				"SELECT first_name,last_name,year,major,suites.suite,photo
 				FROM slivkans
 				LEFT JOIN suites ON slivkans.nu_email=suites.nu_email AND suites.qtr=:qtr
-				WHERE slivkans.qtr_joined <= :qtr AND (slivkans.qtr_final IS NULL OR slivkans.qtr_final >= :qtr)
-				ORDER BY slivkans.first_name,slivkans.last_name");
+				WHERE qtr_joined <= :qtr AND (qtr_final IS NULL OR qtr_final >= :qtr)
+				ORDER BY first_name,last_name");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
 			$directory = $statement->fetchAll(PDO::FETCH_NUM);
@@ -82,13 +86,13 @@ class PointsCenter
 		$slivkans = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT CONCAT(slivkans.first_name, ' ', slivkans.last_name) AS full_name,
-					slivkans.nu_email,slivkans.gender,slivkans.wildcard,committees.committee,slivkans.photo,suites.suite,slivkans.year
+				"SELECT CONCAT(first_name, ' ', last_name) AS full_name,
+					slivkans.nu_email,gender,wildcard,committees.committee,photo,suites.suite,year
 				FROM slivkans
 				LEFT JOIN committees ON slivkans.nu_email=committees.nu_email AND committees.qtr=:qtr
 				LEFT JOIN suites ON slivkans.nu_email=suites.nu_email AND suites.qtr=:qtr
-				WHERE slivkans.qtr_joined <= :qtr AND (slivkans.qtr_final IS NULL OR slivkans.qtr_final >= :qtr)
-				ORDER BY slivkans.first_name,slivkans.last_name");
+				WHERE qtr_joined <= :qtr AND (qtr_final IS NULL OR qtr_final >= :qtr)
+				ORDER BY first_name,last_name");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
 			$slivkans = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -188,7 +192,7 @@ class PointsCenter
 			echo "Error: " . $e->getMessage();
 			die();
 		}
-		return $events;
+		return array_reverse($events);
 	}
 
 	public function getIMs ($team)
@@ -291,14 +295,13 @@ class PointsCenter
 			$statement = self::$dbConn->prepare(
 				"SELECT nu_email, LEAST(SUM(count),15) AS total
 				FROM (
-					SELECT points.nu_email, COUNT(points.nu_email) AS count, events.description
+					SELECT nu_email, COUNT(nu_email) AS count, events.description
 					FROM points
-					INNER JOIN events
-					ON points.event_name=events.event_name
-					WHERE events.type='im' AND points.qtr=:qtr
-					GROUP BY points.nu_email, events.description
+					LEFT JOIN events USING (event_name,qtr)
+					WHERE type='im' AND qtr=:qtr
+					GROUP BY nu_email, description
 				) AS ims
-				WHERE ims.count >= 3
+				WHERE count >= 3
 				GROUP BY nu_email");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
@@ -461,11 +464,15 @@ class PointsCenter
 		return $bonus_points;
 	}
 
-	public function getPointsTable ()
+	public function getPointsTable ($showall = false)
 	{
-		#$quarter_info = self::getQuarterInfo();
 		$slivkans = self::getSlivkans();
-		$events = self::getEvents();#$quarter_info['start_date'],$quarter_info['end_date']
+		if($showall){
+			$quarter_info = self::getQuarterInfo();
+			$events = self::getEvents($quarter_info['start_date'],$quarter_info['end_date']);
+		}else{
+			$events = self::getRecentEvents();
+		}
 		$points = self::getPoints();
 		$event_totals = self::getEventTotals();
 		$im_points = self::getIMPoints();
