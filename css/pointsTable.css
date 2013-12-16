@@ -34,6 +34,8 @@ td.name{
 
 .nameHeader{
   width: 170px;
+  min-width: 170px;
+  max-width: 170px;
   height: 14px;
   position: absolute;
   margin-left: -170px;
@@ -218,4 +220,28 @@ th:active {
 }
 th:hover {
   cursor: pointer;
+}
+
+@media (max-width: 768px){
+  .table-wrapper{
+    font-size: 12px;
+  }
+
+  .points-table{
+    margin-left: 0;
+  }
+
+  td.name{
+    position: relative;
+    margin-left: 0;
+  }
+
+  .nameHeader{
+    position: relative;
+    margin-left: 0;
+  }
+
+  .nameHeader > div{
+    display: none;
+  }
 }

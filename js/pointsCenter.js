@@ -246,6 +246,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 			});
 			adjustWidth();
 
+			$('.filter-row').show();
 			if(localStorage.spc_tab_noFilter != '1'){
 				oTable = $('#table').dataTable({
 					aoColumnDefs: [
@@ -307,6 +308,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				$('#enableFilter').on('click',function(){
 					localStorage.spc_tab_noFilter = 0;
 				}).show();
+				$('td').css('font-size','12px');
 			}
 
 			$('#noFilter').on('click',function(){
