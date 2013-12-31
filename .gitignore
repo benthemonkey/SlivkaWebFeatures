@@ -1,9 +1,9 @@
 .DS_Store
+.htaccess
 img/slivkans/*
 pointscenter.appcache
 
 ajax/datastoreVars.php
-ajax/DatabasePDO.php
 ajax/log.txt
 ajax/tmp.php
 

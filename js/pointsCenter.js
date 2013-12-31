@@ -1,9 +1,9 @@
-define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hogan) {
+define(['jquery', 'nprogress', 'moment', 'hogan'], function($, NProgress, moment, Hogan) {
 	'use strict';
 	var slivkans, nicknames, fellows, type = 'Other', valid_event_name = false, quarter_start, quarter_end;
 
 	//add indexOfKey (useful: http://jsperf.com/js-for-loop-vs-array-indexof)
-	Array.prototype.indexOfKey = function (key, value) {
+	Array.prototype.indexOfKey = function(key, value) {
 		for(var i=0; i < this.length; i++){
 			if(this[i][key] === value){
 				return i;
@@ -22,14 +22,14 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 	//functions used by multiple pages
 	var common = {
-		updateValidity: function (element,valid){
-			if (valid){
+		updateValidity: function(element, valid) {
+			if(valid){
 				element.addClass('has-success').removeClass('has-error');
 			}else{
 				element.removeClass('has-success').addClass('has-error');
 			}
 		},
-		typeaheadOpts: function (name, slivkans) {
+		typeaheadOpts: function(name, slivkans) {
 			return {
 				name: name,
 				valueKey: 'full_name',
@@ -42,14 +42,14 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 	},
 
 	breakdown = {
-		init: function(){
-			$.getJSON('ajax/getSlivkans.php', function(data){
+		init: function() {
+			$.getJSON('ajax/getSlivkans.php', function(data) {
 				slivkans = data.slivkans;
 				quarter_start = data.quarter_info.start_date;
 				quarter_end = data.quarter_info.end_date;
 
 				for(var i=0; i<slivkans.length; i++){
-					$('<option />').attr('value',slivkans[i].nu_email).text(slivkans[i].full_name).appendTo('#slivkan');
+					$('<option />').attr('value', slivkans[i].nu_email).text(slivkans[i].full_name).appendTo('#slivkan');
 				}
 
 				if(localStorage.spc_brk_slivkan){
@@ -60,18 +60,18 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				$('#slivkan').on('change', breakdown.getSlivkanPoints);
 			});
 		},
-		getSlivkanPoints: function(){
+		getSlivkanPoints: function() {
 			var nu_email = $('#slivkan').val();
 
 			if(nu_email.length > 0){
 				localStorage.spc_brk_slivkan = nu_email;
 
-				$('.breakdown').fadeOut(function(){
+				$('.breakdown').fadeOut(function() {
 					$('#attendedEvents').empty();
 					$('#unattendedEvents').empty();
 					$('#otherPointsTableBody').empty();
 
-					$.getJSON('ajax/getPointsBreakdown.php',{nu_email: nu_email, start: quarter_start, end: quarter_end}, function(data){
+					$.getJSON('ajax/getPointsBreakdown.php', {nu_email: nu_email, start: quarter_start, end: quarter_end}, function(data) {
 						var i, eventData = [],
 							imData = [],
 							event_total = 0,
@@ -121,7 +121,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 						}
 
 						for(i=0; i<data.events.counts.length; i++){
-							eventData.push([data.events.counts[i].committee,parseInt(data.events.counts[i].count,10)]);
+							eventData.push([data.events.counts[i].committee, parseInt(data.events.counts[i].count, 10)]);
 
 							event_total += parseInt(data.events.counts[i].count, 10);
 						}
@@ -134,7 +134,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 							for(i=0; i<data.ims.length; i++){
 								data.ims[i].count = parseInt(data.ims[i].count, 10);
 
-								imData.push([data.ims[i].sport,data.ims[i].count]);
+								imData.push([data.ims[i].sport, data.ims[i].count]);
 
 								if(data.ims[i].count >= 3){
 									im_total += data.ims[i].count;
@@ -149,7 +149,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 							}
 
 							breakdown.drawChart(imData,
-								['IMs (',im_total,' Points, ',im_extra,(im_extra==1 ? ' Doesn\'t':' Don\'t'),' Count)'].join(''),
+								['IMs (', im_total, ' Points, ', im_extra, (im_extra==1 ? ' Doesn\'t':' Don\'t'), ' Count)'].join(''),
 								'imsChart');
 						}else{
 							$('#imsChart').hide();
@@ -161,9 +161,9 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 						$('.otherPoints').text(data.other);
 
 						$('.totalPoints').text(
-							[event_total,im_total,data.helper,data.committee,data.other].map(function(n){
-								return parseInt(n,10);
-							}).reduce(function(a,b){
+							[event_total, im_total, data.helper, data.committee, data.other].map(function(n) {
+								return parseInt(n, 10);
+							}).reduce(function(a, b) {
 								return a+b;
 							}));
 
@@ -172,8 +172,8 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				});
 			}
 		},
-		drawChart: function(tableData,title_in,id){
-			setTimeout(function(){
+		drawChart: function(tableData, title_in, id) {
+			setTimeout(function() {
 				$('#'+id).highcharts({
 					credits: {
 						enabled: false
@@ -193,29 +193,28 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 						data: tableData
 					}]
 				});
-			},500);
+			}, 500);
 		}
 	},
 
 	table = {
-		init: function(){
-			window.points_table = JSON.parse(window.points_table);
-
+		init: function() {
 			var nameColWidth = 170,
 				eventColWidth = 20,
 				totalsColWidth = 24,
-				events = window.points_table.events,
-				by_year = window.points_table.by_year,
-				by_suite = window.points_table.by_suite,
+				points_table = JSON.parse(window.points_table),
+				events = points_table.events,
+				by_year = points_table.by_year,
+				by_suite = points_table.by_suite,
 				lastScroll = 0,
-				delay = (function(){
+				delay = (function() {
 					var timer = 0;
-					return function(callback, ms){
+					return function(callback, ms) {
 						clearTimeout (timer);
 						timer = setTimeout(callback, ms);
 					};
 				})(),
-				adjustWidth = function(){
+				adjustWidth = function() {
 					var width = ($('.table-wrapper').width() - nameColWidth - 6*totalsColWidth - 2) + 'px';
 					$('.endHeader').css({
 						'width': width,
@@ -224,8 +223,8 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 					});
 				};
 
-			$('.table-wrapper').scroll(function(){
-				delay(function(){
+			$('.table-wrapper').scroll(function() {
+				delay(function() {
 					var scroll = $('.table-wrapper').scrollLeft(),
 						round = lastScroll < scroll ? Math.ceil : Math.floor;
 
@@ -236,7 +235,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				}, 100);
 			});
 
-			$(window).resize(function(){
+			$(window).resize(function() {
 				delay(adjustWidth, 500);
 			});
 			adjustWidth();
@@ -246,9 +245,9 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				table.oTable = $('#table').dataTable({
 					aoColumnDefs: [
 						{ aTargets: ['_all'], asSorting: ['desc', 'asc'] },
-						{ aTargets: ['eventHeader'], fnCreatedCell: function(nTd, sData){
+						{ aTargets: ['eventHeader'], fnCreatedCell: function(nTd, sData) {
 							if(sData != '1'){
-								$(nTd).html($(nTd).html().substr(0,1));
+								$(nTd).html($(nTd).html().substr(0, 1));
 							}
 						}},
 						{ aTargets: [-1], bSortable: false }
@@ -257,18 +256,18 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 					sDom: 't'
 				});
 
-				$('#name-filter').on('keyup',function(){
-					delay(function(){
+				$('#name-filter').on('keyup', function() {
+					delay(function() {
 						table.oTable.fnFilter($('#name-filter').val());
 					}, 500);
 				});
 
-				$('#gender-filter').on('change',function(){
+				$('#gender-filter').on('change', function() {
 					var option = $('#gender-filter').val();
-					table.oTable.fnFilter(option,1);
+					table.oTable.fnFilter(option, 1);
 				});
 
-				$('#im-filter').on('change',table.columnFilter);
+				$('#im-filter').on('change', table.columnFilter);
 
 				$('.multiselect').multiselect({
 					buttonClass: 'btn btn-default',
@@ -276,28 +275,28 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				});
 			}else{
 				$('.filter').hide();
-				$('#enableFilter').on('click',function(){
+				$('#enableFilter').on('click', function() {
 					localStorage.spc_tab_noFilter = 0;
 				}).show();
-				$('td').css('font-size','12px');
+				$('td').css('font-size', '12px');
 			}
 
-			$('#noFilter').on('click',function(){
+			$('#noFilter').on('click', function() {
 				localStorage.spc_tab_noFilter = 1;
 			});
 
-			var headers = $('th');
+			var i, headers = $('th');
 
 			for(i=0; i<events.length; i++){
 				var en = events[i].event_name,
-					name = en.substr(0,en.length-11),
+					name = en.substr(0, en.length-11),
 					date = en.substr(en.length-5);
 
 				headers.eq(i+2).popover({
 					trigger: 'hover',
 					html: true,
 					title: name,
-					content: ['Date: ',date,'<br/>Attendees: ',events[i].attendees,
+					content: ['Date: ', date, '<br/>Attendees: ', events[i].attendees,
 						(events[i].description.length > 0 ? '<br/>Description: ' + events[i].description : '')].join(''),
 					placement: 'bottom',
 					container: '#table'
@@ -305,15 +304,15 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 			}
 
 			// filling years and suites tables
-			by_year.sort(function(a,b){
+			by_year.sort(function(a, b) {
 				return b[1]-a[1];
 			});
 
-			for(var i=0; i<by_year.length; i++){
+			for(i=0; i<by_year.length; i++){
 				$('<tr><td>'+by_year[i][0]+'</td><td>'+by_year[i][1]+'</td></tr>').appendTo('#years');
 			}
 
-			by_suite.sort(function(a,b){
+			by_suite.sort(function(a, b) {
 				return b[1]-a[1];
 			});
 
@@ -323,25 +322,25 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 			//end filling years and suites
 		},
 		oTable: null,
-		columnFilter: function(){
+		columnFilter: function() {
 			var events = window.points_table.events,
-				committees = $('#committee-filter').find('option:selected').map(function(){ return this.innerHTML; }).get(),
+				committees = $('#committee-filter').find('option:selected').map(function() { return this.innerHTML; }).get(),
 				ims = $('#im-filter').val(),
 				n = 0;
 
 			if(ims === '2'){
 				committees = [];
-				$('#committee-filter').parent().find('.dropdown-toggle').attr('disabled','disabled');
+				$('#committee-filter').parent().find('.dropdown-toggle').attr('disabled', 'disabled');
 			}else{
 				$('#committee-filter').parent().find('.dropdown-toggle').removeAttr('disabled');
 			}
 
 			for(var i=0; i<events.length; i++){
 				if(committees.indexOf(events[i].committee) !== -1 && (ims !== '1' || events[i].type !== 'im') || (ims === '2' && events[i].type === 'im')){
-					table.oTable.fnSetColumnVis(i + 2,true,false);
+					table.oTable.fnSetColumnVis(i + 2, true, false);
 					n++;
 				}else{
-					table.oTable.fnSetColumnVis(i + 2,false,false);
+					table.oTable.fnSetColumnVis(i + 2, false, false);
 				}
 			}
 
@@ -350,14 +349,14 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 	},
 
 	correction = {
-		init: function(){
-			$.getJSON('ajax/getSlivkans.php',function(data){
+		init: function() {
+			$.getJSON('ajax/getSlivkans.php', function(data) {
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 
 				//tack on nicknames to slivkans
 				for(var i=0; i<nicknames.length; i++){
-					var ind = slivkans.indexOfKey('nu_email',nicknames[i].nu_email);
+					var ind = slivkans.indexOfKey('nu_email', nicknames[i].nu_email);
 					if(ind !== -1){
 						slivkans[ind].tokens.push(nicknames[i].nickname);
 					}
@@ -366,7 +365,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				$('#filled-by').typeahead(common.typeaheadOpts('slivkans', slivkans));
 			});
 
-			$.getJSON('ajax/getEvents.php',function(events){
+			$.getJSON('ajax/getEvents.php', function(events) {
 				for(var i=events.length-1; i>=0; i--){
 					$('<option></option>').text(events[i].event_name).appendTo('#event-name');
 				}
@@ -377,7 +376,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 			$('#submit').on('click', correction.validatePointsCorrectionForm);
 			$('#reset').on('click', correction.resetForm);
 		},
-		validatePointsCorrectionForm: function(){
+		validatePointsCorrectionForm: function() {
 			var valid = true,
 			errors = [];
 
@@ -392,14 +391,14 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				$('#submit-error').text('Validation errors in: '+errors.join(', ')).fadeIn();
 			}
 		},
-		validateFilledBy: function(){
+		validateFilledBy: function() {
 			var valid, name = $('#filled-by').val();
 
 			$('.filled-by-control').removeClass('has-warning');
 
 			if(name.length > 0){
-				valid = slivkans.indexOfKey('full_name',name) != -1;
-				common.updateValidity($('.filled-by-control'),valid);
+				valid = slivkans.indexOfKey('full_name', name) != -1;
+				common.updateValidity($('.filled-by-control'), valid);
 			}else{
 				$('.filled-by-control').addClass('error');
 				valid = false;
@@ -407,13 +406,14 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 			return valid;
 		},
-		resetForm: function(){
-			$('#filled-by').val(''); $('.filled-by-control').removeClass('has-success').removeClass('has-error');
+		resetForm: function() {
+			$('#filled-by').val('');
+			$('.filled-by-control').removeClass('has-success has-error');
 			$('#event-name').val('Select One');
 			$('#comments').val('');
 			$('#submit-error').fadeOut();
 		},
-		submitPointsCorrection: function(){
+		submitPointsCorrection: function() {
 			var data = {
 				event_name: $('#event-name').val(),
 				name: $('#filled-by').val(),
@@ -422,9 +422,9 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 			};
 			$('#response').fadeOut();
 
-			$.getJSON('./ajax/sendPointsCorrection.php',data,function(response){
+			$.getJSON('./ajax/sendPointsCorrection.php', data, function(response) {
 				$('#response').text('Response: '+response.message);
-				$('#form-actions').html('<a class="btn btn-primary" href="table.php">View Points</a>'+
+				$('#form-actions').html('<a class="btn btn-primary" href="table.php">View Points</a>' +
 					'<a class="btn btn-default" href="correction.php">Submit Another</a>');
 				$('#response').fadeIn();
 			});
@@ -432,16 +432,16 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 	},
 
 	submission = {
-		init: function(){
+		init: function() {
 			//prevent [Enter] from causing form submit
-			$(window).on('keydown',	function(event){
+			$(window).on('keydown',	function(event) {
 				if(event.keyCode == 13) {
 					event.preventDefault();
 					return false;
 				}
 			});
 
-			$.getJSON('ajax/getSlivkans.php',function(data){
+			$.getJSON('ajax/getSlivkans.php', function(data) {
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 				fellows = data.fellows;
@@ -449,7 +449,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 				//tack on nicknames to slivkans
 				for(var i=0; i<nicknames.length; i++){
-					var ind = slivkans.indexOfKey('nu_email',nicknames[i].nu_email);
+					var ind = slivkans.indexOfKey('nu_email', nicknames[i].nu_email);
 					if(ind !== -1){
 						slivkans[ind].tokens.push(nicknames[i].nickname);
 					}
@@ -509,12 +509,12 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				//autocomplete and events for slivkan/fellow inputs
 				$('#filled-by').typeahead(common.typeaheadOpts('slivkans', slivkans));
 
-				$('#slivkan-entry-tab')	.on('focus','.slivkan-entry',submission.handlers.slivkanTypeahead)
-										.on('typeahead:closed','.slivkan-entry.tt-query',submission.handlers.validateSlivkanName)
-										.on('click','.bonus-point',submission.handlers.toggleActive);
+				$('#slivkan-entry-tab')	.on('focus', '.slivkan-entry', submission.handlers.slivkanTypeahead)
+										.on('typeahead:closed', '.slivkan-entry.tt-query', submission.handlers.validateSlivkanName)
+										.on('click', '.bonus-point', submission.handlers.toggleActive);
 
-				$('#fellow-entry-tab')	.on('focus','.fellow-entry',submission.handlers.fellowTypeahead)
-										.on('typeahead:closed','.fellow-entry.tt-query',submission.handlers.validateFellowName);
+				$('#fellow-entry-tab')	.on('focus', '.fellow-entry', submission.handlers.fellowTypeahead)
+										.on('typeahead:closed', '.fellow-entry.tt-query', submission.handlers.validateFellowName);
 			});
 
 			/*$('#date').datepicker({
@@ -525,7 +525,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				buttonText: '',
 				altField: '#date-val',
 				altFormat: 'yy-mm-dd',
-				onSelect: function(date){
+				onSelect: function(date) {
 					submission.validateEventName();
 					localStorage.spc_sub_date = date;
 				}
@@ -536,8 +536,8 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 			*/
 			//dates
 			for(var i=0; i<5; i++){
-				var date = moment().subtract('days',i).format('YYYY-MM-DD');
-				$('<option />').text(moment(date).format('ddd, M/D')).attr('value',date).appendTo('#date');
+				var date = moment().subtract('days', i).format('YYYY-MM-DD');
+				$('<option />').text(moment(date).format('ddd, M/D')).attr('value', date).appendTo('#date');
 			}
 
 			//event handlers for inputs
@@ -546,13 +546,13 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 			$('#type')				.on('click',	submission.toggleType);
 			$('#event')				.on('focus',	submission.handlers.addClassWarning)
 									.on('focusout',	submission.validateEventName);
-			$('#date')				.on('change',	function(){ localStorage.spc_sub_date = $(this).val(); submission.validateEventName(); });
+			$('#date')				.on('change',	function() { localStorage.spc_sub_date = $(this).val(); submission.validateEventName(); });
 			$('#im-team')			.on('change',	submission.validateIMTeam);
 			$('#committee')			.on('change',	submission.validateCommittee);
 			$('#description')		.on('focusout',	submission.validateDescription);
-			$('#comments')			.on('focusout',	function(){ localStorage.spc_sub_comments = $('#comments').val(); });
-			$('#close-sort-alert')	.on('click',	function(){ $('#sort-alert').slideUp(); });
-			$('#close-dupe-alert')	.on('click',	function(){ $('#duplicate-alert').slideUp(); });
+			$('#comments')			.on('focusout',	function() { localStorage.spc_sub_comments = $('#comments').val(); });
+			$('#close-sort-alert')	.on('click',	function() { $('#sort-alert').slideUp(); });
+			$('#close-dupe-alert')	.on('click',	function() { $('#duplicate-alert').slideUp(); });
 			$('#sort-entries')		.on('click',	submission.sortEntries);
 			$('#submit')			.on('click',	submission.validatePointsForm);
 			$('#reset')				.on('click',	submission.resetForm);
@@ -562,16 +562,16 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 			$('#tabs a:first').tab('show');
 		},
 		handlers: {
-			addClassWarning: function(){
+			addClassWarning: function() {
 				$(this).closest('.form-group').addClass('has-warning');
 			},
-			slivkanTypeahead: function(){
+			slivkanTypeahead: function() {
 				var target = $(this), slivkans_tmp = JSON.parse(JSON.stringify(slivkans));
 
 				if(localStorage.spc_sub_attendees){
 					var ind;
-					localStorage.spc_sub_attendees.split(', ').forEach(function(el){
-						ind = slivkans_tmp.indexOfKey('full_name',el.substr(0,el.length-2));
+					localStorage.spc_sub_attendees.split(', ').forEach(function(el) {
+						ind = slivkans_tmp.indexOfKey('full_name', el.substr(0, el.length-2));
 						if(ind !== -1){
 							slivkans_tmp[ind].dupe = true;
 						}
@@ -588,88 +588,93 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 					target.typeahead(common.typeaheadOpts('slivkans'+Math.random(), slivkans_tmp)).focus();
 				}
 			},
-			validateSlivkanName: function(){
+			validateSlivkanName: function() {
 				var target = $(this);
 				if(target.hasClass('tt-query')){
 					//needs a delay because typeahead.js seems to not like destroying on focusout
-					setTimeout(function(target){
+					setTimeout(function(target) {
 						submission.validateSlivkanName(target.typeahead('destroy').closest('.form-group'));
-					},1,target);
+					}, 1, target);
 				}
 			},
-			fellowTypeahead: function(){
+			fellowTypeahead: function() {
 				var target = $(this);
 				if(target.closest('.fellow-entry-control').addClass('has-warning').is(':last-child')){
 					var num_inputs = $('#fellow-entry-tab').find('.fellow-entry').length;
 					if(num_inputs < 20){ submission.appendFellowInputs(1); }
 				}
 				if(!target.hasClass('tt-query')){
-					target.typeahead(common.typeaheadOpts('fellows',fellows)).focus();
+					target.typeahead(common.typeaheadOpts('fellows', fellows)).focus();
 				}
 			},
-			validateFellowName : function(){
+			validateFellowName : function() {
 				var target = $(this);
 				if(target.hasClass('tt-query')){
 					//needs a delay because typeahead.js seems to not like destroying on focusout
-					setTimeout(function(target){
+					setTimeout(function(target) {
 						submission.validateFellowName(target.typeahead('destroy').closest('.form-group'));
-					},1,target);
+					}, 1, target);
 				}
 			},
-			toggleActive : function(){
+			toggleActive : function() {
 				$(this).toggleClass('active');
 				submission.saveSlivkans();
 			}
 		},
-		appendSlivkanInputs: function(n){
+		appendSlivkanInputs: function(n) {
 			//2-4ms per insertion. Slow but acceptable.
 			var cloned = $('#slivkan-entry-tab').find('.slivkan-entry-control').last(),
-			start = parseInt(cloned.find('.input-group-addon').text(),10);
+			start = parseInt(cloned.find('.input-group-addon').text(), 10);
 			for (var i=0; i<n; i++){
 				cloned.clone().appendTo('#slivkan-entry-tab')
 				.removeClass('has-warning')
 				.find('.input-group-addon').text(start+i+1);
 			}
 		},
-		appendFellowInputs: function(n){
+		appendFellowInputs: function(n) {
 			var cloned = $('#fellow-entry-tab').find('.fellow-entry-control').last(),
-			start = parseInt(cloned.find('.input-group-addon').text(),10);
+			start = parseInt(cloned.find('.input-group-addon').text(), 10);
 			for (var i=0; i<n; i++){
 				cloned.clone().appendTo('#fellow-entry-tab')
 				.removeClass('has-warning')
 				.find('.input-group-addon').text(start+i+1);
 			}
 		},
-		toggleType: function(event){
+		toggleType: function(event) {
 			type = $(event.target).find('input').val();
 
 			//store value
 			localStorage.spc_sub_type = type;
 
 			//clear description if **previous** type was IM
-			if($('.type-btn.active').val() == 'IM'){
+			if($('.type-btn.active').find('input').val() == 'IM'){
 				$('#description').val('');
 				submission.validateDescription();
 			}
 
-			if(type == 'P2P'){
-				$('#committee').val('Faculty');
-				$('#event').val('P2P');
-			}else if(type == 'IM'){
-				$('#committee').val('Social');
-				submission.validateIMTeam();
-			}else if(type == 'House Meeting'){
-				$('#committee').val('Exec');
-				$('#event').val('House Meeting');
-			}else{
-				$('#event').val('');
+			switch(type){
+				case 'P2P':
+					$('#committee').val('Faculty');
+					$('#event').val('P2P');
+					break;
+				case 'IM':
+					$('#committee').val('Social');
+					submission.validateIMTeam();
+					break;
+				case 'House Meeting':
+					$('#committee').val('Exec');
+					$('#event').val('House Meeting');
+					break;
+				default:
+					$('#event').val('');
 			}
+
 			submission.validateEventName();
 			submission.validateCommittee();
 
 			if(type == 'IM'){
 				$('.im-team-control').slideDown();
-				$('#event').attr('disabled','disabled');
+				$('#event').attr('disabled', 'disabled');
 			}else{
 				$('.im-team-control').slideUp();
 				$('#event').removeAttr('disabled');
@@ -680,26 +685,26 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				$('#committee').removeAttr('disabled');
 			}else{
 				$('.description-control').slideUp();
-				$('#committee').attr('disabled','disabled');
+				$('#committee').attr('disabled', 'disabled');
 			}
 		},
-		validatePointsForm: function(){
+		validatePointsForm: function() {
 			var valid = true, valid_slivkans = true, valid_fellows = true,
 			errors = [];
 
-			if (!submission.validateFilledBy()){ valid = false; errors.push('Filled By'); }
-			if (!valid_event_name){ valid = false; common.updateValidity($('.event-control'),valid); errors.push('Name'); }
-			if (!submission.validateCommittee()){ valid = false; errors.push('Committee'); }
-			if (!submission.validateDescription()){ valid = false; errors.push('Description'); }
+			if(!submission.validateFilledBy()){ valid = false; errors.push('Filled By'); }
+			if(!valid_event_name){ valid = false; common.updateValidity($('.event-control'), valid); errors.push('Name'); }
+			if(!submission.validateCommittee()){ valid = false; errors.push('Committee'); }
+			if(!submission.validateDescription()){ valid = false; errors.push('Description'); }
 
-			$('.slivkan-entry-control').each(function(index){
-				if(!submission.validateSlivkanName($(this),(index !== 0))){ valid_slivkans = false; }
+			$('.slivkan-entry-control').each(function(index) {
+				if(!submission.validateSlivkanName($(this), (index !== 0))){ valid_slivkans = false; }
 			});
 
 			if(!valid_slivkans){ valid = false; errors.push('Attendees'); }
 
 
-			$('.fellow-entry-control').each(function(){
+			$('.fellow-entry-control').each(function() {
 				if(!submission.validateFellowName($(this))){ valid_fellows = false; }
 			});
 
@@ -715,7 +720,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 			return valid;
 		},
-		validateEventName: function(){
+		validateEventName: function() {
 			var valid = false, event_name = $('#event').val();
 
 			//store value
@@ -726,13 +731,13 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 			if((event_name.length <= 32 && event_name.length >= 8) || event_name == 'P2P'){
 				event_name += [' ', $('#date').val()].join('');
 
-				$.getJSON('ajax/getEvents.php',function(events){
+				$.getJSON('ajax/getEvents.php', function(events) {
 					$('.event-control').removeClass('has-warning');
 
-					if(events.length > 0 && events.indexOfKey('event_name',event_name) != -1){
+					if(events.length > 0 && events.indexOfKey('event_name', event_name) != -1){
 						if(type == 'IM'){
-							var last = parseInt($('#event').val().slice(-1),10);
-							$('#event').val($('#event').val().slice(0,-1) + (last+1).toString());
+							var last = parseInt($('#event').val().slice(-1), 10);
+							$('#event').val($('#event').val().slice(0, -1) + (last+1).toString());
 							submission.validateEventName();
 						}else{
 							valid_event_name = false;
@@ -744,33 +749,33 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 					}
 
 					$('#event-name-length-error').fadeOut();
-					common.updateValidity($('.event-control'),valid_event_name);
+					common.updateValidity($('.event-control'), valid_event_name);
 				});
 			}else{
 				$('#event-name-length-error-count').html('Currently '+event_name.length+' characters');
 				$('#event-name-length-error').fadeIn();
-				common.updateValidity($('.event-control'),valid_event_name);
+				common.updateValidity($('.event-control'), valid_event_name);
 			}
 
 			return valid;
 		},
-		validateIMTeam: function(){
+		validateIMTeam: function() {
 			var im_team = $('#im-team').val();
-			$.getJSON('ajax/getIMs.php',{team: im_team},function(events){
+			$.getJSON('ajax/getIMs.php', {team: im_team}, function(events) {
 				$('#event').val(im_team + ' ' + (events.length + 1));
 				$('#description').val(im_team.split(' ')[1]);
 				submission.validateEventName();
 			});
 		},
-		validateCommittee: function(){
+		validateCommittee: function() {
 			var valid, committee = $('#committee').val();
 
 			valid = committee != 'Select One';
 
-			common.updateValidity($('.committee-control'),valid);
+			common.updateValidity($('.committee-control'), valid);
 
-			$('.slivkan-entry-control').each(function(){
-				submission.validateSlivkanName($(this),true);
+			$('.slivkan-entry-control').each(function() {
+				submission.validateSlivkanName($(this), true);
 			});
 
 			//store values
@@ -779,7 +784,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 			return valid;
 		},
-		validateDescription: function(){
+		validateDescription: function() {
 			var valid = true, description = $('#description').val();
 
 			//store value
@@ -792,17 +797,17 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				$('#description-length-error').fadeOut();
 			}
 
-			common.updateValidity($('.description-control'),valid);
+			common.updateValidity($('.description-control'), valid);
 
 			return valid;
 		},
-		validateFilledBy: function(){
+		validateFilledBy: function() {
 			var valid = true, name = $('#filled-by').val(),
-			nickname_ind = nicknames.indexOfKey('nickname',name);
+			nickname_ind = nicknames.indexOfKey('nickname', name);
 
-			if (nickname_ind != -1){
-				name = slivkans[slivkans.indexOfKey('nu_email',nicknames[nickname_ind].nu_email)].full_name;
-				$('#filled-by').typeahead('setQuery',name);
+			if(nickname_ind != -1){
+				name = slivkans[slivkans.indexOfKey('nu_email', nicknames[nickname_ind].nu_email)].full_name;
+				$('#filled-by').typeahead('setQuery', name);
 			}
 
 			//store value
@@ -811,8 +816,8 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 			$('.filled-by-control').removeClass('has-warning');
 
 			if(name.length > 0){
-				valid = slivkans.indexOfKey('full_name',name) != -1;
-				common.updateValidity($('.filled-by-control'),valid);
+				valid = slivkans.indexOfKey('full_name', name) != -1;
+				common.updateValidity($('.filled-by-control'), valid);
 			}else{
 				$('.filled-by-control').addClass('error');
 				valid = false;
@@ -820,15 +825,15 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 			return valid;
 		},
-		validateSlivkanName: function(entry,inBulk){
+		validateSlivkanName: function(entry, inBulk) {
 			var valid = true,
 			slivkan_entry = entry.find('.slivkan-entry'),
 			entry_button = entry.find('.btn'),
 			name = slivkan_entry.val(),
-			nickname_ind = nicknames.indexOfKey('nickname',name);
+			nickname_ind = nicknames.indexOfKey('nickname', name);
 
-			if (nickname_ind != -1){
-				name = slivkans[slivkans.indexOfKey('nu_email',nicknames[nickname_ind].nu_email)].full_name;
+			if(nickname_ind != -1){
+				name = slivkans[slivkans.indexOfKey('nu_email', nicknames[nickname_ind].nu_email)].full_name;
 				slivkan_entry.val(name);
 			}
 
@@ -837,15 +842,15 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				var nameArray = [];
 
 				//clear duplicates
-				$('#slivkan-entry-tab').find('.slivkan-entry').each(function(){
+				$('#slivkan-entry-tab').find('.slivkan-entry').each(function() {
 					var self = $(this);
-					if (self.val().length > 0){
-						if (nameArray.indexOf(self.val()) == -1){
+					if(self.val().length > 0){
+						if(nameArray.indexOf(self.val()) == -1){
 							nameArray.push(self.val());
 						}else{
 							self.val('');
 							$('#duplicate-alert').slideDown();
-							submission.validateSlivkanName(self.parent(),true);
+							submission.validateSlivkanName(self.parent(), true);
 						}
 					}
 				});
@@ -862,8 +867,8 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 			entry.removeClass('has-warning');
 
-			if (name.length > 0){
-				var name_ind = slivkans.indexOfKey('full_name',name);
+			if(name.length > 0){
+				var name_ind = slivkans.indexOfKey('full_name', name);
 				if(name_ind != -1){
 					if(slivkans[name_ind].committee == $('#committee').val() && type != 'IM'){
 						submission.showCommitteeMember(entry_button);
@@ -873,7 +878,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 						submission.showHelperPoint(entry_button);
 					}
 				}else{ valid=false; }
-				common.updateValidity(entry,valid);
+				common.updateValidity(entry, valid);
 			}else{
 				entry.removeClass('has-success has-error');
 				submission.hideButtons(entry_button);
@@ -881,36 +886,36 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 			return valid;
 		},
-		showHelperPoint: function(entry_button){ //quick: 46.15
+		showHelperPoint: function(entry_button) { //quick: 46.15
 			if(!entry_button.hasClass('helper-point')){
 				entry_button.removeClass('committee-point disabled active').addClass('helper-point');
 			}
 		},
-		showCommitteeMember: function(entry_button){
+		showCommitteeMember: function(entry_button) {
 			if(!entry_button.hasClass('committee-point')){
 				entry_button.removeClass('helper-point disabled active').addClass('committee-point active');
 			}
 		},
-		hideButtons: function(entry_button){
+		hideButtons: function(entry_button) {
 			if(!entry_button.hasClass('disabled')){
 				entry_button.removeClass('helper-point committee-point active').addClass('disabled');
 			}
 		},
-		validateFellowName: function(entry){
+		validateFellowName: function(entry) {
 			var valid = true,
 			nameArray = [],
 			fellow_entry = entry.find('.fellow-entry'),
 			name = fellow_entry.val();
 
 			//clear duplicates
-			$('.fellow-entry').each(function(){
-				if (nameArray.indexOf($(this).val()) != -1){
+			$('.fellow-entry').each(function() {
+				if(nameArray.indexOf($(this).val()) != -1){
 					$(this).val('');
 					name='';
 					$('#duplicate-alert').slideDown();
 				}
 
-				if ($(this).val().length > 0){
+				if($(this).val().length > 0){
 					nameArray.push($(this).val());
 				}
 			});
@@ -920,30 +925,30 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 			entry.removeClass('has-warning');
 
-			if (name.length > 0){
-				valid = fellows.indexOfKey('full_name',name) != -1;
-				common.updateValidity(entry,valid);
+			if(name.length > 0){
+				valid = fellows.indexOfKey('full_name', name) != -1;
+				common.updateValidity(entry, valid);
 			}else{
 				entry.removeClass('has-success has-error');
 			}
 
 			return valid;
 		},
-		processBulkNames: function(){
+		processBulkNames: function() {
 			var names = $('#bulk-names').val();
 
 			//remove '__ mins ago' and blank lines
-			names = names.replace(/(\d+ .+ago[\r\n]?$)|(^[\r\n])/gm,'');
+			names = names.replace(/(\d+ .+ago[\r\n]?$)|(^[\r\n])/gm, '');
 
 			$('#bulk-names').val(names);
 		},
-		addBulkNames: function(){
+		addBulkNames: function() {
 			var slots = [],
 			free_slots = 0,
 			names = $('#bulk-names').val(),
 			nameArray;
 
-			$('#slivkan-entry-tab').find('.slivkan-entry').each(function(){
+			$('#slivkan-entry-tab').find('.slivkan-entry').each(function() {
 				if($(this).val().length > 0){
 					slots.push(1);
 				}else{
@@ -953,8 +958,8 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 			});
 
 			//if there's a hanging newline, remove it for adding but leave it in the textarea
-			if (names[names.length-1] == '\r' || names[names.length-1] == '\n'){
-				names = names.slice(0,names.length-1);
+			if(names[names.length-1] == '\r' || names[names.length-1] == '\n'){
+				names = names.slice(0, names.length-1);
 			}
 
 			nameArray = names.split(/[\r\n]/gm);
@@ -973,7 +978,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				var name = nameArray[i];
 
 				//check if wildcard
-				var wildcardInd = slivkans.indexOfKey('wildcard',name);
+				var wildcardInd = slivkans.indexOfKey('wildcard', name);
 				if(wildcardInd != -1){
 					name = slivkans[wildcardInd].full_name;
 				}
@@ -981,10 +986,10 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				var ind = slots.indexOf(0);
 				slots[ind] = 1;
 				slivkan_entries.eq(ind).val(name);
-				submission.validateSlivkanName(slivkan_entries.eq(ind).closest('.slivkan-entry-control'),(i < len-1));
+				submission.validateSlivkanName(slivkan_entries.eq(ind).closest('.slivkan-entry-control'), (i < len-1));
 			}
 		},
-		sortEntries: function(){
+		sortEntries: function() {
 			var nameArray = [];
 
 			nameArray = submission.saveSlivkans();
@@ -1001,12 +1006,12 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 			$('#sort-alert').slideDown();
 		},
-		saveSlivkans: function(){
+		saveSlivkans: function() {
 			var nameArray = [];
 
 			//forming name array, but appending values corresponding to the helper/committee buttons:
 			//0 - unpressed, 1 - pressed
-			$('#slivkan-entry-tab').find('.slivkan-entry-control').each(function(){
+			$('#slivkan-entry-tab').find('.slivkan-entry-control').each(function() {
 				var self = $(this), name = self.find('.slivkan-entry').val();
 				if(name.length > 0){
 					var h = (self.find('.helper-point').hasClass('active')) ? '1' : '0',
@@ -1020,45 +1025,53 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 
 			return nameArray;
 		},
-		addSlivkans: function(nameArray){
+		addSlivkans: function(nameArray) {
 			var entries = $('#slivkan-entry-tab').find('.slivkan-entry-control'),
 			len = nameArray.length;
 
 			for(var i=0; i<len; i++){
-				var name = nameArray[i].slice(0,nameArray[i].length-2),
-				h = nameArray[i].slice(nameArray[i].length-2,nameArray[i].length-1),
+				var name = nameArray[i].slice(0, nameArray[i].length-2),
+				h = nameArray[i].slice(nameArray[i].length-2, nameArray[i].length-1),
 				c = nameArray[i].slice(nameArray[i].length-1);
 
 				var entry = entries.eq(i);
 				entry.find('.slivkan-entry').val(name);
-				submission.validateSlivkanName(entry,(i < len-1));
+				submission.validateSlivkanName(entry, (i < len-1));
 				if(h=='1'){ entry.find('.helper-point').addClass('active'); }
 				if(c=='0'){ entry.find('.committee-point').removeClass('active'); }
 			}
 
 			for(i; i<entries.length; i++){
-				submission.validateSlivkanName(entries.eq(i),true);
+				submission.validateSlivkanName(entries.eq(i), true);
 			}
 		},
-		resetForm: function(force){
+		resetForm: function(force) {
 			if(force === 'force' || window.confirm('Reset form?')){
 				$('.type-btn:last').click();
-				$('#event').val(''); $('.event-control').removeClass('has-success has-warning has-error');
+				$('#event').val('');
+				$('.event-control').removeClass('has-success has-warning has-error');
+
 				$('#date').val(moment().format('ddd, M/D'));
-				$('#description').val(''); $('.description-control').removeClass('has-success has-error');
-				$('#committee').val('Select One'); $('.committee-control').removeClass('has-success has-error');
-				$('#filled-by').val(''); $('.filled-by-control').removeClass('has-success has-error');
+				$('#description').val('');
+				$('.description-control').removeClass('has-success has-error');
+
+				$('#committee').val('Select One');
+				$('.committee-control').removeClass('has-success has-error');
+
+				$('#filled-by').val('');
+				$('.filled-by-control').removeClass('has-success has-error');
+
 				$('#comments').val('');
 
 				$('#slivkan-entry-tab').find('.slivkan-entry-control').slice(15).remove();
 
-				$('#slivkan-entry-tab').find('.slivkan-entry').each(function(){
+				$('#slivkan-entry-tab').find('.slivkan-entry').each(function() {
 					$(this).val('');
-					submission.validateSlivkanName($(this).closest('.form-group'),true);
+					submission.validateSlivkanName($(this).closest('.form-group'), true);
 				});
 				submission.validateSlivkanName($('.slivkan-entry-control').last());
 
-				$('.fellow-entry').each(function(){
+				$('.fellow-entry').each(function() {
 					$(this).val('');
 					submission.validateFellowName($(this).closest('.form-group'));
 				});
@@ -1079,15 +1092,15 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				localStorage.spc_sub_attendees = '';
 			}
 		},
-		submitPointsForm: function(){
+		submitPointsForm: function() {
 			var name, nu_email, val,
 				data = {
 					date: $('#date').val(),
-					type: type.toLowerCase().replace(' ','_'),
+					type: type.toLowerCase().replace(' ', '_'),
 					committee: $('#committee').val(),
 					event_name: $('#event').val(),
 					description: $('#description').val(),
-					filled_by: slivkans[slivkans.indexOfKey('full_name',$('#filled-by').val())].nu_email,
+					filled_by: slivkans[slivkans.indexOfKey('full_name', $('#filled-by').val())].nu_email,
 					comments: $('#comments').val(),
 					attendees: [],
 					helper_points: [],
@@ -1095,10 +1108,10 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 					fellows: []
 				};
 
-			$('#slivkan-entry-tab').find('.slivkan-entry').each(function(){
+			$('#slivkan-entry-tab').find('.slivkan-entry').each(function() {
 				name = $(this).val();
 				if(name.length > 0){
-					nu_email = slivkans[slivkans.indexOfKey('full_name',name)].nu_email;
+					nu_email = slivkans[slivkans.indexOfKey('full_name', name)].nu_email;
 
 					data.attendees.push(nu_email);
 
@@ -1110,7 +1123,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				}
 			});
 
-			$('.fellow-entry').each(function(){
+			$('.fellow-entry').each(function() {
 				name = $(this).val();
 
 				if(name.length > 0){
@@ -1144,13 +1157,13 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 			$('#submit-results').modal('show');
 
 			$('#real-submit').off('click');
-			$('#real-submit').on('click',function(){
-				$.getJSON('./ajax/submitPointsForm.php',data,function(data_in){
+			$('#real-submit').on('click', function() {
+				$.getJSON('./ajax/submitPointsForm.php', data, function(data_in) {
 					$('#results-status').parent().removeClass('warning');
 					if(data_in.error){
 						$('#results-status').text('Error in Step '+data_in.step).parent().addClass('error');
 					}else{
-						$('#unconfirmed').fadeOut({complete: function(){$('#confirmed').fadeIn();}});
+						$('#unconfirmed').fadeOut({complete: function() {$('#confirmed').fadeIn();}});
 						$('#results-status').text('Success!').parent().addClass('success');
 
 						submission.resetForm('force');
@@ -1161,36 +1174,36 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 	},
 
 	faq = {
-		init: function(){
+		init: function() {
 			//nothing to do
 		}
 	},
 
 	inboundPoints = {
-		init: function(){
+		init: function() {
 			$.ajax({
 				url: './ajax/getCalendar.php',
 				type: 'xml',
 				async: true,
-				success: function(xml){
+				success: function(xml) {
 					xml = $.parseXML(xml);
 
 					var events = [];
 
-					$(xml).find('entry').each(function(i, el){
+					$(xml).find('entry').each(function(i, el) {
 						var title = el.childNodes[4].textContent,
 						date = el.childNodes[5].textContent;
-						date = date.slice(6,date.indexOf('to') - 1);
+						date = date.slice(6, date.indexOf('to') - 1);
 
-						var dt = parseInt(moment(date,['ddd MMM DD, YYYY h:mma','ddd MMM DD, YYYY ha']).format('X'),10);
+						var dt = parseInt(moment(date, ['ddd MMM DD, YYYY h:mma', 'ddd MMM DD, YYYY ha']).format('X'), 10);
 
-						events.push([title,date,dt]);
+						events.push([title, date, dt]);
 					});
 
-					events = events.sort(function(a,b){ return a[2] - b[2]; });
+					events = events.sort(function(a, b) { return a[2] - b[2]; });
 
 					for(var i=0; i<events.length; i++){
-						$('<li />').html(events[i][0] + ' ' + events[i][1]).appendTo('#events'); // + ' ' + moment(events[i][2]+'','X').format('ddd MMM DD, YYYY h:mma')
+						$('<li />').html(events[i][0] + ' ' + events[i][1]).appendTo('#events'); // + ' ' + moment(events[i][2]+'', 'X').format('ddd MMM DD, YYYY h:mma')
 					}
 				}
 			});
@@ -1198,8 +1211,8 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 	},
 
 	rankings = {
-		init: function(){
-			$.getJSON('./ajax/getRankings.php',function(data){
+		init: function() {
+			$.getJSON('./ajax/getRankings.php', function(data) {
 				var males = [], females = [], tmp, row, i, j, mtable, ftable,
 					numQtrs = data.qtrs.length,
 					colDefs = [{ sTitle: 'Name', sClass: 'name', sWidth: '140px'}];
@@ -1225,7 +1238,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 					tmp = [row.full_name];
 
 					for(j=0; j<numQtrs; j++){
-						tmp.push(parseInt(row[data.qtrs[j]],10));
+						tmp.push(parseInt(row[data.qtrs[j]], 10));
 					}
 
 					tmp.push(row.total, row.mult, row.total_w_mult, row.abstains);
@@ -1238,13 +1251,13 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				}
 
 				//apply styles for cutoffs
-				males.sort(function(a,b){ return b[numQtrs + 3] - a[numQtrs + 3]; });
-				females.sort(function(a,b){ return b[numQtrs + 3] - a[numQtrs + 3]; });
+				males.sort(function(a, b) { return b[numQtrs + 3] - a[numQtrs + 3]; });
+				females.sort(function(a, b) { return b[numQtrs + 3] - a[numQtrs + 3]; });
 
 				mtable = $('#males_table').dataTable({
 					aaData: males,
 					aoColumns: colDefs,
-					aaSorting: [[numQtrs + 3,'desc']],
+					aaSorting: [[numQtrs + 3, 'desc']],
 					bPaginate: false,
 					bAutoWidth: false,
 					sDom: 't'
@@ -1253,7 +1266,7 @@ define(['jquery','nprogress','moment','hogan'],function ($,NProgress,moment,Hoga
 				ftable = $('#females_table').dataTable({
 					aaData: females,
 					aoColumns: colDefs,
-					aaSorting: [[numQtrs + 3,'desc']],
+					aaSorting: [[numQtrs + 3, 'desc']],
 					bPaginate: false,
 					bAutoWidth: false,
 					sDom: 't'

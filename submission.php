@@ -43,6 +43,10 @@
 		.nav.nav-tabs{
 			margin: 0 15px;
 		}
+
+		.well{
+			margin-bottom: 0;
+		}
 	</style>
 </head>
 <body>
@@ -186,6 +190,7 @@
 					<div class="clearfix"></div>
 				</div>
 			</form>
+			<div class="clearfix"></div>
 		</div><!--content-->
 	</div>
 	<div id="QR-entry" class="modal fade" role="dialog">

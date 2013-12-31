@@ -1,12 +1,16 @@
 {
   "browser": true,
   "esnext": true,
-  "globals": {},
-  "globalstrict": true,
-  "quotmark": true,
+  "globals": {
+    "require": false,
+    "define": false
+  },
+  "latedef": true,
+  "quotmark": "single",
   "smarttabs": true,
   "trailing": true,
   "undef": true,
   "unused": true,
-  "forin": true
+  "forin": true,
+  "indent": 1
 }
