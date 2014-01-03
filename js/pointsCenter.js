@@ -1,6 +1,6 @@
 define(['jquery', 'nprogress', 'moment', 'hogan'], function($, NProgress, moment, Hogan) {
 	'use strict';
-	var slivkans, nicknames, fellows, type = 'Other', valid_event_name = false, quarter_start, quarter_end;
+	var slivkans, nicknames, fellows, events, type = 'Other', valid_event_name = false, quarter_start, quarter_end;
 
 	//add indexOfKey (useful: http://jsperf.com/js-for-loop-vs-array-indexof)
 	Array.prototype.indexOfKey = function(key, value) {
@@ -203,7 +203,6 @@ define(['jquery', 'nprogress', 'moment', 'hogan'], function($, NProgress, moment
 				eventColWidth = 20,
 				totalsColWidth = 24,
 				points_table = JSON.parse(window.points_table),
-				events = points_table.events,
 				by_year = points_table.by_year,
 				by_suite = points_table.by_suite,
 				lastScroll = 0,
@@ -222,6 +221,8 @@ define(['jquery', 'nprogress', 'moment', 'hogan'], function($, NProgress, moment
 						'max-width': width
 					});
 				};
+
+			events = points_table.events;
 
 			$('.table-wrapper').scroll(function() {
 				delay(function() {
@@ -285,9 +286,9 @@ define(['jquery', 'nprogress', 'moment', 'hogan'], function($, NProgress, moment
 				localStorage.spc_tab_noFilter = 1;
 			});
 
-			var i, headers = $('th');
+			var headers = $('th');
 
-			for(i=0; i<events.length; i++){
+			for(var i=0; i<events.length; i++){
 				var en = events[i].event_name,
 					name = en.substr(0, en.length-11),
 					date = en.substr(en.length-5);
@@ -323,8 +324,7 @@ define(['jquery', 'nprogress', 'moment', 'hogan'], function($, NProgress, moment
 		},
 		oTable: null,
 		columnFilter: function() {
-			var events = window.points_table.events,
-				committees = $('#committee-filter').find('option:selected').map(function() { return this.innerHTML; }).get(),
+			var committees = $('#committee-filter').find('option:selected').map(function() { return this.innerHTML; }).get(),
 				ims = $('#im-filter').val(),
 				n = 0;
 
