@@ -274,6 +274,10 @@ define(['jquery', 'nprogress', 'moment', 'hogan'], function($, NProgress, moment
 					buttonClass: 'btn btn-default',
 					onChange: table.columnFilter
 				});
+
+				$('#noFilter').on('click', function() {
+					localStorage.spc_tab_noFilter = 1;
+				});
 			}else{
 				$('.filter').hide();
 				$('#enableFilter').on('click', function() {
@@ -281,10 +285,6 @@ define(['jquery', 'nprogress', 'moment', 'hogan'], function($, NProgress, moment
 				}).show();
 				$('td').css('font-size', '12px');
 			}
-
-			$('#noFilter').on('click', function() {
-				localStorage.spc_tab_noFilter = 1;
-			});
 
 			var headers = $('th');
 
@@ -320,7 +320,6 @@ define(['jquery', 'nprogress', 'moment', 'hogan'], function($, NProgress, moment
 			for(i=0; i<by_suite.length; i++){
 				$('<tr><td>'+by_suite[i][0]+'</td><td>'+by_suite[i][1]+'</td></tr>').appendTo('#suites');
 			}
-			//end filling years and suites
 		},
 		oTable: null,
 		columnFilter: function() {
