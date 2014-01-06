@@ -1,4 +1,4 @@
-define(['jquery', 'nprogress', 'moment', 'hogan'], function($, NProgress, moment, Hogan) {
+define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 	'use strict';
 	var slivkans, nicknames, fellows, events, type = 'Other', valid_event_name = false, quarter_start, quarter_end;
 
@@ -12,13 +12,6 @@ define(['jquery', 'nprogress', 'moment', 'hogan'], function($, NProgress, moment
 
 		return -1;
 	};
-
-	//bind ajax start and stop to nprogress
-	NProgress.configure({
-		trickleRate: 0.1
-	});
-	$(document).on('ajaxStart', NProgress.start);
-	$(document).on('ajaxStop', NProgress.done);
 
 	//functions used by multiple pages
 	var common = {
@@ -61,14 +54,16 @@ define(['jquery', 'nprogress', 'moment', 'hogan'], function($, NProgress, moment
 			});
 		},
 		getSlivkanPoints: function() {
-			var nu_email = $('#slivkan').val();
+			var nu_email = $('#slivkan').val(),
+				attendedEventsEl = $('#attendedEvents'),
+				unattendedEventsEl = $('#unattendedEvents');
 
 			if(nu_email.length > 0){
 				localStorage.spc_brk_slivkan = nu_email;
 
 				$('.breakdown').fadeOut(function() {
-					$('#attendedEvents').empty();
-					$('#unattendedEvents').empty();
+					attendedEventsEl.empty();
+					unattendedEventsEl.empty();
 					$('#otherPointsTableBody').empty();
 
 					$.getJSON('ajax/getPointsBreakdown.php', {nu_email: nu_email, start: quarter_start, end: quarter_end}, function(data) {
@@ -81,24 +76,24 @@ define(['jquery', 'nprogress', 'moment', 'hogan'], function($, NProgress, moment
 
 						if(data.events.attended.length > 0){
 							for(i=data.events.attended.length-1; i>=0; i--){
-								$('#attendedEvents')
+								attendedEventsEl
 									.append($('<tr/>')
 										.append($('<td/>').text(data.events.attended[i].event_name)));
 							}
 						}else{
-							$('#attendedEvents')
+							attendedEventsEl
 								.append($('<tr/>')
 									.append($('<td/>').text('None :(')));
 						}
 
 						if(data.events.unattended.length > 0){
 							for(i=data.events.unattended.length-1; i>=0; i--){
-								$('#unattendedEvents')
+								unattendedEventsEl
 									.append($('<tr/>')
 										.append($('<td/>').text(data.events.unattended[i].event_name)));
 							}
 						}else{
-							$('#unattendedEvents')
+							unattendedEventsEl
 								.append($('<tr/>')
 									.append($('<td/>').text('None :)')));
 						}

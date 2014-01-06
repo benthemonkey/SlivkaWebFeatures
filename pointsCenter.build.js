@@ -54,6 +54,7 @@ require.config({
 require([
 	'jquery',
 	'js/pointsCenter',
+	'nprogress',
 	'bootstrap',
 	'bootstrap-daterangepicker',
 	'bootstrap-multiselect',
@@ -63,12 +64,19 @@ require([
 	'add2home',
 	'stayInWebApp',
 	'typeahead'
-], function($,spc) {
+], function($, spc, NProgress) {
 	'use strict';
 	var page = window.location.pathname;
 	page = page.lastIndexOf('/')+1 == page.length ? 'breakdown' : page.substring(page.lastIndexOf('/')+1, page.length-4);
 
 	$('.' + page + '-link').addClass('active');
+
+	//bind ajax start and stop to nprogress
+	NProgress.configure({
+		trickleRate: 0.1
+	});
+	$(document).on('ajaxStart', NProgress.start);
+	$(document).on('ajaxStop', NProgress.done);
 
 	//mobile app support
 	$.stayInWebApp();

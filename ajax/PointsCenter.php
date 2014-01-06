@@ -386,6 +386,8 @@ class PointsCenter
 			die();
 		}
 
+		if(!$helper_points){ $helper_points = 0; }
+
 		$bonus = array();
 		try {
 			$statement = self::$dbConn->prepare(
