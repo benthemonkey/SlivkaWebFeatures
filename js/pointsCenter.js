@@ -31,6 +31,15 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					'{{#photo}}<img src="img/slivkans/{{photo}}.jpg" />{{/photo}}</div>'].join(''),
 				engine: Hogan
 			};
+		},
+		destroyTypeahead: function(event) {
+			var target = $(this);
+			if(target.hasClass('tt-query')){
+				//needs a delay because typeahead.js seems to not like destroying on focusout
+				setTimeout(function(target) {
+					event.data.callback(target.typeahead('destroy').closest('.form-group'));
+				}, 1, target);
+			}
 		}
 	},
 
@@ -504,11 +513,15 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('#filled-by').typeahead(common.typeaheadOpts('slivkans', slivkans));
 
 				$('#slivkan-entry-tab')	.on('focus', '.slivkan-entry', submission.handlers.slivkanTypeahead)
-										.on('typeahead:closed', '.slivkan-entry.tt-query', submission.handlers.validateSlivkanName)
+										.on('typeahead:closed', '.slivkan-entry.tt-query',
+											{callback: submission.validateSlivkanName},
+											common.destroyTypeahead)
 										.on('click', '.bonus-point', submission.handlers.toggleActive);
 
 				$('#fellow-entry-tab')	.on('focus', '.fellow-entry', submission.handlers.fellowTypeahead)
-										.on('typeahead:closed', '.fellow-entry.tt-query', submission.handlers.validateFellowName);
+										.on('typeahead:closed', '.fellow-entry.tt-query',
+											{callback: submission.validateFellowName},
+											common.destroyTypeahead);
 			});
 
 			/*$('#date').datepicker({
@@ -582,15 +595,6 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					target.typeahead(common.typeaheadOpts('slivkans'+Math.random(), slivkans_tmp)).focus();
 				}
 			},
-			validateSlivkanName: function() {
-				var target = $(this);
-				if(target.hasClass('tt-query')){
-					//needs a delay because typeahead.js seems to not like destroying on focusout
-					setTimeout(function(target) {
-						submission.validateSlivkanName(target.typeahead('destroy').closest('.form-group'));
-					}, 1, target);
-				}
-			},
 			fellowTypeahead: function() {
 				var target = $(this);
 				if(target.closest('.fellow-entry-control').addClass('has-warning').is(':last-child')){
@@ -599,15 +603,6 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				}
 				if(!target.hasClass('tt-query')){
 					target.typeahead(common.typeaheadOpts('fellows', fellows)).focus();
-				}
-			},
-			validateFellowName : function() {
-				var target = $(this);
-				if(target.hasClass('tt-query')){
-					//needs a delay because typeahead.js seems to not like destroying on focusout
-					setTimeout(function(target) {
-						submission.validateFellowName(target.typeahead('destroy').closest('.form-group'));
-					}, 1, target);
 				}
 			},
 			toggleActive : function() {
@@ -984,9 +979,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			}
 		},
 		sortEntries: function() {
-			var nameArray = [];
-
-			nameArray = submission.saveSlivkans();
+			var nameArray = submission.saveSlivkans();
 
 			//clear slivkans
 			$('#slivkan-entry-tab').find('.slivkan-entry').val('');
@@ -1291,6 +1284,150 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				}
 			});
 		}
+	},
+
+	updateSlivkans = {
+		init: function() {
+			$.getJSON('ajax/getSlivkans.php', function(data) {
+				slivkans = data.slivkans;
+				nicknames = data.nicknames;
+
+				//tack on nicknames to slivkans
+				for(var i=0; i<nicknames.length; i++){
+					var ind = slivkans.indexOfKey('nu_email', nicknames[i].nu_email);
+					if(ind !== -1){
+						slivkans[ind].tokens.push(nicknames[i].nickname);
+					}
+				}
+
+				submission.appendSlivkanInputs(9);
+
+				$('#slivkan-entry-tab')	.on('focus', '.slivkan-entry', updateSlivkans.slivkanTypeahead)
+										.on('typeahead:closed', '.slivkan-entry.tt-query',
+											{callback: updateSlivkans.validateSlivkanName},
+											common.destroyTypeahead);
+			});
+
+			$('#committee').on('change', function(event){
+				$('#suite').val('');
+
+				if(event.target.value.length > 0){
+					$.getJSON('ajax/getCommitteeOrSuite.php', {committee: event.target.value}, updateSlivkans.addSlivkans);
+				}
+			});
+
+			$('#suite').on('change', function(event){
+				$('#committee').val('');
+
+				if(event.target.value.length > 0){
+					$.getJSON('ajax/getCommitteeOrSuite.php', {suite: event.target.value}, updateSlivkans.addSlivkans);
+				}
+			});
+
+			$('#submit').on('click', function(){
+				var name,
+					entries = $('#slivkan-entry-tab').find('.slivkan-entry'),
+					committee = $('#committee').val(),
+					suite = $('#suite').val(),
+					nuEmailArray = [];
+
+				for(var i=0; i<entries.length; i++){
+					name = entries.eq(i).val();
+					if(name.length > 0){
+						nuEmailArray.push(slivkans[slivkans.indexOfKey('full_name', name)].nu_email);
+					}
+				}
+
+				if(committee.length > 0){
+					$.getJSON('ajax/submitCommitteeOrSuite.php', {committee: committee, slivkans: nuEmailArray}, function(data){
+						window.alert(data);
+					});
+				}else if(suite.length > 0){
+					$.getJSON('ajax/submitCommitteeOrSuite.php', {suite: suite, slivkans: nuEmailArray}, function(data){
+						window.alert(data);
+					});
+				}
+			});
+		},
+		slivkanTypeahead: function() {
+			var target = $(this);
+
+			if(target.closest('.slivkan-entry-control').addClass('has-warning').is(':last-child')){
+				var num_inputs = $('#slivkan-entry-tab').find('.slivkan-entry').length;
+				if(num_inputs < 20){
+					submission.appendSlivkanInputs(1);
+				}
+			}
+			if(!target.hasClass('tt-query')){
+				target.typeahead(common.typeaheadOpts('slivkans', slivkans)).focus();
+			}
+		},
+		validateSlivkanName: function(entry) {
+			var valid = true,
+			slivkan_entry = entry.find('.slivkan-entry'),
+			name = slivkan_entry.val(),
+			nickname_ind = nicknames.indexOfKey('nickname', name);
+
+			if(nickname_ind != -1){
+				name = slivkans[slivkans.indexOfKey('nu_email', nicknames[nickname_ind].nu_email)].full_name;
+				slivkan_entry.val(name);
+			}
+
+			var nameArray = [];
+
+			//clear duplicates
+			$('#slivkan-entry-tab').find('.slivkan-entry').each(function() {
+				var self = $(this);
+				if(self.val().length > 0){
+					if(nameArray.indexOf(self.val()) == -1){
+						nameArray.push(self.val());
+					}else{
+						self.val('');
+						$('#duplicate-alert').show();
+						submission.validateSlivkanName(self.parent(), true);
+					}
+				}
+			});
+
+			//no names = invalid
+			if(nameArray.length === 0){ valid = false; }
+
+			//update name in case it changed
+			name = slivkan_entry.val();
+
+			entry.removeClass('has-warning');
+
+			if(name.length > 0){
+				if(slivkans.indexOfKey('full_name', name) == -1){ valid=false; }
+				common.updateValidity(entry, valid);
+			}else{
+				entry.removeClass('has-success has-error');
+			}
+
+			return valid;
+		},
+		addSlivkans: function(data) {
+			var entries = $('#slivkan-entry-tab').find('.slivkan-entry-control'),
+				len = data.length;
+
+			entries.find('.slivkan-entry').val('');
+
+			if(entries.length <= len){
+				submission.appendSlivkanInputs(len - entries.length + 1);
+				entries = $('#slivkan-entry-tab').find('.slivkan-entry-control');
+			}
+
+			for(var i=0; i<len; i++){
+				var entry = entries.eq(i),
+					name = slivkans[slivkans.indexOfKey('nu_email', data[i])].full_name;
+				entry.find('.slivkan-entry').val(name);
+				updateSlivkans.validateSlivkanName(entry);
+			}
+
+			for(i; i<entries.length; i++){
+				updateSlivkans.validateSlivkanName(entries.eq(i));
+			}
+		}
 	};
 
 	return {
@@ -1300,6 +1437,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 		submission: submission,
 		faq: faq,
 		inboundPoints: inboundPoints,
-		rankings: rankings
+		rankings: rankings,
+		updateSlivkans: updateSlivkans
 	};
 });

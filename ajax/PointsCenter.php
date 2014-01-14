@@ -697,6 +697,86 @@ class PointsCenter
 		return $abstentions;
 	}
 
+	public function getCommittee ($committee)
+	{
+		$slivkans = array();
+
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT nu_email
+				FROM committees
+				WHERE committee=:committee AND qtr=:qtr");
+			$statement->bindValue(":committee", $committee);
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->execute();
+
+			$slivkans = $statement->fetchAll(PDO::FETCH_COLUMN);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		return $slivkans;
+	}
+
+	public function updateCommittee ($slivkans, $committee)
+	{
+		try {
+			$statement = self::$dbConn->prepare(
+				"INSERT INTO committees (nu_email, committee, qtr) VALUES (?,?,?)
+				ON DUPLICATE KEY UPDATE committee=VALUES(committee)");
+
+			for($s=0; $s < count($slivkans); $s++){
+				$statement->execute(array($slivkans[$s], $committee, self::$qtr));
+			}
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		return true;
+	}
+
+	public function getSuite ($suite)
+	{
+		$slivkans = array();
+
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT nu_email
+				FROM suites
+				WHERE suite=:suite AND qtr=:qtr");
+			$statement->bindValue(":suite", $suite);
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->execute();
+
+			$slivkans = $statement->fetchAll(PDO::FETCH_COLUMN);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		return $slivkans;
+	}
+
+	public function updateSuite ($slivkans, $suite)
+	{
+		try {
+			$statement = self::$dbConn->prepare(
+				"INSERT INTO suites (nu_email, suite, qtr) VALUES (?,?,?)
+				ON DUPLICATE KEY UPDATE suite=VALUES(suite)");
+
+			for($s=0; $s < count($slivkans); $s++){
+				$statement->execute(array($slivkans[$s], $suite, self::$qtr));
+			}
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		return true;
+	}
+
 	public function submitPointsForm ($get)
 	{
 		$real_event_name = $get['event_name'] . " " . $get['date'];
