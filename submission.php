@@ -224,7 +224,7 @@
 				</div>
 				<div class="modal-footer">
 					<div id="unconfirmed">
-						<button type="button" class="btn btn-primary" id="real-submit">Submit</button>
+						<button type="button" class="btn btn-primary" id="real-submit" data-loading-text="Sending...">Submit</button>
 						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 					</div>
 					<div id="confirmed" style="display: none;">

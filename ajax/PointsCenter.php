@@ -895,6 +895,27 @@ class PointsCenter
 			}
 		}
 
+		#email VP a notification?
+		if($GLOBALS['VP_EMAIL_POINT_SUBMISSION_NOTIFICATIONS']){
+			$html = "<table border=\"1\">";
+
+			foreach($get as $key => $value){
+				$html .= "<tr><td style=\"text-align:right;\">";
+
+				if(is_array($value)){
+					$html .=  $key . "</td><td>" . implode(", ", $value);
+				}else{
+					$html .= $key . "</td><td>" . $value;
+				}
+
+				$html .= "</td></tr>\n";
+			}
+
+			$html .= "</table>";
+
+			self::sendEmail(null, "Points Submitted for " . $real_event_name, $html);
+		}
+
 		return self::$dbConn->commit();
 	}
 
@@ -1051,10 +1072,14 @@ class PointsCenter
 	{
 		$from = array($GLOBALS['VP_EMAIL'] => $GLOBALS['VP_NAME']);
 
-		$to = array(
-			$to_email . "@u.northwestern.edu" => $to_email,
-			$GLOBALS['VP_EMAIL_BOT'] => $GLOBALS['VP_NAME'] . "'s Copy"
-		);
+		if($to_email){
+			$to = array(
+				$to_email . "@u.northwestern.edu" => $to_email,
+				$GLOBALS['VP_EMAIL_BOT'] => $GLOBALS['VP_NAME'] . "'s Copy"
+			);
+		}else{
+			$to = array($GLOBALS['VP_EMAIL'] => $GLOBALS['VP_NAME']);
+		}
 
 		$transport = Swift_SmtpTransport::newInstance('smtp.gmail.com', 465, 'ssl')
 			->setUsername($GLOBALS['VP_EMAIL'])

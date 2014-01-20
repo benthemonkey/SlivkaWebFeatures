@@ -642,20 +642,20 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			}
 
 			switch(type){
-				case 'P2P':
-					$('#committee').val('Faculty');
-					$('#event').val('P2P');
-					break;
-				case 'IM':
-					$('#committee').val('Social');
-					submission.validateIMTeam();
-					break;
-				case 'House Meeting':
-					$('#committee').val('Exec');
-					$('#event').val('House Meeting');
-					break;
-				default:
-					$('#event').val('');
+			case 'P2P':
+				$('#committee').val('Faculty');
+				$('#event').val('P2P');
+				break;
+			case 'IM':
+				$('#committee').val('Social');
+				submission.validateIMTeam();
+				break;
+			case 'House Meeting':
+				$('#committee').val('Exec');
+				$('#event').val('House Meeting');
+				break;
+			default:
+				$('#event').val('');
 			}
 
 			submission.validateEventName();
@@ -710,7 +710,15 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			return valid;
 		},
 		validateEventName: function() {
-			var valid = false, event_name = $('#event').val();
+			var valid = false,
+				event_name = $('#event').val(),
+				event_name_trimmed = event_name.replace(/^\s+|\s+$/g, '');
+
+			//errors abound in the PHP with trailing whitespace
+			if(event_name.length > event_name_trimmed.length){
+				$('#event').val(event_name_trimmed);
+				event_name = event_name_trimmed;
+			}
 
 			//store value
 			localStorage.spc_sub_name = event_name;
@@ -718,7 +726,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			valid_event_name = false;
 
 			if((event_name.length <= 32 && event_name.length >= 8) || event_name == 'P2P'){
-				event_name += [' ', $('#date').val()].join('');
+				event_name += ' ' + $('#date').val();
 
 				$.getJSON('ajax/getEvents.php', function(events) {
 					$('.event-control').removeClass('has-warning');
@@ -1143,14 +1151,26 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			$('#submit-results').modal('show');
 
-			$('#real-submit').off('click');
-			$('#real-submit').on('click', function() {
+			var real_submit = $('#real-submit');
+
+			real_submit.off('click');
+			real_submit.on('click', function() {
+				real_submit.button('loading');
+
 				$.getJSON('./ajax/submitPointsForm.php', data, function(data_in) {
+					real_submit.button('reset');
 					$('#results-status').parent().removeClass('warning');
 					if(data_in.error){
 						$('#results-status').text('Error in Step '+data_in.step).parent().addClass('error');
 					}else{
 						$('#unconfirmed').fadeOut({complete: function() {$('#confirmed').fadeIn();}});
+
+						//reset buttons once modal closes
+						$('#submit-results').on('hidden.bs.modal', function() {
+							$('#confirmed').hide();
+							$('#unconfirmed').show();
+						});
+
 						$('#results-status').text('Success!').parent().addClass('success');
 
 						submission.resetForm('force');
