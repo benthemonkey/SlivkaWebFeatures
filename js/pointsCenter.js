@@ -231,12 +231,14 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			tableWrapper.scroll(function() {
 				delay(function() {
-					var scroll = tableWrapper.scrollLeft(),
-						round = lastScroll < scroll ? Math.ceil : Math.floor;
+					if($('body').width() > 768){
+						var scroll = tableWrapper.scrollLeft(),
+							round = lastScroll < scroll ? Math.ceil : Math.floor;
 
-					if(lastScroll != scroll){
-						lastScroll = round(scroll/eventColWidth) * eventColWidth;
-						tableWrapper.scrollLeft(lastScroll);
+						if(lastScroll != scroll){
+							lastScroll = round(scroll/eventColWidth) * eventColWidth;
+							tableWrapper.scrollLeft(lastScroll);
+						}
 					}
 				}, 100);
 			});
