@@ -28,7 +28,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				valueKey: 'full_name',
 				local: slivkans,
 				template: ['<div class="slivkan-suggestion{{#dupe}} slivkan-dupe{{/dupe}}">{{full_name}}',
-					'{{#photo}}<img src="img/slivkans/{{photo}}.jpg" />{{/photo}}</div>'].join(''),
+							'{{#photo}}<img src="img/slivkans/{{photo}}.jpg" />{{/photo}}</div>'].join(''),
 				engine: Hogan
 			};
 		},
@@ -203,9 +203,10 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 	table = {
 		init: function() {
-			var nameColWidth = 170,
-				eventColWidth = 20,
-				totalsColWidth = 24,
+			var nameColWidth = $('.nameHeader').width(),//170,
+				eventColWidth = $('.eventHeader').width(),//20,
+				totalsColWidth = $('.totalsHeader').width(),//24,
+				tableWrapper = $('.table-wrapper'),
 				points_table = JSON.parse(window.points_table),
 				by_year = points_table.by_year,
 				by_suite = points_table.by_suite,
@@ -218,7 +219,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					};
 				})(),
 				adjustWidth = function() {
-					var width = ($('.table-wrapper').width() - nameColWidth - 6*totalsColWidth - 2) + 'px';
+					var width = (tableWrapper.width() - nameColWidth - 6*totalsColWidth - 2) + 'px';
 					$('.endHeader').css({
 						'width': width,
 						'min-width': width,
@@ -228,14 +229,14 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			events = points_table.events;
 
-			$('.table-wrapper').scroll(function() {
+			tableWrapper.scroll(function() {
 				delay(function() {
-					var scroll = $('.table-wrapper').scrollLeft(),
+					var scroll = tableWrapper.scrollLeft(),
 						round = lastScroll < scroll ? Math.ceil : Math.floor;
 
 					if(lastScroll != scroll){
 						lastScroll = round(scroll/eventColWidth) * eventColWidth;
-						$('.table-wrapper').scrollLeft(lastScroll);
+						tableWrapper.scrollLeft(lastScroll);
 					}
 				}, 100);
 			});
@@ -283,7 +284,8 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					localStorage.spc_tab_noFilter = 1;
 				});
 			}else{
-				$('.filter').hide();
+				$('.filter').not('.dropdown').hide();
+				$('#noFilter').hide();
 				$('#enableFilter').on('click', function() {
 					localStorage.spc_tab_noFilter = 0;
 				}).show();

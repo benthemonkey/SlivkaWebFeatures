@@ -77,8 +77,9 @@ td.name{
   margin-bottom: 0;
 }
 
-.fix-top{
-  margin: 20px 5px 0;
+.btn-link{
+  position: relative;
+  top: -8px;
 }
 
 th{
@@ -174,6 +175,10 @@ th{
   margin: 0 5px;
 }
 
+.fix-top{
+  margin: 20px 5px 0;
+}
+
 tr:nth-child(even) td.name, tr:nth-child(even) td.totals{ background-color: #FFFFFF; }
 tr:nth-child(odd)  td.name, tr:nth-child(odd)  td.totals{ background-color: #F0F0F0; }
 
@@ -223,7 +228,7 @@ th:hover {
 }
 
 @media (max-width: 768px){
-  .table-wrapper{
+  .table-wrapper, .alert, .legend{
     font-size: 12px;
   }
 
@@ -243,5 +248,9 @@ th:hover {
 
   .nameHeader > div{
     display: none;
+  }
+
+  .fix-top{
+    margin-top: 5px;
   }
 }

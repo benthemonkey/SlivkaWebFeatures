@@ -4,6 +4,8 @@ include_once "./ajax/PointsCenter.php";
 $points_center = new PointsCenter($_GET['qtr']);
 
 $showall = $_GET['all'] == '1';
+$qtr = $_GET['qtr'];
+$quarters = array_reverse($points_center->getQuarters());
 $points_table = $points_center->getPointsTable($showall);
 
 ?>
@@ -24,17 +26,16 @@ $points_table = $points_center->getPointsTable($showall);
 				<div class="col-md-4">
 					<div class="alert alert-info">
 						<p>Hover over names for info, click arrows to sort.</p>
-						<p>Showing <?php echo count($points_table['events']); ?> events.
-							<strong>
-							<?php
+						<p><?php
+							echo "Showing " . count($points_table['events']) . " events. ";
+							if(count($points_table['events']) >= 20){
 								if(!$showall){
-									echo '<a href="./table.php?all=1">Show All</a>';
+									echo '<a href="./table.php?all=1&qtr=' . $qtr . '"><strong>Show All</strong></a>';
 								}else{
-									echo '<a href="./table.php">Reset</a>';
+									echo '<a href="./table.php?qtr=' . $qtr . '"><strong>Reset</strong></a>';
 								}
-							?>
-							</strong>
-						</p>
+							}
+						?></p>
 					</div>
 					<table id="legend" class="legend">
 						<tr class="odd" style="background-color: white;">
@@ -47,6 +48,11 @@ $points_table = $points_center->getPointsTable($showall);
 					</table>
 				</div>
 				<div class="col-md-8 filter-row" style="display: none;">
+					<div style="float:right;height:0;">
+						<a href="./table.php" id="noFilter" class="btn btn-link btn-sm pull-right">Disable Sorting and Filtering</a>
+						<a href="./table.php" id="enableFilter" class="btn btn-link btn-sm pull-right" style="display: none;">Enable Sorting and Filtering</a>
+					</div>
+					<div class="col-xs-12 visible-xs">&nbsp;</div>
 					<div class="filter">
 						<label>Name:<br/>
 							<input type="text" class="form-control" id="name-filter">
@@ -61,7 +67,7 @@ $points_table = $points_center->getPointsTable($showall);
 							</select>
 						</label>
 					</div>
-					<div class="filter">
+					<div class="filter" style="width:62px;">
 						<label>IMs:<br/>
 							<select class="form-control" id="im-filter">
 								<option value="0">All</option>
@@ -86,9 +92,21 @@ $points_table = $points_center->getPointsTable($showall);
 							</select>
 						</label>
 					</div>
+					<div class="filter dropdown fix-top">
+						<a class="btn btn-default" data-toggle="dropdown" href="#">Quarter <b class="caret"></b></a>
+						<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+<?php
+	$indent = "\t\t\t\t\t\t\t";
+
+	echo $indent . '<li><a href="./table.php">' . $quarters[0]['quarter'] . "</a></li>\n";
+
+	for($i=1; $i<count($quarters); $i++){
+		echo $indent . '<li><a href="./table.php?all=1&qtr=' . $quarters[$i]['qtr'] . '">' . $quarters[$i]['quarter'] . "</a></li>\n";
+	}
+?>
+						</ul>
+					</div>
 					<a href="#stats" class="btn btn-default show-stats fix-top" data-toggle="modal">Stats</a>
-					<a href="./table.php" id="noFilter" class="btn btn-default filter btn-sm pull-right">Disable Sorting<br/>and Filtering</a>
-					<a href="./table.php" id="enableFilter" class="btn btn-default fix-top" style="display: none;">Enable Sorting and Filtering</a>
 				</div>
 			</div>
 			</div>
@@ -98,47 +116,29 @@ $points_table = $points_center->getPointsTable($showall);
 						<tr>
 							<th class="nameHeader"><div><div></div></div><span>Name</span></th>
 							<th style="display:none;"></th>
-							<?php
-								for($i=0; $i<count($points_table['events']); $i++){
-									echo '<th class="eventHeader"><div class="slantedHeader"><span>' . substr($points_table['events'][$i]['event_name'],0,-11) . '</span></div><div class="sort-icon"></div></th>' . "\n";
-								}
-							?>
-							<th class="totalsHeader">
-								<div class="slantedHeader">
-									<span>Events Total</span>
-								</div>
-								<div class="sort-icon"></div>
-							</th>
-							<th class="totalsHeader">
-								<div class="slantedHeader">
-									<span>Helper Points</span>
-								</div>
-								<div class="sort-icon"></div>
-							</th>
-							<th class="totalsHeader">
-								<div class="slantedHeader">
-									<span>IM Sports</span>
-								</div>
-								<div class="sort-icon"></div>
-							</th>
-							<th class="totalsHeader">
-								<div class="slantedHeader">
-									<span>Standing Committees</span>
-								</div>
-								<div class="sort-icon"></div>
-							</th>
-							<th class="totalsHeader">
-								<div class="slantedHeader">
-									<span>Other</span>
-								</div>
-								<div class="sort-icon"></div>
-							</th>
-							<th class="totalsHeader">
-								<div class="slantedHeader">
-									<span>Total</span>
-								</div>
-								<div class="sort-icon"></div>
-							</th>
+<?php
+	$indent = "\t\t\t\t\t\t\t";
+
+	for($i=0; $i<count($points_table['events']); $i++){
+		echo $indent . "<th class=\"eventHeader\">\n" .
+			$indent . "\t<div class=\"slantedHeader\">\n" .
+			$indent . "\t\t<span>" . substr($points_table['events'][$i]['event_name'],0,-11) . "</span>\n" .
+			$indent . "\t</div>\n" .
+			$indent . "\t<div class=\"sort-icon\"></div>\n" .
+			$indent . "</th>\n";
+	}
+
+	$totalsColumns = array("Events Total", "Helper Points", "IM Sports", "Standing Committees", "Other", "Total");
+
+	for($i=0; $i<count($totalsColumns); $i++){
+		echo $indent . "<th class=\"totalsHeader\">\n" .
+			$indent . "\t<div class=\"slantedHeader\">\n" .
+			$indent . "\t\t<span>" . $totalsColumns[$i] . "</span>\n" .
+			$indent . "\t</div>\n" .
+			$indent . "\t<div class=\"sort-icon\"></div>\n" .
+			$indent . "</th>\n";
+	}
+?>
 							<th class="endHeader">
 								<div class="slantedHeader"></div>
 								<div class="sort-icon"></div>
@@ -146,42 +146,48 @@ $points_table = $points_center->getPointsTable($showall);
 						</tr>
 					</thead>
 					<tbody>
-						<?php
-							$odd = true;
+<?php
+	$odd = true;
+	$indent = "\t\t\t\t\t\t";
 
-							foreach($points_table['points_table'] AS $tr){
-								if($odd){
-									$odd = false;
-									echo '<tr class="odd">';
-								}else{
-									$odd = true;
-									echo '<tr class="even">';
-								}
+	foreach($points_table['points_table'] AS $tr){
+		if($odd){
+			$odd = false;
+			echo $indent . "<tr class=\"odd\">\n";
+		}else{
+			$odd = true;
+			echo $indent . "<tr class=\"even\">\n";
+		}
 
-								$rowcount = count($tr);
+		$rowcount = count($tr);
 
-								for($i=0; $i<$rowcount; $i++){
-									$td = $tr[$i];
+		for($i=0; $i<$rowcount; $i++){
+			$td = $tr[$i];
 
-									if($i == 0){
-										echo '<td class="name">' . $td . '</td>';
-									}else if($i == 1){
-										echo '<td class="gender gender-' . $td . '">' . $td . '</td>';
-									}else if($i >= $rowcount - 6){
-										echo '<td class="totals">' . $td . '</td>';
-									}else if($td == 1){
-										echo '<td class="green">' . $td . '</td>';
-									}else if($td == 1.1 || $td == 0.1){
-										echo '<td class="gold">' . $td . '</td>';
-									}else if($td == 1.2 || $td == 0.2){
-										echo '<td class="blue">' . $td . '</td>';
-									}else{
-										echo '<td>' . $td . '</td>';
-									}
-								}
-								echo '<td class="end"></td></tr>' . "\n";
-							}
-						?>
+			echo $indent . "\t";
+
+			if($i == 0){
+				echo '<td class="name">';
+			}else if($i == 1){
+				echo '<td class="gender">';
+			}else if($i >= $rowcount - 6){
+				echo '<td class="totals">';
+			}else if($td == 1){
+				echo '<td class="green">';
+			}else if($td == 1.1 || $td == 0.1){
+				echo '<td class="gold">';
+			}else if($td == 1.2 || $td == 0.2){
+				echo '<td class="blue">';
+			}else{
+				echo '<td>';
+			}
+
+			echo $td . "</td>\n";
+		}
+		echo $indent . "\t<td class=\"end\"></td>\n" .
+			$indent . "</tr>\n";
+	}
+?>
 					</tbody>
 				</table>
 			</div>
@@ -212,6 +218,7 @@ $points_table = $points_center->getPointsTable($showall);
 		</div>
 	</div>
 	<script type="text/javascript">
+		window.qtr = <?php if($qtr){echo $qtr;}else{echo 'null';} ?>;
 		window.points_table = '<?php echo wordwrap(addslashes(json_encode(array("events"=>$points_table['events'], "by_year"=>$points_table['by_year'], "by_suite"=>$points_table['by_suite']))),800,"'+\n'")?>'
 	</script>
 	<?php include('footer.html'); ?>

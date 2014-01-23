@@ -41,6 +41,25 @@ class PointsCenter
 		return self::$qtr;
 	}
 
+	public function getQuarters ()
+	{
+		$quarters = array();
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT qtr,quarter
+				FROM quarters
+				WHERE 1301<qtr");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->execute();
+			$quarters = $statement->fetchAll(PDO::FETCH_ASSOC);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		return $quarters;
+	}
+
 	public function getQuarterInfo ()
 	{
 		$quarter_info;
