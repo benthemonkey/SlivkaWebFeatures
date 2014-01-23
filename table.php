@@ -13,7 +13,7 @@ $points_table = $points_center->getPointsTable($showall);
 <html lang="en">
 <head>
 	<?php include('header.html'); ?>
-	<meta name="viewport" content="user-scalable=yes">
+	<!--meta name="viewport" content="user-scalable=yes"-->
 	<title>Table - Slivka Points Center</title>
 	<link rel="stylesheet" href="css/pointsTable.css" />
 </head>
