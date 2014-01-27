@@ -253,11 +253,6 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				table.oTable = $('#table').dataTable({
 					aoColumnDefs: [
 						{ aTargets: ['_all'], asSorting: ['desc', 'asc'] },
-						{ aTargets: ['eventHeader'], fnCreatedCell: function(nTd, sData) {
-							if(sData != '1'){
-								$(nTd).html($(nTd).html().substr(0, 1));
-							}
-						}},
 						{ aTargets: [-1], bSortable: false }
 					],
 					bPaginate: false,

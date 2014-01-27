@@ -175,8 +175,10 @@ $points_table = $points_center->getPointsTable($showall);
 			}else if($td == 1){
 				echo '<td class="green">';
 			}else if($td == 1.1 || $td == 0.1){
+				$td = floor($td);
 				echo '<td class="gold">';
 			}else if($td == 1.2 || $td == 0.2){
+				$td = floor($td);
 				echo '<td class="blue">';
 			}else{
 				echo '<td>';
