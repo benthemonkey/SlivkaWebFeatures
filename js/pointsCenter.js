@@ -1302,6 +1302,13 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					}
 				}
 			});
+
+			$('#update').on('click', function() {
+				$('#update').button('loading');
+				$.getJSON('ajax/updateTotals.php', function() {
+					window.location.reload();
+				});
+			});
 		}
 	},
 

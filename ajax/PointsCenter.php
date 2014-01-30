@@ -564,6 +564,7 @@ class PointsCenter
 			die();
 		}
 		$count = count($slivkans);
+		$is_housing = $GLOBALS['IS_HOUSING'] == true;
 
 		for($s=0; $s<$count; $s++){
 			$y_join = round($slivkans[$s]['qtr_joined'],-2);
@@ -576,6 +577,11 @@ class PointsCenter
 			$q_acc = $q_this - $q_join;
 
 			$q_total = $q_acc + 3 * $y_acc - $slivkans[$s]['qtrs_away'];
+
+			# give multiplier for current qtr if it isnt housing
+			if (!$is_housing) {
+				$q_total += 1;
+			}
 
 			$mult = 1 + 0.1 * $q_total;
 
@@ -643,11 +649,6 @@ class PointsCenter
 				$t = (int) $totals[$rankings[$i]['nu_email']][$j] OR 0;
 				$rankings[$i][$qtrs[$j]] = $t;
 				$sum += $t;
-			}
-
-			# give multiplier for current qtr if it isnt housing
-			if (!$is_housing) {
-				$rankings[$i]['mult'] += 0.1;
 			}
 
 			$rankings[$i]['total'] = $sum;
@@ -742,6 +743,13 @@ class PointsCenter
 	{
 		try {
 			$statement = self::$dbConn->prepare(
+				"DELETE FROM committees WHERE qtr=:qtr AND committee=:committee AND
+				nu_email NOT IN ('".implode("','",$slivkans)."')");
+			$statement->bindValue(':qtr', self::$qtr);
+			$statement->bindValue(':committee', $committee);
+			$statement->execute();
+
+			$statement = self::$dbConn->prepare(
 				"INSERT INTO committees (nu_email, committee, qtr) VALUES (?,?,?)
 				ON DUPLICATE KEY UPDATE committee=VALUES(committee)");
 
@@ -781,6 +789,13 @@ class PointsCenter
 	public function updateSuite ($slivkans, $suite)
 	{
 		try {
+			$statement = self::$dbConn->prepare(
+				"DELETE FROM suites WHERE qtr=:qtr AND suite=:suite AND
+				nu_email NOT IN ('".implode("','",$slivkans)."')");
+			$statement->bindValue(':qtr', self::$qtr);
+			$statement->bindValue(':suite', $suite);
+			$statement->execute();
+
 			$statement = self::$dbConn->prepare(
 				"INSERT INTO suites (nu_email, suite, qtr) VALUES (?,?,?)
 				ON DUPLICATE KEY UPDATE suite=VALUES(suite)");
