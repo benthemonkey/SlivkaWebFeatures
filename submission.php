@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . "/ajax/datastoreVars.php"; ?>
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
@@ -228,7 +229,7 @@
 						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 					</div>
 					<div id="confirmed" style="display: none;">
-						<span>If an error occurs, email the receipt to Ben Rothman.</span>
+						<span>If an error occurs, email the receipt to <?php echo $GLOBALS['VP_NAME']; ?>.</span>
 						<a href="table.php" class="btn btn-primary">View Points</a>
 					</div>
 				</div>

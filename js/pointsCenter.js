@@ -369,7 +369,11 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			$.getJSON('ajax/getEvents.php', function(events) {
 				for(var i=events.length-1; i>=0; i--){
-					$('<option></option>').text(events[i].event_name).appendTo('#event-name');
+					if(events[i].type == 'p2p'){
+						$('<option disabled="disabled"></option>').text(events[i].event_name).appendTo('#event-name');
+					}else{
+						$('<option></option>').text(events[i].event_name).appendTo('#event-name');
+					}
 				}
 			});
 
@@ -1225,7 +1229,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 				for(i=0; i<numQtrs; i++){
 					colDefs.push({
-						sTitle: data.qtrs[i]+'',
+						sTitle: rankings.qtrToQuarter(data.qtrs[i]),
 						sWidth: '20px'
 					});
 				}
@@ -1309,6 +1313,20 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					window.location.reload();
 				});
 			});
+		},
+
+		qtrToQuarter: function(qtr) {
+			var yr = Math.floor(qtr / 100),
+				q = qtr - yr * 100;
+
+			switch (q) {
+				case 1:
+					return 'Winter 20' + yr;
+				case 2:
+					return 'Spring 20' + yr;
+				case 3:
+					return 'Fall 20' + yr;
+			}
 		}
 	},
 
