@@ -5,6 +5,10 @@
 	<title>Rankings</title>
 	<link rel="stylesheet" href="./bower_components/datatables/media/css/jquery.dataTables.css" />
 	<style>
+	body {
+		min-width: 600px;
+	}
+
 	.legend {
 		padding: 10px;
 		text-align: center;
@@ -30,14 +34,20 @@
 			<?php include('nav.html'); ?>
 			<div class="col-lg-12">
  				<div class="row">
-					<div class="col-lg-12">
-						<p>If you know someone who is listed above the cutoff but doesn't plan on living in Slivka next year, have them email the VP.</p>
-						<p>Please don't spam the "Update Data" button. It only needs to be pressed when new points come in.</p>
+					<div class="col-lg-12 alert alert-info">
+						<h4>Disclaimers! The following information may <strong><em>increase</em></strong> between now and Housing:</h4>
+						<ul>
+							<li>The number of Slivkan males/females above the cutoff</li>
+							<li>Additional Slivkans abstaining</li>
+							<li>Committee Points</li>
+							<li>Special Position Points (e.g. Eco Rep)</li>
+							<li>Event Points for the rest of the quarter</li>
+						</ul>
 					</div>
 				</div>
 				<div class="row" style="margin-bottom:10px">
 					<div class="col-lg-5 legend" style="background-color:#00D10E;">
-						Above Points Cutoff (<strong>*NOT FINAL*</strong>)
+						Above Points Cutoff <strong><em>NOT FINAL</em></strong>
 					</div>
 					<div class="col-lg-5 legend" style="background-color:#FF8F8F;">
 						Abstaining from Housing or Below Points Minimum

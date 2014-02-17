@@ -1225,7 +1225,16 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			$.getJSON('./ajax/getRankings.php', function(data) {
 				var males = [], females = [], tmp, row, i, j, mtable, ftable,
 					numQtrs = data.qtrs.length,
-					colDefs = [{ sTitle: 'Name', sClass: 'name', sWidth: '140px'}];
+					colDefs = [
+						{ sTitle: '#', sClass: 'num', sWidth: '5px' },
+						{ sTitle: 'Name', sClass: 'name', sWidth: '140px' }
+					];
+
+				//use 39 and 39 if it isn't housing
+				if(!data.is_housing){
+					data.males = 39;
+					data.females = 39;
+				}
 
 				for(i=0; i<numQtrs; i++){
 					colDefs.push({
@@ -1245,7 +1254,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 				for(i=0; i<data.rankings.length; i++){
 					row = data.rankings[i];
-					tmp = [row.full_name];
+					tmp = ['', row.full_name];
 
 					for(j=0; j<numQtrs; j++){
 						tmp.push(parseInt(row[data.qtrs[j]], 10));
@@ -1261,13 +1270,13 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				}
 
 				//apply styles for cutoffs
-				males.sort(function(a, b) { return b[numQtrs + 3] - a[numQtrs + 3]; });
-				females.sort(function(a, b) { return b[numQtrs + 3] - a[numQtrs + 3]; });
+				males.sort(function(a, b) { return b[numQtrs + 4] - a[numQtrs + 4]; });
+				females.sort(function(a, b) { return b[numQtrs + 4] - a[numQtrs + 4]; });
 
 				mtable = $('#males_table').dataTable({
 					aaData: males,
 					aoColumns: colDefs,
-					aaSorting: [[numQtrs + 3, 'desc']],
+					aaSorting: [[numQtrs + 4, 'desc']],
 					bPaginate: false,
 					bAutoWidth: false,
 					sDom: 't'
@@ -1276,7 +1285,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				ftable = $('#females_table').dataTable({
 					aaData: females,
 					aoColumns: colDefs,
-					aaSorting: [[numQtrs + 3, 'desc']],
+					aaSorting: [[numQtrs + 4, 'desc']],
 					bPaginate: false,
 					bAutoWidth: false,
 					sDom: 't'
@@ -1286,10 +1295,10 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				row = mtable.find('tr');
 
 				for(i=0; i<males.length; i++){
-					if(males[i][numQtrs+4]){
+					if(males[i][numQtrs+5]){
 						row.eq(i+1).addClass('red');
 					}else if(j<data.males){
-						row.eq(i+1).addClass('green');
+						row.eq(i+1).addClass('green').find('.num').text(j+1);
 						j++;
 					}
 				}
@@ -1298,10 +1307,10 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				row = ftable.find('tr');
 
 				for(i=0; i<females.length; i++){
-					if(females[i][numQtrs+4]){
+					if(females[i][numQtrs+5]){
 						row.eq(i+1).addClass('red');
 					}else if(j<data.females){
-						row.eq(i+1).addClass('green');
+						row.eq(i+1).addClass('green').find('.num').text(j+1);
 						j++;
 					}
 				}

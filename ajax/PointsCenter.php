@@ -656,7 +656,7 @@ class PointsCenter
 			$rankings[$i]['abstains'] = in_array($rankings[$i]['nu_email'], $abstentions) || $rankings[$i]['total_w_mult'] < $house_meetings;
 		}
 
-		return array('rankings' => $rankings, 'qtrs' => $qtrs, 'males' => $GLOBALS['HOUSING_MALES'], 'females' => $GLOBALS['HOUSING_FEMALES']);
+		return array('rankings' => $rankings, 'qtrs' => $qtrs, 'males' => $GLOBALS['HOUSING_MALES'], 'females' => $GLOBALS['HOUSING_FEMALES'], 'is_housing' => $is_housing);
 	}
 
 	public function updateTotals ()
@@ -1016,8 +1016,8 @@ class PointsCenter
 		to respond to this request. Please do so within 2 days of receiving this email.</p>
 		<p style=\"padding: 10; width: 70%\">" . $get['name'] . "'s comment: " . $get['comments'] . "</p>
 		<ul>
-			<li><a href=\"http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php?key=$key&reply=$enc1\">" . $get['name'] . " was at " . $get['event_name'] . "</a></li><br/>
-			<li><a href=\"http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php?key=$key&reply=$enc2\">" . $get['name'] . " was NOT at " . $get['event_name'] . "</a></li><br/>
+			<li><a href=\"http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php?key=$key&reply=$enc1\">" . $get['name'] . " was at " . $get['event_name'] . "</a></li>
+			<li><a href=\"http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php?key=$key&reply=$enc2\">" . $get['name'] . " was NOT at " . $get['event_name'] . "</a></li>
 			<li><a href=\"http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php?key=$key&reply=$enc3\">Not sure</a></li>
 		</ul>
 
