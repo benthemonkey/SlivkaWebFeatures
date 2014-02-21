@@ -46,14 +46,11 @@
 					</div>
 				</div>
 				<div class="row" style="margin-bottom:10px">
-					<div class="col-lg-5 legend" style="background-color:#00D10E;">
+					<div class="col-lg-6 legend" style="background-color:#00D10E;">
 						Above Points Cutoff <strong><em>NOT FINAL</em></strong>
 					</div>
-					<div class="col-lg-5 legend" style="background-color:#FF8F8F;">
+					<div class="col-lg-6 legend" style="background-color:#FF8F8F;">
 						Abstaining from Housing or Below Points Minimum
-					</div>
-					<div class="col-lg-2">
-						<a class="btn btn-block btn-default" id="update" data-loading-text="Calculating...">Update Data</a>
 					</div>
 				</div>
 				<ul class="nav nav-tabs" id="tabs">
