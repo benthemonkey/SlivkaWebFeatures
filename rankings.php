@@ -37,7 +37,7 @@
 					<div class="col-lg-12 alert alert-info">
 						<h4>Disclaimers! The following information may <strong><em>increase</em></strong> between now and Housing:</h4>
 						<ul>
-							<li>The number of Slivkan males/females above the cutoff</li>
+							<li>The number of Slivkan males/females allowed to return</li>
 							<li>Additional Slivkans abstaining</li>
 							<li>Committee Points</li>
 							<li>Special Position Points (e.g. Eco Rep)</li>
