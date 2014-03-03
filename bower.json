@@ -8,6 +8,7 @@
     "bootstrap": "3.x",
     "stayInWebApp": "mrmoses/jQuery.stayInWebApp",
     "datatables": "*",
+    "highcharts": "3.0.5",
     "typeahead.js": "0.9.x",
     "hogan": "3.0.0",
     "nprogress": "0.1.2",
