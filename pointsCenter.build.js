@@ -6,7 +6,7 @@ require.config({
 		'bootstrap-switch': 'bower_components/bootstrap-switch/build/js/bootstrap-switch',
 		datatables: 'bower_components/datatables/media/js/jquery.dataTables',
 		highcharts: 'bower_components/highcharts/highcharts',
-		hogan: 'bower_components/hogan/lib/hogan',
+		hogan: 'bower_components/hogan/web/builds/2.0.0/hogan-2.0.0.amd',
 		jquery: 'bower_components/jquery/jquery',
 		moment: 'bower_components/moment/moment',
 		nprogress: 'bower_components/nprogress/nprogress',

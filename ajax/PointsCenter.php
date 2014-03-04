@@ -1023,7 +1023,7 @@ class PointsCenter
 
 		<p style=\"padding: 10; width: 70%\">If you received this email in error, please contact " . $GLOBALS['VP_EMAIL'] . "</p>";
 
-		return self::sendEmail($filled_by,"Slivka Points Correction (Automated)",$html);
+		return self::sendEmail($filled_by,"Points Correction (Automated)",$html);
 	}
 
 	public function pointsCorrectionReply($get)
@@ -1099,25 +1099,25 @@ class PointsCenter
 
 			<p style=\"padding: 10; width: 70%\">If you received this email in error, please contact " . $GLOBALS['VP_EMAIL'] . "</p>";
 
-		return self::sendEmail($result['nu_email'],"Slivka Points Correction Response Posted (Automated)",$html);
+		return self::sendEmail($result['nu_email'],"Points Correction Response Posted (Automated)",$html);
 	}
 
 	private function sendEmail($to_email,$subject,$body)
 	{
-		$from = array($GLOBALS['VP_EMAIL'] => $GLOBALS['VP_NAME']);
+		$from = array($GLOBALS['MAILBOT_EMAIL'] => "Slivka Points Center");
 
 		if($to_email){
 			$to = array(
 				$to_email . "@u.northwestern.edu" => $to_email,
-				$GLOBALS['VP_EMAIL_BOT'] => $GLOBALS['VP_NAME'] . "'s Copy"
+				$GLOBALS['VP_EMAIL_COPIES'] => $GLOBALS['VP_NAME'] . "'s Copy"
 			);
 		}else{
 			$to = array($GLOBALS['VP_EMAIL'] => $GLOBALS['VP_NAME']);
 		}
 
 		$transport = Swift_SmtpTransport::newInstance('smtp.gmail.com', 465, 'ssl')
-			->setUsername($GLOBALS['VP_EMAIL'])
-			->setPassword($GLOBALS['VP_EMAIL_PASS']);
+			->setUsername($GLOBALS['MAILBOT_EMAIL'])
+			->setPassword($GLOBALS['MAILBOT_PASS']);
 
 		$mailer = Swift_Mailer::newInstance($transport);
 
