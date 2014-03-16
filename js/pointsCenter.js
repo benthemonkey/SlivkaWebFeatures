@@ -380,7 +380,6 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			//event handlers
 			$('#filled-by').on('focusout', correction.validateFilledBy);
 			$('#submit').on('click', correction.validatePointsCorrectionForm);
-			$('#reset').on('click', correction.resetForm);
 		},
 		validatePointsCorrectionForm: function() {
 			var valid = true,
@@ -1225,16 +1224,17 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			$.getJSON('./ajax/getRankings.php', function(data) {
 				var males = [], females = [], tmp, row, i, j, mtable, ftable,
 					numQtrs = data.qtrs.length,
+					cutoffNum = 39,
 					colDefs = [
 						{ sTitle: '#', sClass: 'num', sWidth: '5px' },
 						{ sTitle: 'Name', sClass: 'name', sWidth: '140px' }
 					];
 
 				//use 39 and 39 if it isn't housing
-				if(!data.is_housing){
-					data.males = 39;
-					data.females = 39;
-				}
+				// if(!data.is_housing){
+				// 	data.males = 43;
+				// 	data.females = 39;
+				// }
 
 				for(i=0; i<numQtrs; i++){
 					colDefs.push({
@@ -1291,27 +1291,42 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					sDom: 't'
 				});
 
-				j=0;
+				var mj = 0, fj = 0, underCutoff = [];
 				row = mtable.find('tr');
 
 				for(i=0; i<males.length; i++){
 					if(males[i][numQtrs+5]){
 						row.eq(i+1).addClass('red');
-					}else if(j<data.males){
-						row.eq(i+1).addClass('green').find('.num').text(j+1);
-						j++;
+					}else if(mj<cutoffNum){
+						row.eq(i+1).addClass('green').find('.num').text(mj+1);
+						mj++;
+					}else if(mj==cutoffNum){
+						underCutoff.push(['m', row.eq(i+1), males[i][numQtrs+4]]);
 					}
 				}
 
-				j=0;
 				row = ftable.find('tr');
 
 				for(i=0; i<females.length; i++){
 					if(females[i][numQtrs+5]){
 						row.eq(i+1).addClass('red');
-					}else if(j<data.females){
-						row.eq(i+1).addClass('green').find('.num').text(j+1);
-						j++;
+					}else if(fj<cutoffNum){
+						row.eq(i+1).addClass('green').find('.num').text(fj+1);
+						fj++;
+					}else if(fj==cutoffNum){
+						underCutoff.push(['f', row.eq(i+1), females[i][numQtrs+4]]);
+					}
+				}
+
+				underCutoff.sort(function(a, b) { return b[2] - a[2]; });
+
+				for(i=0; i<4; i++){
+					if(underCutoff[i][0]=='m'){
+						mj++;
+						underCutoff[i][1].addClass('green').find('.num').text(mj);
+					}else{
+						fj++;
+						underCutoff[i][1].addClass('green').find('.num').text(fj);
 					}
 				}
 			});
@@ -1363,6 +1378,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			$('#committee').on('change', function(event){
 				$('#suite').val('');
+				$('.committee-points').val(0).show();
 
 				if(event.target.value.length > 0){
 					$.getJSON('ajax/getCommitteeOrSuite.php', {committee: event.target.value}, updateSlivkans.addSlivkans);
@@ -1371,6 +1387,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			$('#suite').on('change', function(event){
 				$('#committee').val('');
+				$('.committee-points').hide();
 
 				if(event.target.value.length > 0){
 					$.getJSON('ajax/getCommitteeOrSuite.php', {suite: event.target.value}, updateSlivkans.addSlivkans);
@@ -1378,21 +1395,28 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			});
 
 			$('#submit').on('click', function(){
-				var name,
+				var name, pts,
 					entries = $('#slivkan-entry-tab').find('.slivkan-entry'),
+					committeePoints = $('.committee-points'),
 					committee = $('#committee').val(),
 					suite = $('#suite').val(),
-					nuEmailArray = [];
+					nuEmailArray = [],
+					committeePointsArray = [];
 
 				for(var i=0; i<entries.length; i++){
 					name = entries.eq(i).val();
 					if(name.length > 0){
 						nuEmailArray.push(slivkans[slivkans.indexOfKey('full_name', name)].nu_email);
 					}
+
+					if(committee.length > 0){
+						pts = committeePoints.eq(i).val();
+						committeePointsArray.push(pts);
+					}
 				}
 
 				if(committee.length > 0){
-					$.getJSON('ajax/submitCommitteeOrSuite.php', {committee: committee, slivkans: nuEmailArray}, function(data){
+					$.getJSON('ajax/submitCommitteeOrSuite.php', {committee: committee, slivkans: nuEmailArray, points: committeePointsArray}, function(data){
 						window.alert(data);
 					});
 				}else if(suite.length > 0){
@@ -1472,8 +1496,11 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			for(var i=0; i<len; i++){
 				var entry = entries.eq(i),
-					name = slivkans[slivkans.indexOfKey('nu_email', data[i])].full_name;
+					name = slivkans[slivkans.indexOfKey('nu_email', data[i].nu_email)].full_name;
 				entry.find('.slivkan-entry').val(name);
+				if(data[i].committee){
+					entry.find('.committee-points').val(data[i].committee);
+				}
 				updateSlivkans.validateSlivkanName(entry);
 			}
 

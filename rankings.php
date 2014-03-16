@@ -26,6 +26,12 @@
 
 	tr.even.green td.sorting_1 { background-color: #00B30C!important; }
 	tr.odd.green  td.sorting_1 { background-color: #00A30B!important; }
+
+	tr.even.yellow { background-color: #FFFA00!important; }
+	tr.odd.yellow { background-color: #FFE500!important; }
+
+	tr.even.yellow td.sorting_1 { background-color: #FFEA00!important; }
+	tr.odd.yellow  td.sorting_1 { background-color: #FFD500!important; }
 	</style>
 </head>
 <body>
@@ -37,12 +43,15 @@
 					<div class="col-lg-12 alert alert-info">
 						<h4>Disclaimers! The following information may <strong><em>increase</em></strong> between now and Housing:</h4>
 						<ul>
-							<li>The number of Slivkan males/females allowed to return</li>
+							<!--li>The number of Slivkan males/females allowed to return</li-->
 							<li>Additional Slivkans abstaining</li>
 							<li>Committee Points</li>
 							<li>Special Position Points (e.g. Eco Rep)</li>
 							<li>Event Points for the rest of the quarter</li>
 						</ul>
+						<p style="margin-top: 10px; text-align: center;">
+							39 Males and 39 Females will return, with 4 additional Slivkans determined based on Total w/ Multiplier.
+						</p>
 					</div>
 				</div>
 				<div class="row" style="margin-bottom:10px">

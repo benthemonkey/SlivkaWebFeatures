@@ -8,7 +8,7 @@
 			margin-top: 10px;
 		}
 
-		.slivkan-entry-control{
+		.slivkan-entry-control-name{
 			width: 100%;
 			margin: auto 0 10px;
 		}
@@ -74,9 +74,16 @@
 					</select>
 				</div>
 				<div class="col-lg-12" id="slivkan-entry-tab">
-					<div class="form-group input-group slivkan-entry-control">
-						<div class="input-group-addon">1</div>
-						<input type="text" class="form-control slivkan-entry" name="slivkan-entry" placeholder="Slivkan">
+					<div class="row slivkan-entry-control">
+						<div class="col-sm-10">
+							<div class="form-group input-group slivkan-entry-control-name">
+								<div class="input-group-addon">1</div>
+								<input type="text" class="form-control slivkan-entry" name="slivkan-entry" placeholder="Slivkan">
+							</div>
+						</div>
+						<div class="col-sm-2">
+							<input type="number" min="0" max="20" value="0" class="form-control committee-points" name="committee-points" style="display: none;">
+						</div>
 					</div>
 				</div>
 			</div>

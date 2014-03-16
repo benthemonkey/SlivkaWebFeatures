@@ -723,14 +723,15 @@ class PointsCenter
 
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT nu_email
-				FROM committees
-				WHERE committee=:committee AND qtr=:qtr");
+				"SELECT c.nu_email, b.committee
+				FROM committees AS c
+					LEFT JOIN bonuspoints AS b ON c.nu_email=b.nu_email AND c.qtr=b.qtr
+				WHERE c.committee=:committee AND c.qtr=:qtr");
 			$statement->bindValue(":committee", $committee);
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
 
-			$slivkans = $statement->fetchAll(PDO::FETCH_COLUMN);
+			$slivkans = $statement->fetchAll(PDO::FETCH_ASSOC);
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();
@@ -739,7 +740,7 @@ class PointsCenter
 		return $slivkans;
 	}
 
-	public function updateCommittee ($slivkans, $committee)
+	public function updateCommittee ($slivkans, $committee, $points)
 	{
 		try {
 			$statement = self::$dbConn->prepare(
@@ -756,6 +757,15 @@ class PointsCenter
 			for($s=0; $s < count($slivkans); $s++){
 				$statement->execute(array($slivkans[$s], $committee, self::$qtr));
 			}
+
+			$statement = self::$dbConn->prepare(
+				"INSERT INTO bonuspoints (nu_email, committee, qtr) VALUES (?,?,?)
+				ON DUPLICATE KEY UPDATE committee=VALUES(committee)");
+
+			for($s=0; $s < count($slivkans); $s++){
+				$statement->execute(array($slivkans[$s], $points[$s], self::$qtr));
+			}
+
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();
@@ -777,7 +787,7 @@ class PointsCenter
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
 
-			$slivkans = $statement->fetchAll(PDO::FETCH_COLUMN);
+			$slivkans = $statement->fetchAll(PDO::FETCH_ASSOC);
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();
@@ -1014,7 +1024,7 @@ class PointsCenter
 		<p style=\"padding: 10; width: 70%\">" . $get['name'] . " has submitted a points correction for the
 		event, " . $get['event_name'] . ", for which you took points. Please click one of the following links
 		to respond to this request. Please do so within 2 days of receiving this email.</p>
-		<p style=\"padding: 10; width: 70%\">" . $get['name'] . "'s comment: " . $get['comments'] . "</p>
+		<p style=\"padding: 10; width: 70%\">" . $get['name'] . "'s comment: " . strip_tags($get['comments']) . "</p>
 		<ul>
 			<li><a href=\"http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php?key=$key&reply=$enc1\">" . $get['name'] . " was at " . $get['event_name'] . "</a></li>
 			<li><a href=\"http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php?key=$key&reply=$enc2\">" . $get['name'] . " was NOT at " . $get['event_name'] . "</a></li>
@@ -1023,7 +1033,7 @@ class PointsCenter
 
 		<p style=\"padding: 10; width: 70%\">If you received this email in error, please contact " . $GLOBALS['VP_EMAIL'] . "</p>";
 
-		return self::sendEmail($filled_by,"Points Correction (Automated)",$html);
+		return self::sendEmail($filled_by,"Points Correction for " . $get['event_name'] . " (Automated)", $html);
 	}
 
 	public function pointsCorrectionReply($get)

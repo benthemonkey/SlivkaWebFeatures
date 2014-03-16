@@ -66,8 +66,13 @@ require([
 	'typeahead'
 ], function($, spc, NProgress) {
 	'use strict';
-	var page = window.location.pathname;
-	page = page.lastIndexOf('/')+1 == page.length ? 'breakdown' : page.substring(page.lastIndexOf('/')+1, page.length-4);
+	var page = new RegExp('\\/([a-z]+)(\\.php)?$', 'i').exec(window.location.pathname);
+
+	if (page) {
+		page = page[1];
+	} else {
+		page = 'breakdown';
+	}
 
 	$('.' + page + '-link').addClass('active');
 

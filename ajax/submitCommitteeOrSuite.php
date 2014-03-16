@@ -6,7 +6,7 @@ $points_center = new PointsCenter();
 if($_GET['suite'] != ''){
 	$status = $points_center->updateSuite($_GET['slivkans'], $_GET['suite']);
 }else if($_GET['committee'] != ''){
-	$status = $points_center->updateCommittee($_GET['slivkans'], $_GET['committee']);
+	$status = $points_center->updateCommittee($_GET['slivkans'], $_GET['committee'], $_GET['points']);
 }
 
 echo $status;

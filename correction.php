@@ -39,7 +39,6 @@
 								<div class="alert alert-info" id="response" style="display: none;"></div>
 								<span class="pull-right" id="form-actions">
 									<button type="submit" class="btn btn-primary" id="submit">Submit</button>
-									<button type="button" class="btn btn-default" id="reset">Reset</button>
 								</span>
 							</div>
 						</div>
