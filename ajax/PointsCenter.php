@@ -445,7 +445,7 @@ class PointsCenter
 		$bonus_points = array();
 		try {
 			$statement = self::$dbConn->prepare( #using left + right join to mimic full outer join
-				"SELECT bonuspoints.nu_email,
+				"SELECT nu_email,
 					IFNULL(helperpointcounts.count,0)+IFNULL(bonuspoints.helper,0) AS helper,
 					committee, other1+other2+other3 AS other
 				FROM bonuspoints
@@ -455,7 +455,7 @@ class PointsCenter
 
 				UNION
 
-				SELECT bonuspoints.nu_email,
+				SELECT nu_email,
 					IFNULL(helperpointcounts.count,0)+IFNULL(bonuspoints.helper,0) AS helper,
 					committee, other1+other2+other3 AS other
 				FROM bonuspoints
