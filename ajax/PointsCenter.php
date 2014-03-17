@@ -444,11 +444,22 @@ class PointsCenter
 	{
 		$bonus_points = array();
 		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT bonuspoints.nu_email, IFNULL(helperpointcounts.count,0)+bonuspoints.helper AS helper,
+			$statement = self::$dbConn->prepare( #using left + right join to mimic full outer join
+				"SELECT bonuspoints.nu_email,
+					IFNULL(helperpointcounts.count,0)+IFNULL(bonuspoints.helper,0) AS helper,
 					committee, other1+other2+other3 AS other
 				FROM bonuspoints
-				LEFT OUTER JOIN helperpointcounts
+				LEFT JOIN helperpointcounts
+					USING (nu_email,qtr)
+					WHERE qtr=:qtr
+
+				UNION
+
+				SELECT bonuspoints.nu_email,
+					IFNULL(helperpointcounts.count,0)+IFNULL(bonuspoints.helper,0) AS helper,
+					committee, other1+other2+other3 AS other
+				FROM bonuspoints
+				RIGHT JOIN helperpointcounts
 					USING (nu_email,qtr)
 					WHERE qtr=:qtr");
 			$statement->bindValue(":qtr", self::$qtr);
