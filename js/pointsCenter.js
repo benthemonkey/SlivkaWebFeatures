@@ -580,7 +580,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				if(localStorage.spc_sub_attendees){
 					var ind;
 					localStorage.spc_sub_attendees.split(', ').forEach(function(el) {
-						ind = slivkans_tmp.indexOfKey('full_name', el.substr(0, el.length-2));
+						ind = slivkans_tmp.indexOfKey('full_name', el);
 						if(ind !== -1){
 							slivkans_tmp[ind].dupe = true;
 						}
@@ -773,12 +773,6 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			common.updateValidity($('.committee-control'), valid);
 
-			$('.slivkan-entry-control').each(function() {
-				submission.validateSlivkanName($(this), true);
-			});
-
-			//store values
-			submission.saveSlivkans();
 			localStorage.spc_sub_committee = committee;
 
 			return valid;
@@ -827,7 +821,6 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 		validateSlivkanName: function(entry, inBulk) {
 			var valid = true,
 			slivkan_entry = entry.find('.slivkan-entry'),
-			entry_button = entry.find('.btn'),
 			name = slivkan_entry.val(),
 			nickname_ind = nicknames.indexOfKey('nickname', name);
 
@@ -867,38 +860,13 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			entry.removeClass('has-warning');
 
 			if(name.length > 0){
-				var name_ind = slivkans.indexOfKey('full_name', name);
-				if(name_ind != -1){
-					if(slivkans[name_ind].committee == $('#committee').val() && type != 'IM'){
-						submission.showCommitteeMember(entry_button);
-					}else if(type == 'IM' || slivkans[name_ind].committee == 'Facilities' || slivkans[name_ind].committee == 'Exec'){
-						submission.hideButtons(entry_button);
-					}else{
-						submission.showHelperPoint(entry_button);
-					}
-				}else{ valid=false; }
+				valid = slivkans.indexOfKey('full_name', name) != -1;
 				common.updateValidity(entry, valid);
 			}else{
 				entry.removeClass('has-success has-error');
-				submission.hideButtons(entry_button);
 			}
 
 			return valid;
-		},
-		showHelperPoint: function(entry_button) { //quick: 46.15
-			if(!entry_button.hasClass('helper-point')){
-				entry_button.removeClass('committee-point disabled active').addClass('helper-point');
-			}
-		},
-		showCommitteeMember: function(entry_button) {
-			if(!entry_button.hasClass('committee-point')){
-				entry_button.removeClass('helper-point disabled active').addClass('committee-point active');
-			}
-		},
-		hideButtons: function(entry_button) {
-			if(!entry_button.hasClass('disabled')){
-				entry_button.removeClass('helper-point committee-point active').addClass('disabled');
-			}
 		},
 		validateFellowName: function(entry) {
 			var valid = true,
@@ -994,9 +962,6 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			//clear slivkans
 			$('#slivkan-entry-tab').find('.slivkan-entry').val('');
 
-			//reset buttons
-			$('.bonus-point').removeClass('committee-point helper-point active').addClass('disabled');
-
 			nameArray = nameArray.sort();
 
 			submission.addSlivkans(nameArray);
@@ -1011,10 +976,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			$('#slivkan-entry-tab').find('.slivkan-entry-control').each(function() {
 				var self = $(this), name = self.find('.slivkan-entry').val();
 				if(name.length > 0){
-					var h = (self.find('.helper-point').hasClass('active')) ? '1' : '0',
-					c = (self.find('.committee-point').hasClass('active')) ? '1' : '0';
-
-					nameArray.push(name+h+c);
+					nameArray.push(name);
 				}
 			});
 
@@ -1027,15 +989,10 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			len = nameArray.length;
 
 			for(var i=0; i<len; i++){
-				var name = nameArray[i].slice(0, nameArray[i].length-2),
-				h = nameArray[i].slice(nameArray[i].length-2, nameArray[i].length-1),
-				c = nameArray[i].slice(nameArray[i].length-1);
-
-				var entry = entries.eq(i);
+				var name = nameArray[i],
+					entry = entries.eq(i);
 				entry.find('.slivkan-entry').val(name);
 				submission.validateSlivkanName(entry, (i < len-1));
-				if(h=='1'){ entry.find('.helper-point').addClass('active'); }
-				if(c=='0'){ entry.find('.committee-point').removeClass('active'); }
 			}
 
 			for(i; i<entries.length; i++){
@@ -1100,8 +1057,6 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					filled_by: slivkans[slivkans.indexOfKey('full_name', $('#filled-by').val())].nu_email,
 					comments: $('#comments').val(),
 					attendees: [],
-					helper_points: [],
-					committee_members: [],
 					fellows: []
 				};
 
@@ -1111,12 +1066,6 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					nu_email = slivkans[slivkans.indexOfKey('full_name', name)].nu_email;
 
 					data.attendees.push(nu_email);
-
-					if($(this).parent().find('.helper-point').hasClass('active')){
-						data.helper_points.push(nu_email);
-					}else if($(this).parent().find('.committee-point').hasClass('active')){
-						data.committee_members.push(nu_email);
-					}
 				}
 			});
 
@@ -1133,7 +1082,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			for(var obj in data){
 				if(data.hasOwnProperty(obj)){
-					if(obj == 'attendees' || obj == 'helper_points' || obj == 'committee_members' || obj == 'fellows'){
+					if(obj == 'attendees' || obj == 'fellows'){
 						val = data[obj].join(', ');
 					}else{
 						val = data[obj];

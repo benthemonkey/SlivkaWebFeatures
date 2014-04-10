@@ -836,8 +836,6 @@ class PointsCenter
 	{
 		$real_event_name = $get['event_name'] . " " . $get['date'];
 
-		if($get['helper_points'] === NULL){ $get['helper_points'] = array(""); }
-		if($get['committee_members'] === NULL){ $get['committee_members'] = array(""); }
 		if($get['fellows'] === NULL){ $get['fellows'] = array(""); }
 
 		# Begin PDO Transaction
@@ -847,8 +845,7 @@ class PointsCenter
 			$statement = self::$dbConn->prepare(
 				"INSERT INTO `pointsform` SET
 				date=:date, type=:type, committee=:committee, event_name=:event_name, description=:description,
-				filled_by=:filled_by, comments=:comments, attendees=:attendees, helper_points=:helper_points,
-				committee_members=:committee_members, fellows=:fellows");
+				filled_by=:filled_by, comments=:comments, attendees=:attendees, fellows=:fellows");
 			$statement->bindValue(":date", $get['date']);
 			$statement->bindValue(":type", $get['type']);
 			$statement->bindValue(":committee", $get['committee']);
@@ -857,8 +854,6 @@ class PointsCenter
 			$statement->bindValue(":filled_by", $get['filled_by']);
 			$statement->bindValue(":comments", $get['comments']);
 			$statement->bindValue(":attendees", implode(", ",$get['attendees']));
-			$statement->bindValue(":helper_points", implode(", ",$get['helper_points']));
-			$statement->bindValue(":committee_members", implode(", ",$get['committee_members']));
 			$statement->bindValue(":fellows", implode(", ",$get['fellows']));
 
 			$statement->execute();
@@ -902,7 +897,7 @@ class PointsCenter
 			die();
 		}
 
-		if ($get['helper_points'][0] != ""){
+		/*if ($get['helper_points'][0] != ""){
 			try {
 				$statement = self::$dbConn->prepare(
 					"INSERT INTO helperpoints (nu_email, event_name, qtr)
@@ -932,7 +927,7 @@ class PointsCenter
 				self::$dbConn->rollBack();
 				die();
 			}
-		}
+		}*/
 
 		if ($get['fellows'][0] != ""){
 			try {
@@ -944,7 +939,7 @@ class PointsCenter
 					$statement->execute(array($f,$real_event_name,self::$qtr));
 				}
 			} catch (PDOException $e) {
-				echo json_encode(array("error" => $e->getMessage(), "step" => "6"));
+				echo json_encode(array("error" => $e->getMessage(), "step" => "4"));
 				self::$dbConn->rollBack();
 				die();
 			}

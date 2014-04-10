@@ -19,23 +19,6 @@
 			margin-top: 10px;
 		}
 
-		.bonus-point.disabled{
-			width: 40px;
-			height: 34px;
-		}
-
-		.bonus-point.disabled > i{
-			display: none;
-		}
-
-		.bonus-point.helper-point > i.glyphicon-user{
-			display: none;
-		}
-
-		.bonus-point.committee-point > i.glyphicon-thumbs-up{
-			display: none;
-		}
-
 		.input-group-addon{
 			padding: 6px 8px;
 			width: 35px;
@@ -163,12 +146,6 @@
 								<div class="form-group input-group slivkan-entry-control">
 									<div class="input-group-addon">1</div>
 									<input type="text" class="slivkan-entry form-control" name="slivkan-entry" placeholder="Slivkan">
-									<div class="input-group-btn">
-										<div class="btn btn-default bonus-point disabled">
-											<i class="glyphicon glyphicon-user"></i>
-											<i class="glyphicon glyphicon-thumbs-up"></i>
-										</div>
-									</div>
 								</div>
 							</div>
 
