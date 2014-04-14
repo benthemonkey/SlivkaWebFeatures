@@ -666,6 +666,9 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				if($('#committee :selected').hasClass('not-standing-committee')){
 					$('#committee').val('Academic');
 				}
+				$('#event').val('');
+				$('#committee').removeAttr('disabled');
+				break;
 			default:
 				$('#event').val('');
 				$('#committee').removeAttr('disabled');
