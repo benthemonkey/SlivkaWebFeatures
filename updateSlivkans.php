@@ -40,9 +40,9 @@
 						<option>Academic</option>
 						<option>Facilities</option>
 						<option>Faculty</option>
-						<option>Historian</option>
 						<option>IT</option>
 						<option>Philanthropy</option>
+						<option>Publications</option>
 						<option>Social</option>
 						<option>Other</option>
 					</select>

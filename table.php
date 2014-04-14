@@ -83,9 +83,9 @@ $points_table = $points_center->getPointsTable($showall);
 								<option selected>Academic</option>
 								<option selected>Facilities</option>
 								<option selected>Faculty</option>
-								<option selected>Historian</option>
 								<option selected>IT</option>
 								<option selected>Philanthropy</option>
+								<option selected>Publications</option>
 								<option selected>Social</option>
 								<option selected>CA</option>
 								<option selected>Other</option>

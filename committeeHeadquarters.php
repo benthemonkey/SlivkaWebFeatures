@@ -47,7 +47,7 @@ function getFullName($slivkans, $nu_email){
 				<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
 <?php
 	$indent = "\t\t\t\t\t";
-	$committees = array("Academic", "Facilities", "Faculty", "Historian", "IT", "Philanthropy", "Social");
+	$committees = array("Academic", "Facilities", "Faculty", "IT", "Philanthropy", "Publications", "Social");
 
 	for($i=0; $i<count($committees); $i++){
 		echo $indent . '<li><a href="./committeeHeadquarters.php?committee=' . $committees[$i] . '">' . $committees[$i] . "</a></li>\n";
