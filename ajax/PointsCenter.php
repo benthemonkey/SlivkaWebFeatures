@@ -925,7 +925,7 @@ class PointsCenter
 			$statement->execute();
 
 			$statement = self::$dbConn->prepare(
-				"INSERT INTO committees (nu_email, committee, points, qtr) VALUES (?,?,?)
+				"INSERT INTO committees (nu_email, committee, points, qtr) VALUES (?,?,?,?)
 				ON DUPLICATE KEY UPDATE committee=VALUES(committee), points=VALUES(points)");
 
 			for($s=0; $s < count($slivkans); $s++){

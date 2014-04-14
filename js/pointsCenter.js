@@ -671,6 +671,12 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('#event').removeAttr('disabled');
 			}
 
+			if(type == 'Committee Only'){
+				$('.not-standing-committee').attr('disabled', 'disabled');
+			}else{
+				$('.not-standing-committee').removeAttr('disabled');
+			}
+
 			if(type == 'Other'){
 				$('.description-control').slideDown();
 				$('#committee').removeAttr('disabled');
@@ -810,11 +816,11 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			if(name.length > 0){
 				valid = slivkans.indexOfKey('full_name', name) != -1;
-				common.updateValidity($('.filled-by-control'), valid);
 			}else{
-				$('.filled-by-control').addClass('error');
 				valid = false;
 			}
+
+			common.updateValidity($('.filled-by-control'), valid);
 
 			return valid;
 		},
@@ -1472,15 +1478,18 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				trigger: 'manual',
 				content: function(){
 					return ['',
-						'<div class="input-group" style="width:100px;">',
-							'<input type="number" min="0.0" max="3.0" step="0.1" ',
-								'data-original-value="', this.innerText, '" ',
-								'value="', this.innerText, '" class="form-control pts-input" >',
-							'<span class="input-group-btn">',
-								'<button class="btn btn-primary submit-committee-point">',
-									'<span class="glyphicon glyphicon-ok"></span>',
-								'</button>',
-							'</span>',
+						'<div class="form-group has-success" style="width:100px;">',
+							'<label class="control-label" for="pts-input">Edit Points:</label>',
+							'<div class="input-group">',
+								'<input type="number" id="pts-input" min="0.0" max="3.0" step="0.1" ',
+									'data-original-value="', this.innerText, '" ',
+									'value="', this.innerText, '" class="form-control pts-input" >',
+								'<span class="input-group-btn">',
+									'<button class="btn btn-primary submit-committee-point">',
+										'<span class="glyphicon glyphicon-ok"></span>',
+									'</button>',
+								'</span>',
+							'</div>',
 						'</div>'
 					].join('');
 				}
@@ -1521,13 +1530,13 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					points: points
 				}, function(status){
 					if(status == '1'){
-						openPopover.text(parseFloat(points).toPrecision(2))
+						openPopover.text(parseFloat(points).toFixed(1))
 							.popover('hide');
 						committeeHeadquarters.updateTotal(openPopover.closest('tr'));
 						openPopover = null;
 					}
 				});
-			}).on('focusout', '.pts-input', committeeHeadquarters.validatePoints);
+			}).on('input', '.pts-input', committeeHeadquarters.validatePoints);
 
 			// $('body').on('shown.bs.popover', function(e){
 			// 	console.log(e);
@@ -1541,17 +1550,19 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				return a + b;
 			});
 
-			row.find('.totals').text(total.toPrecision(2));
+			row.find('.totals').text(total.toFixed(1));
 		},
 		validatePoints: function(e){
 			var target = $(e.target),
-				value = parseFloat(target.val()),
-				valid = !isNaN(value) && isFinite(value) && 0 <= value && value <= 3;
+				control = target.closest('.form-group'),
+				button = control.find('button');
 
-			if(valid){
-				target.parent().find('button').removeAttr('disabled');
+			if(/^([0-2](\.\d)?|3(\.0)?)$/.test(target.val())){
+				button.removeAttr('disabled');
+				control.removeClass('has-error').addClass('has-success');
 			}else{
-				target.parent().find('button').attr('disabled', 'disabled');
+				button.attr('disabled', 'disabled');
+				control.addClass('has-error').removeClass('has-success');
 			}
 		}
 	};

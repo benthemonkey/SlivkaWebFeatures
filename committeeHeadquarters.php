@@ -164,6 +164,9 @@ function getFullName($slivkans, $nu_email){
 					</form>
 				</div>
 			</div-->
+<?php } else { ?>
+			<div class="alert alert-info text-center"><h4>Select a Committee</h4></div>
+
 <?php } ?>
 		</div><!--content-->
 	</div>
