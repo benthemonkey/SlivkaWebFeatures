@@ -11,7 +11,7 @@ class PointsCenter
 	public function __construct ($qtr)
 	{
 		error_reporting(E_ALL & ~E_NOTICE);
-		ini_set('display_errors', '1');
+		//ini_set('display_errors', '1');
 		self::initializeConnection();
 
 		if ($qtr) {
@@ -85,10 +85,10 @@ class PointsCenter
 		$directory = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT first_name,last_name,year,major,suites.suite,photo
+				"SELECT first_name,last_name,year,major,suite,photo
 				FROM slivkans
-				LEFT JOIN suites ON slivkans.nu_email=suites.nu_email AND suites.qtr=:qtr
-				WHERE qtr_joined <= :qtr AND (qtr_final IS NULL OR qtr_final >= :qtr)
+				LEFT JOIN suites USING (nu_email)
+				WHERE qtr=:qtr AND qtr_joined<=:qtr AND (qtr_final IS NULL OR qtr_final>=:qtr)
 				ORDER BY first_name,last_name");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
@@ -106,11 +106,11 @@ class PointsCenter
 		try {
 			$statement = self::$dbConn->prepare(
 				"SELECT CONCAT(first_name, ' ', last_name) AS full_name,
-					slivkans.nu_email,gender,wildcard,committees.committee,photo,suites.suite,year
+					nu_email,gender,wildcard,committee,photo,suite,year
 				FROM slivkans
-				LEFT JOIN committees ON slivkans.nu_email=committees.nu_email AND committees.qtr=:qtr
-				LEFT JOIN suites ON slivkans.nu_email=suites.nu_email AND suites.qtr=:qtr
-				WHERE qtr_joined <= :qtr AND (qtr_final IS NULL OR qtr_final >= :qtr)
+				LEFT JOIN committees USING (nu_email)
+				LEFT JOIN suites USING (nu_email, qtr)
+				WHERE qtr=:qtr AND qtr_joined<=:qtr AND (qtr_final IS NULL OR qtr_final>=:qtr)
 				ORDER BY first_name,last_name");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
@@ -178,7 +178,7 @@ class PointsCenter
 			$statement = self::$dbConn->prepare(
 				"SELECT event_name,date,type,attendees,committee,description
 				FROM events
-				WHERE qtr=:qtr AND date BETWEEN :start AND :end
+				WHERE qtr=:qtr AND date BETWEEN :start AND :end AND type<>'committee_only'
 				ORDER BY date, id");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->bindValue(":start", $start);
@@ -200,7 +200,7 @@ class PointsCenter
 			$statement = self::$dbConn->prepare(
 				"SELECT event_name, filled_by
 				FROM events
-				WHERE qtr=:qtr AND committee=:committee AND type<>'IM'
+				WHERE qtr=:qtr AND committee=:committee AND type<>'im'
 				ORDER BY date, id");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->bindValue(":committee", $committee);
@@ -220,7 +220,7 @@ class PointsCenter
 			$statement = self::$dbConn->prepare(
 				"SELECT event_name,date,type,attendees,committee,description
 				FROM events
-				WHERE qtr=:qtr
+				WHERE qtr=:qtr AND type<>'committee_only'
 				ORDER BY date DESC, id DESC
 				LIMIT :offset,:count");
 			$statement->bindValue(":qtr", self::$qtr);
@@ -353,14 +353,11 @@ class PointsCenter
 		try {
 			$statement = self::$dbConn->prepare(
 				"SELECT p.event_name, p.nu_email FROM
-					(SELECT event_name
+					(SELECT event_name, committee, qtr
 						FROM events
-						WHERE qtr=:qtr AND committee=:committee AND type<>'IM') AS e
-				INNER JOIN points AS p
-					ON p.event_name=e.event_name
-				INNER JOIN
-					(SELECT nu_email FROM committees WHERE qtr=:qtr AND committee=:committee) AS c
-					ON p.nu_email=c.nu_email");
+						WHERE qtr=:qtr AND committee=:committee AND type<>'im') AS e
+				INNER Join committees AS c USING (committee, qtr)
+				INNER JOIN points AS p USING (event_name, nu_email)");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->bindValue(":committee", $committee);
 			$statement->execute();
@@ -378,10 +375,9 @@ class PointsCenter
 		$points = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT nu_email, count(points.event_name) AS total
-				FROM points INNER JOIN events
-				ON points.event_name=events.event_name
-				WHERE events.type<>'im' AND events.qtr=:qtr
+				"SELECT nu_email, count(event_name) AS total
+				FROM points INNER JOIN events USING (event_name, qtr)
+				WHERE qtr=:qtr AND type NOT IN ('im','committee_only')
 				GROUP BY nu_email");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
@@ -400,7 +396,7 @@ class PointsCenter
 			$statement = self::$dbConn->prepare(
 				"SELECT nu_email, LEAST(SUM(count),15) AS total
 				FROM imcounts
-				WHERE count >= 3 AND qtr=:qtr
+				WHERE count>=3 AND qtr=:qtr
 				GROUP BY nu_email");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
@@ -438,10 +434,10 @@ class PointsCenter
 		try {
 			$statement = self::$dbConn->prepare(
 				"SELECT committee, count(nu_email) AS count
-				FROM points LEFT JOIN events
-					ON points.event_name=events.event_name
-					WHERE nu_email=:nu_email AND type<>'im' AND points.qtr=:qtr
-				GROUP BY events.committee");
+				FROM points
+				INNER JOIN events USING (event_name,qtr)
+				WHERE nu_email=:nu_email AND qtr=:qtr AND type NOT IN ('im','committee_only')
+				GROUP BY committee");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->bindValue(":nu_email", $nu_email);
 			$statement->execute();
@@ -548,8 +544,7 @@ class PointsCenter
 					IFNULL(helperpointcounts.count,0)+IFNULL(bonuspoints.helper,0) AS helper,
 					other1+other2+other3 AS other
 				FROM bonuspoints
-				LEFT JOIN helperpointcounts
-					USING (nu_email,qtr)
+				LEFT JOIN helperpointcounts USING (nu_email,qtr)
 					WHERE qtr=:qtr
 
 				UNION
@@ -558,8 +553,7 @@ class PointsCenter
 					IFNULL(helperpointcounts.count,0)+IFNULL(bonuspoints.helper,0) AS helper,
 					other1+other2+other3 AS other
 				FROM bonuspoints
-				RIGHT JOIN helperpointcounts
-					USING (nu_email,qtr)
+				RIGHT JOIN helperpointcounts USING (nu_email,qtr)
 					WHERE qtr=:qtr");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
@@ -719,7 +713,7 @@ class PointsCenter
 				"SELECT CONCAT(first_name,' ',last_name) AS full_name,
 					nu_email,gender,qtr_joined,qtrs_away,qtr_final
 				FROM slivkans
-				WHERE qtr_final IS NULL OR qtr_final >= :qtr
+				WHERE qtr_final IS NULL OR qtr_final>=:qtr
 				ORDER BY first_name, last_name");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
@@ -992,7 +986,7 @@ class PointsCenter
 		if($event_name == 'bonus'){
 			try {
 				$statement = self::$dbConn->prepare(
-					"INSERT INTO committees (nu_email, bonus, qtr) VALUES (?,?,?)
+					"INSERT INTO committees (nu_email,bonus,qtr) VALUES (?,?,?)
 					ON DUPLICATE KEY UPDATE bonus=VALUES(bonus)");
 
 				$statement->execute(array($nu_email, $points, self::$qtr));
@@ -1003,7 +997,7 @@ class PointsCenter
 		}else{
 			try {
 				$statement = self::$dbConn->prepare(
-					"INSERT INTO committeepoints (nu_email, event_name, points, qtr) VALUES (?,?,?,?)
+					"INSERT INTO committeepoints (nu_email,event_name,points,qtr) VALUES (?,?,?,?)
 					ON DUPLICATE KEY UPDATE points=VALUES(points)");
 
 				$statement->execute(array($nu_email, $event_name, $points, self::$qtr));
@@ -1050,7 +1044,7 @@ class PointsCenter
 		try {
 			$statement = self::$dbConn->prepare(
 				"INSERT INTO events (event_name,date,qtr,filled_by,committee,description,type,attendees)
-				VALUES (:event_name, :date, :qtr, :filled_by, :committee, :description, :type, :attendees)");
+				VALUES (:event_name,:date,:qtr,:filled_by,:committee,:description,:type,:attendees)");
 			$statement->bindValue(":event_name", $real_event_name);
 			$statement->bindValue(":date", $get['date']);
 			$statement->bindValue(":qtr", self::$qtr);
@@ -1069,7 +1063,7 @@ class PointsCenter
 
 		try {
 			$statement = self::$dbConn->prepare(
-				"INSERT INTO points (nu_email, event_name, qtr)
+				"INSERT INTO points (nu_email,event_name,qtr)
 				VALUES (?,?,?)");
 
 			foreach($get['attendees'] as $a){
@@ -1116,7 +1110,7 @@ class PointsCenter
 		if ($get['fellows'][0] != ""){
 			try {
 				$statement = self::$dbConn->prepare(
-					"INSERT INTO fellowattendance (full_name, event_name, qtr)
+					"INSERT INTO fellowattendance (full_name,event_name,qtr)
 					VALUES (?,?,?)");
 
 				foreach($get['fellows'] as $f){
@@ -1193,7 +1187,7 @@ class PointsCenter
 		try {
 			$statement = self::$dbConn->prepare(
 				"INSERT INTO pointscorrection (message_key,nu_email,event_name,comments)
-				VALUES (:message_key, :nu_email, :event_name, :comments)");
+				VALUES (:message_key,:nu_email,:event_name,:comments)");
 			$statement->bindValue(":message_key", $key);
 			$statement->bindValue(":nu_email", $get['sender_email']);
 			$statement->bindValue(":event_name", $get['event_name']);
@@ -1374,10 +1368,10 @@ class PointsCenter
 		try {
 			$statement = self::$dbConn->prepare(
 				"SELECT CONCAT(first_name, ' ', last_name) AS full_name,
-					courses.nu_email,courses.qtr
+					nu_email,qtr
 				FROM courses
-				INNER JOIN slivkans ON courses.nu_email=slivkans.nu_email
-				WHERE courses.courses LIKE :course AND qtr_joined <= :qtr AND (qtr_final IS NULL OR qtr_final >= :qtr)");
+				INNER JOIN slivkans USING (nu_email)
+				WHERE courses LIKE :course AND qtr_joined<=:qtr AND (qtr_final IS NULL OR qtr_final>=:qtr)");
 			$statement->bindValue(":course", "%".$department." ".$number."%");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
@@ -1395,7 +1389,7 @@ class PointsCenter
 		try {
 			$statement = self::$dbConn->prepare(
 				"INSERT INTO courses
-				(nu_email, courses, qtr)
+				(nu_email,courses,qtr)
 				VALUES (?,?,?)");
 			$statement->execute(array($nu_email,$courses,$qtr));
 		} catch (PDOException $e) {

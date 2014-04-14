@@ -517,8 +517,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('#slivkan-entry-tab')	.on('focus', '.slivkan-entry', submission.handlers.slivkanTypeahead)
 										.on('typeahead:closed', '.slivkan-entry.tt-query',
 											{callback: submission.validateSlivkanName},
-											common.destroyTypeahead)
-										.on('click', '.bonus-point', submission.handlers.toggleActive);
+											common.destroyTypeahead);
 
 				$('#fellow-entry-tab')	.on('focus', '.fellow-entry', submission.handlers.fellowTypeahead)
 										.on('typeahead:closed', '.fellow-entry.tt-query',
@@ -587,6 +586,14 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					});
 				}
 
+				if(type == 'Committee Only'){
+					var committee = $('#committee').val();
+
+					slivkans_tmp = slivkans_tmp.filter(function(item) {
+						return item.committee == committee;
+					});
+				}
+
 				if(target.closest('.slivkan-entry-control').addClass('has-warning').is(':last-child')){
 					var num_inputs = $('#slivkan-entry-tab').find('.slivkan-entry').length;
 					if(num_inputs < 120){
@@ -606,10 +613,6 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				if(!target.hasClass('tt-query')){
 					target.typeahead(common.typeaheadOpts('fellows', fellows)).focus();
 				}
-			},
-			toggleActive : function() {
-				$(this).toggleClass('active');
-				submission.saveSlivkans();
 			}
 		},
 		appendSlivkanInputs: function(n) {
@@ -638,10 +641,13 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			localStorage.spc_sub_type = type;
 
 			//clear description if **previous** type was IM
-			if($('.type-btn.active').find('input').val() == 'IM'){
+			var previous_type = $('.type-btn.active').find('input').val();
+			if(previous_type == 'IM'){
 				$('#description').val('');
 				submission.validateDescription();
 			}
+
+			$('#committee').attr('disabled', 'disabled');
 
 			switch(type){
 			case 'P2P':
@@ -656,8 +662,13 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('#committee').val('Exec');
 				$('#event').val('House Meeting');
 				break;
+			case 'Committee Only':
+				if($('#committee :selected').hasClass('not-standing-committee')){
+					$('#committee').val('Academic');
+				}
 			default:
 				$('#event').val('');
+				$('#committee').removeAttr('disabled');
 			}
 
 			submission.validateEventName();
@@ -679,10 +690,8 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			if(type == 'Other'){
 				$('.description-control').slideDown();
-				$('#committee').removeAttr('disabled');
 			}else{
 				$('.description-control').slideUp();
-				$('#committee').attr('disabled', 'disabled');
 			}
 		},
 		validatePointsForm: function() {
@@ -773,13 +782,18 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			});
 		},
 		validateCommittee: function() {
-			var valid, committee = $('#committee').val();
-
-			valid = committee != 'Select One';
+			var committee = $('#committee').val(),
+				valid = committee != 'Select One';
 
 			common.updateValidity($('.committee-control'), valid);
 
-			localStorage.spc_sub_committee = committee;
+			if(valid){
+				localStorage.spc_sub_committee = committee;
+
+				$('.slivkan-entry-control').each(function(index) {
+					submission.validateSlivkanName($(this), (index !== 0));
+				});
+			}
 
 			return valid;
 		},
@@ -866,7 +880,16 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			entry.removeClass('has-warning');
 
 			if(name.length > 0){
-				valid = slivkans.indexOfKey('full_name', name) != -1;
+				var ind = slivkans.indexOfKey('full_name', name);
+
+				valid &= ind != -1;
+
+				if(type == 'Committee Only'){
+					var committee = $('#committee').val();
+
+					valid &= committee == slivkans[ind].committee;
+				}
+
 				common.updateValidity(entry, valid);
 			}else{
 				entry.removeClass('has-success has-error');

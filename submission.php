@@ -49,16 +49,19 @@
 						<div class="form-group col-md-12">
 							<label class="control-label" for="type">Type:</label>
 							<div class="btn-group btn-group-justified" id="type" data-toggle="buttons" style="table-layout: auto;"><!--style="display: block;"-->
-								<label class="btn btn-default type-btn">
+								<label class="btn btn-default btn-sm type-btn">
 									<input type="radio" name="type" value="P2P"> P2P
 								</label>
-								<label class="btn btn-default type-btn">
+								<label class="btn btn-default btn-sm type-btn">
 									<input type="radio" name="type" value="IM"> IM
 								</label>
-								<label class="btn btn-default type-btn">
+								<label class="btn btn-default btn-sm type-btn">
 									<input type="radio" name="type" value="House Meeting"> House Meeting
 								</label>
-								<label class="btn btn-default type-btn active">
+								<label class="btn btn-default btn-sm type-btn">
+									<input type="radio" name="type" value="Committee Only"> Committee Only
+								</label>
+								<label class="btn btn-default btn-sm type-btn active">
 									<input type="radio" name="type" value="Other"> Other
 								</label>
 							</div>
@@ -92,8 +95,8 @@
 						<div class="form-group committee-control col-md-4 col-sm-6">
 							<label class="control-label">Committee:</label>
 							<select id="committee" class="form-control">
-								<option>Select One</option>
-								<option>Exec</option>
+								<option class='not-standing-committee'>Select One</option>
+								<option class='not-standing-committee'>Exec</option>
 								<option>Academic</option>
 								<option>Facilities</option>
 								<option>Faculty</option>
@@ -101,8 +104,8 @@
 								<option>Philanthropy</option>
 								<option>Publications</option>
 								<option>Social</option>
-								<option>CA</option>
-								<option>Other</option>
+								<option class='not-standing-committee'>CA</option>
+								<option class='not-standing-committee'>Other</option>
 							</select>
 						</div>
 
