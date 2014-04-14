@@ -11,7 +11,7 @@ class PointsCenter
 	public function __construct ($qtr)
 	{
 		error_reporting(E_ALL & ~E_NOTICE);
-		#ini_set('display_errors', '1');
+		ini_set('display_errors', '1');
 		self::initializeConnection();
 
 		if ($qtr) {
@@ -192,6 +192,27 @@ class PointsCenter
 		return $events;
 	}
 
+	public function getCommitteeEvents ($committee)
+	{
+		$events = array();
+
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT event_name, filled_by
+				FROM events
+				WHERE qtr=:qtr AND committee=:committee AND type<>'IM'
+				ORDER BY date, id");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->bindValue(":committee", $committee);
+			$statement->execute();
+			$events = $statement->fetchAll(PDO::FETCH_ASSOC);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+		return $events;
+	}
+
 	public function getRecentEvents ($count = 20, $offset = 0)
 	{
 		$events = array();
@@ -269,21 +290,86 @@ class PointsCenter
 		return $helper_points;
 	}
 
-	public function getCommitteeAttendance ()
+	public function getCommitteePoints ()
+	{
+		$committee_points = array();
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT event_name,nu_email,points
+				FROM committeepoints
+				WHERE qtr=:qtr");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->execute();
+			$committee_points = $statement->fetchAll(PDO::FETCH_GROUP|PDO::FETCH_ASSOC);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		return $committee_points;
+	}
+
+	public function getCommitteeTotals ()
+	{
+		$committee_points = array();
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT nu_email,points
+				FROM committees
+				WHERE qtr=:qtr");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->execute();
+			$committee_points = $statement->fetchAll(PDO::FETCH_KEY_PAIR);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+		return $committee_points;
+	}
+
+	public function getCommitteeBonusPoints ($committee)
+	{
+		$committee_bonus_points = array();
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT nu_email,bonus
+				FROM committees
+				WHERE qtr=:qtr AND committee=:committee");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->bindValue(":committee", $committee);
+			$statement->execute();
+			$committee_bonus_points = $statement->fetchAll(PDO::FETCH_KEY_PAIR);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		return $committee_bonus_points;
+	}
+
+	public function getCommitteeAttendance ($committee)
 	{
 		$committee_attendance = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT event_name,nu_email
-				FROM committeeattendance
-				WHERE qtr=:qtr");
+				"SELECT p.event_name, p.nu_email FROM
+					(SELECT event_name
+						FROM events
+						WHERE qtr=:qtr AND committee=:committee AND type<>'IM') AS e
+				INNER JOIN points AS p
+					ON p.event_name=e.event_name
+				INNER JOIN
+					(SELECT nu_email FROM committees WHERE qtr=:qtr AND committee=:committee) AS c
+					ON p.nu_email=c.nu_email");
 			$statement->bindValue(":qtr", self::$qtr);
+			$statement->bindValue(":committee", $committee);
 			$statement->execute();
 			$committee_attendance = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();
 		}
+
 		return $committee_attendance;
 	}
 
@@ -422,12 +508,25 @@ class PointsCenter
 			die();
 		}
 
+		$committee_points = 0;
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT points
+				FROM committees
+				WHERE nu_email=:nu_email AND qtr=:qtr");
+			$statement->bindValue(":qtr", self::$qtr);
+			$statement->bindValue(":nu_email", $nu_email);
+			$statement->execute();
+			$committee_points = $statement->fetch(PDO::FETCH_COLUMN);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
 		if($bonus){
 			$helper_points += $bonus['helper'];
-			$committee_points = $bonus['committee'];
 			$other_points = $bonus['other1']+$bonus['other2']+$bonus['other3'];
 		}else{
-			$committee_points = 0;
 			$other_points = 0;
 		}
 
@@ -447,7 +546,7 @@ class PointsCenter
 			$statement = self::$dbConn->prepare( #using left + right join to mimic full outer join
 				"SELECT nu_email,
 					IFNULL(helperpointcounts.count,0)+IFNULL(bonuspoints.helper,0) AS helper,
-					committee, other1+other2+other3 AS other
+					other1+other2+other3 AS other
 				FROM bonuspoints
 				LEFT JOIN helperpointcounts
 					USING (nu_email,qtr)
@@ -457,7 +556,7 @@ class PointsCenter
 
 				SELECT nu_email,
 					IFNULL(helperpointcounts.count,0)+IFNULL(bonuspoints.helper,0) AS helper,
-					committee, other1+other2+other3 AS other
+					other1+other2+other3 AS other
 				FROM bonuspoints
 				RIGHT JOIN helperpointcounts
 					USING (nu_email,qtr)
@@ -491,8 +590,9 @@ class PointsCenter
 		$im_points = self::getIMPoints();
 		$bonus_points = self::getBonusPoints();
 
-		$helperpoints = self::getHelperPoints();
-		$committeeattendance = self::getCommitteeAttendance();
+		$helper_points = self::getHelperPoints();
+		$committee_points = self::getCommitteePoints();
+		$committee_totals = self::getCommitteeTotals();
 
 
 		$points_table = array(); #table that is slivkan count by event count + 6
@@ -503,13 +603,18 @@ class PointsCenter
 
 		#form points_table
 		$events_count = count($events);
-		$total_ind				= $events_count + 7;
+		$total_ind = $events_count + 7;
 
 		for($s=0; $s < count($slivkans); $s++){
 			$nu_email = $slivkans[$s]['nu_email'];
 
+			$committee_total = 0;
+			if(array_key_exists($nu_email, $committee_totals)){
+				$committee_total = (int) $committee_totals[$nu_email];
+			}
+
 			$subtotal = $event_totals[$nu_email] + $bonus_points[$nu_email]['helper'] + $im_points[$nu_email];
-			$total = $subtotal + $bonus_points[$nu_email]['committee'] + $bonus_points[$nu_email]['other'];
+			$total = $subtotal + $committee_total + $bonus_points[$nu_email]['other'];
 
 			$totals_by_year[$slivkans[$s]['year']][] = $subtotal;
 			$totals_by_suite[$slivkans[$s]['suite']][] = $subtotal;
@@ -518,7 +623,7 @@ class PointsCenter
 				array($slivkans[$s]['full_name'], $slivkans[$s]['gender']),
 				array_fill(0, $events_count, 0),
 				array((int) $event_totals[$nu_email], (int) $bonus_points[$nu_email]['helper'],
-					(int) $im_points[$nu_email], (int) $bonus_points[$nu_email]['committee'],
+					(int) $im_points[$nu_email], $committee_total,
 					(int) $bonus_points[$nu_email]['other'], $total));
 		}
 
@@ -531,15 +636,17 @@ class PointsCenter
 			}
 
 			if(!$is_im){
-				if(array_key_exists($event_name, $helperpoints)){
-					foreach($helperpoints[$event_name] as $s){
+				if(array_key_exists($event_name, $helper_points)){
+					foreach($helper_points[$event_name] as $s){
 						$points_table[$s][2+$e] += 0.1;
 					}
 				}
 
-				if(array_key_exists($event_name, $committeeattendance)){
-					foreach($committeeattendance[$event_name] as $s){
-						$points_table[$s][2+$e] += 0.2;
+				if(array_key_exists($event_name, $committee_points)){
+					foreach($committee_points[$event_name] as $s){
+						if($s['points'] > 0.0){
+							$points_table[$s['nu_email']][2+$e] += 0.2;
+						}
 					}
 				}
 			}
@@ -554,6 +661,54 @@ class PointsCenter
 		}
 
 		return array('points_table' => array_values($points_table), 'events' => $events, 'by_year' => $by_year, 'by_suite' => $by_suite);
+	}
+
+	public function getCommitteePointsTable ($committee)
+	{
+		$slivkans = self::getCommittee($committee);
+		$events = self::getCommitteeEvents($committee);
+		$committee_points = self::getCommitteePoints();
+		$committee_bonus_points = self::getCommitteeBonusPoints($committee);
+		$committee_attendance = self::getCommitteeAttendance($committee);
+
+		$committee_points_table = array();
+		$event_names = array();
+
+		$events_count = count($events);
+		$total_ind = $events_count + 1;
+		for($s=0; $s<count($slivkans); $s++){
+			$nu_email = $slivkans[$s]['nu_email'];
+
+			$committee_points_table[$nu_email] = array_fill(0, $events_count+2, array('points' => 0.0, 'filled_by' => false, 'attended' => false));
+			$committee_points_table[$nu_email][$events_count]['points'] = (float) $committee_bonus_points[$nu_email];
+			$committee_points_table[$nu_email][$total_ind]['points'] = (float) $committee_bonus_points[$nu_email]; # total column
+		}
+
+		for($e=0; $e<$events_count; $e++){
+			$event_name = $events[$e]['event_name'];
+			$filled_by = $events[$e]['filled_by'];
+
+			$event_names[] = $event_name;
+
+			if(array_key_exists($filled_by, $committee_points_table)){
+				$committee_points_table[$filled_by][$e]['filled_by'] = true;
+			}
+
+			if(array_key_exists($event_name, $committee_attendance)){
+				foreach($committee_attendance[$event_name] as $s){
+					$committee_points_table[$s][$e]['attended'] = true;
+				}
+			}
+
+			if(array_key_exists($event_name, $committee_points)){
+				foreach($committee_points[$event_name] as $s){
+					$committee_points_table[$s['nu_email']][$e]['points'] += $s['points'];
+					$committee_points_table[$s['nu_email']][$total_ind]['points'] += $s['points'];
+				}
+			}
+		}
+
+		return array('points_table' => $committee_points_table, 'events' => $event_names);
 	}
 
 	public function getMultipliers ()
@@ -664,10 +819,10 @@ class PointsCenter
 
 			$rankings[$i]['total'] = $sum;
 			$rankings[$i]['total_w_mult'] = $sum * $rankings[$i]['mult'];
-			$rankings[$i]['abstains'] = in_array($rankings[$i]['nu_email'], $abstentions) || $rankings[$i]['total_w_mult'] < $house_meetings;
+			$rankings[$i]['abstains'] = in_array($rankings[$i]['nu_email'], $abstentions) || $rankings[$i]['total'] < $house_meetings;
 		}
 
-		return array('rankings' => $rankings, 'qtrs' => $qtrs, 'males' => $GLOBALS['HOUSING_MALES'], 'females' => $GLOBALS['HOUSING_FEMALES'], 'is_housing' => $is_housing);
+		return array('rankings' => $rankings, 'qtrs' => $qtrs, 'is_housing' => $is_housing);
 	}
 
 	public function updateTotals ()
@@ -676,6 +831,7 @@ class PointsCenter
 		$event_totals = self::getEventTotals();
 		$im_points = self::getIMPoints();
 		$bonus_points = self::getBonusPoints();
+		$committee_totals = self::getCommitteeTotals();
 
 		try {
 			$statement = self::$dbConn->prepare(
@@ -685,7 +841,15 @@ class PointsCenter
 
 			for($s=0; $s < count($slivkans); $s++){
 				$nu_email = $slivkans[$s]['nu_email'];
-				$total = $event_totals[$nu_email] + $im_points[$nu_email] + array_sum($bonus_points[$nu_email]);
+				$total = $event_totals[$nu_email] + $im_points[$nu_email];
+
+				if(array_key_exists($nu_email, $committee_totals)){
+					$total += $committee_totals[$nu_email];
+				}
+
+				if(array_key_exists($nu_email, $bonus_points)){
+					$total += array_sum($bonus_points[$nu_email]);
+				}
 
 				$statement->execute(array($nu_email, $total, self::$qtr));
 			}
@@ -734,10 +898,9 @@ class PointsCenter
 
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT c.nu_email, b.committee
-				FROM committees AS c
-					LEFT JOIN bonuspoints AS b ON c.nu_email=b.nu_email AND c.qtr=b.qtr
-				WHERE c.committee=:committee AND c.qtr=:qtr");
+				"SELECT nu_email, points
+				FROM committees
+				WHERE committee=:committee AND qtr=:qtr");
 			$statement->bindValue(":committee", $committee);
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
@@ -762,19 +925,11 @@ class PointsCenter
 			$statement->execute();
 
 			$statement = self::$dbConn->prepare(
-				"INSERT INTO committees (nu_email, committee, qtr) VALUES (?,?,?)
-				ON DUPLICATE KEY UPDATE committee=VALUES(committee)");
+				"INSERT INTO committees (nu_email, committee, points, qtr) VALUES (?,?,?)
+				ON DUPLICATE KEY UPDATE committee=VALUES(committee), points=VALUES(points)");
 
 			for($s=0; $s < count($slivkans); $s++){
-				$statement->execute(array($slivkans[$s], $committee, self::$qtr));
-			}
-
-			$statement = self::$dbConn->prepare(
-				"INSERT INTO bonuspoints (nu_email, committee, qtr) VALUES (?,?,?)
-				ON DUPLICATE KEY UPDATE committee=VALUES(committee)");
-
-			for($s=0; $s < count($slivkans); $s++){
-				$statement->execute(array($slivkans[$s], $points[$s], self::$qtr));
+				$statement->execute(array($slivkans[$s], $committee, $points[$s], self::$qtr));
 			}
 
 		} catch (PDOException $e) {
@@ -827,6 +982,35 @@ class PointsCenter
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();
+		}
+
+		return true;
+	}
+
+	public function submitCommitteePoint ($nu_email, $event_name, $points)
+	{
+		if($event_name == 'bonus'){
+			try {
+				$statement = self::$dbConn->prepare(
+					"INSERT INTO committees (nu_email, bonus, qtr) VALUES (?,?,?)
+					ON DUPLICATE KEY UPDATE bonus=VALUES(bonus)");
+
+				$statement->execute(array($nu_email, $points, self::$qtr));
+			} catch (PDOException $e) {
+				echo "Error: " . $e->getMessage();
+				die();
+			}
+		}else{
+			try {
+				$statement = self::$dbConn->prepare(
+					"INSERT INTO committeepoints (nu_email, event_name, points, qtr) VALUES (?,?,?,?)
+					ON DUPLICATE KEY UPDATE points=VALUES(points)");
+
+				$statement->execute(array($nu_email, $event_name, $points, self::$qtr));
+			} catch (PDOException $e) {
+				echo "Error: " . $e->getMessage();
+				die();
+			}
 		}
 
 		return true;
@@ -916,7 +1100,7 @@ class PointsCenter
 		if ($get['committee_members'][0] != ""){
 			try {
 				$statement = self::$dbConn->prepare(
-					"INSERT INTO committeeattendance (nu_email, event_name, qtr)
+					"INSERT INTO committeepoints (nu_email, event_name, qtr)
 					VALUES (?,?,?)");
 
 				foreach($get['committee_members'] as $c){

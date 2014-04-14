@@ -1179,12 +1179,6 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 						{ sTitle: 'Name', sClass: 'name', sWidth: '140px' }
 					];
 
-				//use 39 and 39 if it isn't housing
-				// if(!data.is_housing){
-				// 	data.males = 43;
-				// 	data.females = 39;
-				// }
-
 				for(i=0; i<numQtrs; i++){
 					colDefs.push({
 						sTitle: rankings.qtrToQuarter(data.qtrs[i]),
@@ -1457,6 +1451,109 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				updateSlivkans.validateSlivkanName(entries.eq(i));
 			}
 		}
+	},
+
+	committeeHeadquarters = {
+		init: function() {
+			var openPopover;
+
+			$.getJSON('ajax/getSlivkans.php', function(data) {
+				slivkans = data.slivkans;
+
+				for(var i=0; i<slivkans.length; i++){
+					$('<option />').attr('value', slivkans[i].nu_email).text(slivkans[i].full_name).appendTo('#helper-slivkan');
+				}
+			});
+
+			$('.committee-points-table td.pts').popover({
+				placement: 'bottom auto',
+				html: true,
+				container: 'body',
+				trigger: 'manual',
+				content: function(){
+					return ['',
+						'<div class="input-group" style="width:100px;">',
+							'<input type="number" min="0.0" max="3.0" step="0.1" ',
+								'data-original-value="', this.innerText, '" ',
+								'value="', this.innerText, '" class="form-control pts-input" >',
+							'<span class="input-group-btn">',
+								'<button class="btn btn-primary submit-committee-point">',
+									'<span class="glyphicon glyphicon-ok"></span>',
+								'</button>',
+							'</span>',
+						'</div>'
+					].join('');
+				}
+			}).on('click', function(e){
+				var target = $(e.target);
+
+				if(target.is(openPopover)){
+					target.popover('hide');
+					openPopover = null;
+					return;
+				}
+
+				if(openPopover){
+					openPopover.popover('hide');
+				}
+
+				openPopover = target.popover('show');
+			});
+
+			$('body').on('click', function(e){
+				var target = $(e.target);
+
+				if(openPopover && target.closest('.pts').length === 0 && target.closest('.popover').length === 0){
+					openPopover.popover('hide');
+					openPopover = null;
+				}
+			}).on('click', '.submit-committee-point', function(e){
+				var input = $(e.target).closest('.input-group').find('input'),
+					points = input.val();
+
+				if(points == input.data('original-value')){
+					return;
+				}
+
+				$.getJSON('ajax/submitCommitteePoint.php', {
+					nu_email: openPopover.data('slivkan'),
+					event_name: openPopover.data('event'),
+					points: points
+				}, function(status){
+					if(status == '1'){
+						openPopover.text(parseFloat(points).toPrecision(2))
+							.popover('hide');
+						committeeHeadquarters.updateTotal(openPopover.closest('tr'));
+						openPopover = null;
+					}
+				});
+			}).on('focusout', '.pts-input', committeeHeadquarters.validatePoints);
+
+			// $('body').on('shown.bs.popover', function(e){
+			// 	console.log(e);
+			// });
+			//$('#helper-slivkan')	.on('change', );
+		},
+		updateTotal: function(row){
+			var total = row.find('td.pts').map(function(i, el){
+				return parseFloat(el.innerText);
+			}).toArray().reduce(function(a, b) {
+				return a + b;
+			});
+
+			row.find('.totals').text(total.toPrecision(2));
+		},
+		validatePoints: function(e){
+			var target = $(e.target),
+				value = parseFloat(target.val()),
+				valid = !isNaN(value) && isFinite(value) && 0 <= value && value <= 3;
+
+			if(valid){
+				target.parent().find('button').removeAttr('disabled');
+			}else{
+				target.parent().find('button').attr('disabled', 'disabled');
+			}
+		}
 	};
 
 	return {
@@ -1467,6 +1564,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 		faq: faq,
 		inboundPoints: inboundPoints,
 		rankings: rankings,
-		updateSlivkans: updateSlivkans
+		updateSlivkans: updateSlivkans,
+		committeeHeadquarters: committeeHeadquarters
 	};
 });

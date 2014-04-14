@@ -154,10 +154,6 @@ th{
   background-image: none!important;
 }
 
-.end{
-  background-color: white;
-}
-
 .legend{
   color: black;
   border-collapse: separate;
@@ -179,29 +175,31 @@ th{
   margin: 20px 5px 0;
 }
 
-tr:nth-child(even) td.name, tr:nth-child(even) td.totals{ background-color: #FFFFFF; }
-tr:nth-child(odd)  td.name, tr:nth-child(odd)  td.totals{ background-color: #F0F0F0; }
+tr.even td { background-color: #FFA1A1; }
+tr.odd  td { background-color: #FF8F8F; }
 
-tr:nth-child(even) td.name.sorting_1, tr:nth-child(even) td.totals.sorting_1 { background-color: #EFEFEF; }
-tr:nth-child(odd)  td.name.sorting_1, tr:nth-child(odd)  td.totals.sorting_1 { background-color: #D0D0D0; }
+tr.even td.sorting_1 { background-color: #FF7070; }
+tr.odd  td.sorting_1 { background-color: #FF5050; }
 
-.points-table tbody tr:nth-child(even) { background-color: #FFA1A1; }
-.points-table tbody tr:nth-child(odd)  { background-color: #FF8F8F; }
+tr.even td.name, tr.even td.totals, tr.even td.white { background-color: #FFFFFF; }
+tr.odd  td.name, tr.odd  td.totals, tr.odd td.white { background-color: #F0F0F0; }
 
-tr:nth-child(even) td.sorting_1 { background-color: #FF7070; }
-tr:nth-child(odd)  td.sorting_1 { background-color: #FF5050; }
+tr.even td.name.sorting_1, tr.even td.totals.sorting_1, tr.even td.white.sorting_1 { background-color: #EFEFEF; }
+tr.odd  td.name.sorting_1, tr.odd  td.totals.sorting_1, tr.odd td.white.sorting_1 { background-color: #D0D0D0; }
 
-tbody tr:nth-child(even) td.green { background-color: #00D10E; }
-tbody tr:nth-child(odd)  td.green { background-color: #00BF0D; }
+tr.even td.end, tr.odd td.end { background-color: #FFFFFF; }
 
-tr:nth-child(even) td.green.sorting_1 { background-color: #00B30C; }
-tr:nth-child(odd)  td.green.sorting_1 { background-color: #00A30B; }
+tr.even td.green { background-color: #00D10E; }
+tr.odd  td.green { background-color: #00BF0D; }
 
-tbody tr:nth-child(even) td.blue { background-color: #99CCFF; }
-tbody tr:nth-child(odd)  td.blue { background-color: #80BFFF; }
+tr.even td.green.sorting_1 { background-color: #00B30C; }
+tr.odd  td.green.sorting_1 { background-color: #00A30B; }
 
-tr:nth-child(even) td.blue.sorting_1 { background-color: #82BBFF; }
-tr:nth-child(odd)  td.blue.sorting_1 { background-color: #409FFF; }
+tr.even td.blue { background-color: #99CCFF; }
+tr.odd  td.blue { background-color: #80BFFF; }
+
+tr.even td.blue.sorting_1 { background-color: #82BBFF; }
+tr.odd  td.blue.sorting_1 { background-color: #409FFF; }
 
 .gold { background-color: #FFCC66!important; }
 
