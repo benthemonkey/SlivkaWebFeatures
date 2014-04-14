@@ -87,8 +87,8 @@ class PointsCenter
 			$statement = self::$dbConn->prepare(
 				"SELECT first_name,last_name,year,major,suite,photo
 				FROM slivkans
-				LEFT JOIN suites USING (nu_email)
-				WHERE qtr=:qtr AND qtr_joined<=:qtr AND (qtr_final IS NULL OR qtr_final>=:qtr)
+				LEFT JOIN suites ON slivkans.nu_email=suites.nu_email AND suites.qtr=:qtr
+				WHERE qtr_joined <= :qtr AND (qtr_final IS NULL OR qtr_final >= :qtr)
 				ORDER BY first_name,last_name");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
@@ -106,11 +106,11 @@ class PointsCenter
 		try {
 			$statement = self::$dbConn->prepare(
 				"SELECT CONCAT(first_name, ' ', last_name) AS full_name,
-					nu_email,gender,wildcard,committee,photo,suite,year
+					slivkans.nu_email,gender,wildcard,committee,photo,suite,year
 				FROM slivkans
-				LEFT JOIN committees USING (nu_email)
-				LEFT JOIN suites USING (nu_email, qtr)
-				WHERE qtr=:qtr AND qtr_joined<=:qtr AND (qtr_final IS NULL OR qtr_final>=:qtr)
+				LEFT JOIN committees ON slivkans.nu_email=committees.nu_email AND committees.qtr=:qtr
+				LEFT JOIN suites ON slivkans.nu_email=suites.nu_email AND suites.qtr=:qtr
+				WHERE qtr_joined <= :qtr AND (qtr_final IS NULL OR qtr_final >= :qtr)
 				ORDER BY first_name,last_name");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
