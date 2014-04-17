@@ -1489,14 +1489,6 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 		init: function() {
 			var openPopover;
 
-			$.getJSON('ajax/getSlivkans.php', function(data) {
-				slivkans = data.slivkans;
-
-				for(var i=0; i<slivkans.length; i++){
-					$('<option />').attr('value', slivkans[i].nu_email).text(slivkans[i].full_name).appendTo('#helper-slivkan');
-				}
-			});
-
 			$('.committee-points-table td.pts').popover({
 				placement: 'bottom auto',
 				html: true,
@@ -1563,6 +1555,28 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					}
 				});
 			}).on('input', '.pts-input', committeeHeadquarters.validatePoints);
+
+			$('#helper-point-form').on('submit', function(){
+				var nu_email = $('#helper-slivkan').val(),
+					event_name = $('#helper-event').val();
+
+				if(nu_email.length > 0 && event_name.length > 0){
+					$.getJSON('ajax/submitHelperPoint.php', {
+						nu_email: nu_email,
+						event_name: event_name
+					}, function(data) {
+						if(data.status == '1'){
+							window.alert('Success!');
+						}else{
+							window.alert('Something went wrong. Ask the VP.');
+						}
+
+						$('#helper-point-modal').modal('hide');
+						$('#helper-slivkan').val('');
+						$('#helper-event').val('');
+					});
+				}
+			});
 
 			// $('body').on('shown.bs.popover', function(e){
 			// 	console.log(e);

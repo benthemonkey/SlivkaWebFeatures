@@ -168,7 +168,7 @@
 						<button type="submit" class="btn btn-primary btn-lg" id="submit">Validate</button>
 						<button type="button" class="btn btn-default btn-lg" id="reset">Reset</button>
 					</div>
-					<div class="clearfix"></div>
+					<?php include('credits.html'); ?>
 				</div>
 			</form>
 			<div class="clearfix"></div>

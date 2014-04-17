@@ -10,7 +10,7 @@
 			<?php include('nav.html'); ?>
 			<div class="col">
 				<legend>FAQ</legend>
-				<div class="panel-group row">
+				<div class="row">
 					<div class="col-lg-4">
 						<div class="panel panel-default">
 							<div class="panel-heading">
@@ -55,6 +55,7 @@
 					</div>
 				</div>
 			</div>
+			<?php include('credits.html'); ?>
 		</div>
 	</div>
 	<?php include('footer.html'); ?>

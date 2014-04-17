@@ -57,6 +57,28 @@ function getFullName($slivkans, $nu_email){
 			</div>
 			<legend><?php echo $committee ?> Committee Headquarters</legend>
 <?php if ($committee) { ?>
+			<div class="row">
+				<div class="col-lg-12">
+					<div class="col-lg-2 col-md-3 col-sm-6">
+						<div class="alert alert-info">
+							<p>Click to edit values.</p>
+						</div>
+					</div>
+					<div class="col-md-3 col-sm-6">
+						<div>Colors:</div>
+						<table id="legend" class="legend text-center" style="width: 100%;">
+							<tr class="odd">
+								<td class="green">Attendee</td>
+								<td class="blue">Point Taker</td>
+								<td>None</td>
+							</tr>
+						</table>
+					</div>
+					<div class="col-md-2">
+						<a href="#helper-point-modal" class="btn btn-warning btn-lg" data-toggle="modal">Give Helper Point</a>
+					</div>
+				</div>
+			</div>
 			<div class="table-wrapper">
 				<table id="table" class="points-table committee-points-table">
 					<thead>
@@ -68,7 +90,7 @@ function getFullName($slivkans, $nu_email){
 	for($i=0; $i<count($points_table['events']); $i++){
 		echo $indent . "<th class=\"eventHeader\">\n" .
 			$indent . "\t<div class=\"slantedHeader\">\n" .
-			$indent . "\t\t<span>" . $points_table['events'][$i] . "</span>\n" .
+			$indent . "\t\t<span>" . substr($points_table['events'][$i], 0, -10) . substr($points_table['events'][$i], -5) . "</span>\n" .
 			$indent . "\t</div>\n" .
 			$indent . "\t<div class=\"sort-icon\"></div>\n" .
 			$indent . "</th>\n";
@@ -142,33 +164,61 @@ function getFullName($slivkans, $nu_email){
 					</tbody>
 				</table>
 			</div>
-			<!--div class="row">
-				<div class="col">
-					<form>
-						<div class="col-sm-2">
-							<h4>Give Helper Point</h4>
-						</div>
-						<div class="form-group col-sm-4">
-							<select id="helper-event" class="form-control">
-								<option value="">Event</option>
-							</select>
-						</div>
-						<div class="form-group col-sm-4">
-							<select id="helper-slivkan" class="form-control">
-								<option value="">Slivkan</option>
-							</select>
-						</div>
-						<div class="col-sm-2">
-							<button type="submit" class="btn btn-primary btn-block">Submit</button>
-						</div>
-					</form>
-				</div>
-			</div-->
 <?php } else { ?>
 			<div class="alert alert-info text-center"><h4>Select a Committee</h4></div>
 
 <?php } ?>
+		<?php include('credits.html'); ?>
 		</div><!--content-->
+	</div>
+	<div id="helper-point-modal" class="modal fade" role="dialog" >
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h3>Give Helper Point</h3>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-lg-12">
+							<form id="helper-point-form" class="form-horizontal" role="form" onsubmit="return false;">
+								<div class="form-group">
+									<label for="helper-event" class="col-sm-2 control-label">Event</label>
+									<div class="col-sm-10">
+										<select id="helper-event" class="form-control">
+											<option value="">Select One</option>
+											<?php
+												foreach(array_reverse($points_table['events']) as $e){
+													echo "<option>" . $e . "</option>\n";
+												}
+											?>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="helper-slivkan" class="col-sm-2 control-label">Slivkan</label>
+									<div class="col-sm-10">
+										<select id="helper-slivkan" class="form-control">
+											<option value="">Select One</option>
+											<?php
+												foreach($slivkans as $s){
+													echo '<option value="' . $s['nu_email'] . '" ';
+													if($s['committee'] == $committee || $s['committee'] == 'Facilities'){
+														echo 'disabled';
+													}
+													echo '>' . $s['full_name'] . "</option>\n";
+												}
+											?>
+										</select>
+									</div>
+								</div>
+								<button type="submit" class="btn btn-primary btn-block">Submit</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 	<?php include('footer.html'); ?>
 </body>

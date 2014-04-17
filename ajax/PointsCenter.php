@@ -1010,6 +1010,21 @@ class PointsCenter
 		return true;
 	}
 
+	public function submitHelperPoint ($nu_email, $event_name)
+	{
+		try {
+			$statement = self::$dbConn->prepare(
+				"INSERT INTO helperpoints (nu_email,event_name,qtr) VALUES (?,?,?)");
+
+			$statement->execute(array($nu_email, $event_name, self::$qtr));
+		} catch (PDOException $e) {
+			echo "{\"status\": \"Error: " . $e->getMessage() . "\"}";
+			die();
+		}
+
+		return true;
+	}
+
 	public function submitPointsForm ($get)
 	{
 		$real_event_name = $get['event_name'] . " " . $get['date'];

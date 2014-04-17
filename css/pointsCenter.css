@@ -24,6 +24,10 @@ legend{
   padding: 10px 20px;
 }
 
+.credits{
+  margin: 50px 0 15px;
+}
+
 .slivkan-suggestion{
   min-height: 30px;
 }

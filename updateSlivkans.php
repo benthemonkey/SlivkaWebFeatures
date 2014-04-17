@@ -92,7 +92,7 @@
 				<div class="pull-right">
 					<button type="submit" class="btn btn-primary btn-lg" id="submit">Submit</button>
 				</div>
-				<div class="clearfix"></div>
+				<?php include('credits.html'); ?>
 			</div>
 			<div class="clearfix"></div>
 		</div>

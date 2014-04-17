@@ -127,6 +127,7 @@
 					</div>
 				</div><!-- row -->
 			</div><!--col-->
+			<?php include('credits.html'); ?>
 		</div>
 	</div>
   	<?php include('footer.html'); ?>

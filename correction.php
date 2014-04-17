@@ -45,6 +45,7 @@
 					</form>
 				</div>
 			</div>
+			<?php include('credits.html'); ?>
 		</div>
 	</div>
 	<?php include('footer.html'); ?>

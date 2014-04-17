@@ -81,6 +81,7 @@
 			</div>
 			<div class="clearfix"></div>
 		</div>
+		<?php include('credits.html'); ?>
 	</div>
 	<?php include('footer.html'); ?>
 </body>

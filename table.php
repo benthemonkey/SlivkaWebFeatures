@@ -38,12 +38,12 @@ $points_table = $points_center->getPointsTable($showall);
 						?></p>
 					</div>
 					<table id="legend" class="legend">
-						<tr class="odd" style="background-color: white;">
-							<td>Colors: </td>
+						<tr class="odd">
+							<td style="background-color: white;">Colors: </td>
 							<td class="green">Point</td>
 							<td class="blue">Committee</td>
 							<td class="gold">Helper</td>
-							<td style="background-color: #FF8F8F;">None</td>
+							<td>None</td>
 						</tr>
 					</table>
 				</div>
@@ -193,6 +193,7 @@ $points_table = $points_center->getPointsTable($showall);
 					</tbody>
 				</table>
 			</div>
+			<?php include('credits.html'); ?>
 		</div>
 	</div>
 	<div id="stats" class="modal fade" role="dialog" >
