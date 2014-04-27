@@ -151,6 +151,10 @@ $points_table = $points_center->getPointsTable($showall);
 	$indent = "\t\t\t\t\t\t";
 
 	foreach($points_table['points_table'] AS $tr){
+		if(end($tr) == "0"){
+			continue;
+		}
+
 		if($odd){
 			$odd = false;
 			echo $indent . "<tr class=\"odd\">\n";
