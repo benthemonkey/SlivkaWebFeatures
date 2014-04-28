@@ -15,12 +15,34 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 	//functions used by multiple pages
 	var common = {
+		slivkanNameExists: function(name) {
+			if(name.length === 0){
+				return null;
+			}else{
+				return slivkans.indexOfKey(name.indexOf(' ') != -1 ? 'full_name' : 'nu_email', name) != -1;
+			}
+		},
 		updateValidity: function(element, valid) {
-			if(valid){
+			if(valid === null){
+				element.removeClass('has-success has-warning has-error');
+			}else if(valid){
 				element.addClass('has-success').removeClass('has-error');
 			}else{
 				element.removeClass('has-success').addClass('has-error');
 			}
+
+			return element;
+		},
+		checkForNickname: function(slivkan_entry) {
+			var name = slivkan_entry.val(),
+				nickname_ind = nicknames.indexOfKey('nickname', name);
+
+			if(nickname_ind != -1){
+				name = slivkans[slivkans.indexOfKey('nu_email', nicknames[nickname_ind].nu_email)].full_name;
+				slivkan_entry.val(name);
+			}
+
+			return name;
 		},
 		typeaheadOpts: function(name, slivkans) {
 			return {
@@ -397,19 +419,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			}
 		},
 		validateFilledBy: function() {
-			var valid, name = $('#filled-by').val();
-
-			$('.filled-by-control').removeClass('has-warning');
-
-			if(name.length > 0){
-				valid = slivkans.indexOfKey('full_name', name) != -1;
-				common.updateValidity($('.filled-by-control'), valid);
-			}else{
-				$('.filled-by-control').addClass('error');
-				valid = false;
-			}
-
-			return valid;
+			return common.updateValidity($('.filled-by-control'), common.slivkanNameExists($('#filled-by').val()));
 		},
 		resetForm: function() {
 			$('#filled-by').val('');
@@ -740,6 +750,11 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				event_name = event_name_trimmed;
 			}
 
+			if(event_name.length === 0){
+				$('#event').removeClass('has-error');
+				return false;
+			}
+
 			//store value
 			localStorage.spc_sub_name = event_name;
 
@@ -818,8 +833,15 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			return valid;
 		},
 		validateFilledBy: function() {
-			var valid = true, name = $('#filled-by').val(),
-			nickname_ind = nicknames.indexOfKey('nickname', name);
+			var valid = true,
+				name = $('#filled-by').val(),
+				nickname_ind = nicknames.indexOfKey('nickname', name);
+
+			$('.filled-by-control').removeClass('has-warning');
+
+			if(name.length === 0){
+				return false;
+			}
 
 			if(nickname_ind != -1){
 				name = slivkans[slivkans.indexOfKey('nu_email', nicknames[nickname_ind].nu_email)].full_name;
@@ -829,28 +851,15 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			//store value
 			localStorage.spc_sub_filledby = name;
 
-			$('.filled-by-control').removeClass('has-warning');
-
-			if(name.length > 0){
-				valid = slivkans.indexOfKey('full_name', name) != -1;
-			}else{
-				valid = false;
-			}
-
+			valid = slivkans.indexOfKey('full_name', name) != -1;
 			common.updateValidity($('.filled-by-control'), valid);
 
 			return valid;
 		},
 		validateSlivkanName: function(entry, inBulk) {
 			var valid = true,
-			slivkan_entry = entry.find('.slivkan-entry'),
-			name = slivkan_entry.val(),
-			nickname_ind = nicknames.indexOfKey('nickname', name);
-
-			if(nickname_ind != -1){
-				name = slivkans[slivkans.indexOfKey('nu_email', nicknames[nickname_ind].nu_email)].full_name;
-				slivkan_entry.val(name);
-			}
+				slivkan_entry = entry.find('.slivkan-entry'),
+				name = common.checkForNickname(slivkan_entry);
 
 			//only process individually
 			if(!inBulk){
@@ -879,8 +888,6 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				//update name in case it changed
 				name = slivkan_entry.val();
 			}
-
-			entry.removeClass('has-warning');
 
 			if(name.length > 0){
 				var ind = slivkans.indexOfKey('full_name', name);
@@ -1142,9 +1149,9 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 				$.getJSON('./ajax/submitPointsForm.php', data, function(data_in) {
 					real_submit.button('reset');
-					$('#results-status').parent().removeClass('warning');
+					$('#results-status').parent().removeClass('has-warning');
 					if(data_in.error){
-						$('#results-status').text('Error in Step '+data_in.step).parent().addClass('error');
+						$('#results-status').text('Error in Step '+data_in.step).parent().addClass('has-error');
 					}else{
 						$('#unconfirmed').fadeOut({complete: function() {$('#confirmed').fadeIn();}});
 
@@ -1154,7 +1161,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 							$('#unconfirmed').show();
 						});
 
-						$('#results-status').text('Success!').parent().addClass('success');
+						$('#results-status').text('Success!').parent().addClass('has-success');
 
 						submission.resetForm('force');
 					}
@@ -1595,15 +1602,17 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 		validatePoints: function(e){
 			var target = $(e.target),
 				control = target.closest('.form-group'),
-				button = control.find('button');
+				button = control.find('button'),
+				valid = true;
 
-			if(/^([0-2](\.\d)?|3(\.0)?)$/.test(target.val())){
+			if(/^(\.[1-9]|[0-2](\.\d)?|3(\.0)?)$/.test(target.val())){
 				button.removeAttr('disabled');
-				control.removeClass('has-error').addClass('has-success');
 			}else{
+				valid = false;
 				button.attr('disabled', 'disabled');
-				control.addClass('has-error').removeClass('has-success');
 			}
+
+			common.updateValidity(control, valid);
 		}
 	};
 
