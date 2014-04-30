@@ -1,9 +1,3 @@
-<?php
-include_once "./ajax/PointsCenter.php";
-$points_center = new PointsCenter();
-
-$quarters = $points_center->getQuarters();
-?>
 <!DOCTYPE HTML>
 <html lang="en">
 <head>

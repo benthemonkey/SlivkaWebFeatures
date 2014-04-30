@@ -158,6 +158,31 @@ class PointsCenter
 		return $fellows;
 	}
 
+	public function getEvents ($count = 20, $offset = 0)
+	{
+		$events = array();
+		try {
+			$statement = self::$dbConn->prepare(
+				"SELECT event_name,date,type,attendees,committee,description
+				FROM events
+				WHERE qtr=:qtr AND type<>'committee_only'
+				ORDER BY date DESC, id DESC
+				".($count != -1 ? "LIMIT :offset,:count" : ""));
+			$statement->bindValue(":qtr", self::$qtr);
+
+			if($count != -1){
+				$statement->bindValue(":offset", $offset, PDO::PARAM_INT);
+				$statement->bindValue(":count", $count, PDO::PARAM_INT);
+			}
+			$statement->execute();
+			$events = $statement->fetchAll(PDO::FETCH_NAMED);
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+		return array_reverse($events);
+	}
+
 	public function getRecentEvents ()
 	{
 		$events = array();
@@ -200,31 +225,6 @@ class PointsCenter
 			die();
 		}
 		return $events;
-	}
-
-	public function getEvents ($count = 20, $offset = 0)
-	{
-		$events = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT event_name,date,type,attendees,committee,description
-				FROM events
-				WHERE qtr=:qtr AND type<>'committee_only'
-				ORDER BY date DESC, id DESC
-				".($count != -1 ? "LIMIT :offset,:count" : ""));
-			$statement->bindValue(":qtr", self::$qtr);
-
-			if($count != -1){
-				$statement->bindValue(":offset", $offset, PDO::PARAM_INT);
-				$statement->bindValue(":count", $count, PDO::PARAM_INT);
-			}
-			$statement->execute();
-			$events = $statement->fetchAll(PDO::FETCH_NAMED);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-		return array_reverse($events);
 	}
 
 	public function getIMs ($team)
