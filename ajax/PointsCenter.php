@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . "/datastoreVars.php";
-include_once __DIR__ . "/swift/swift_required.php";
 
 class PointsCenter
 {
@@ -8,17 +7,12 @@ class PointsCenter
 
 	private static $dbConn = null;
 
-	public function __construct ($qtr)
+	public function __construct ()
 	{
 		error_reporting(E_ALL & ~E_NOTICE);
 		//ini_set('display_errors', '1');
 		self::initializeConnection();
-
-		if ($qtr) {
-			self::$qtr = $qtr;
-		} else {
-			self::$qtr = $GLOBALS['QTR'];
-		}
+		self::$qtr = (isset($_GET['qtr']) ? $_GET['qtr'] : $GLOBALS['QTR']);
 	}
 
 	private static function initializeConnection ()
@@ -48,7 +42,8 @@ class PointsCenter
 			$statement = self::$dbConn->prepare(
 				"SELECT qtr,quarter
 				FROM quarters
-				WHERE 1301<qtr");
+				WHERE 1301<qtr
+				ORDER BY qtr DESC");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
 			$quarters = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -163,26 +158,20 @@ class PointsCenter
 		return $fellows;
 	}
 
-	public function getEvents ($start,$end)
+	public function getRecentEvents ()
 	{
 		$events = array();
-
-		if(!$start){
-			$start = date('Y-m-d',mktime(0,0,0,date("m"),date("d")-14,date("Y")));
-		}
-		if(!$end){
-			$end = '2050-01-01';
-		}
+		$days_later = 14;
+		$start = date('Y-m-d',mktime(0,0,0,date("m"),date("d")-$days_later,date("Y")));
 
 		try {
 			$statement = self::$dbConn->prepare(
 				"SELECT event_name,date,type,attendees,committee,description
 				FROM events
-				WHERE qtr=:qtr AND date BETWEEN :start AND :end AND type<>'committee_only'
+				WHERE qtr=:qtr AND date>:start AND type<>'committee_only'
 				ORDER BY date, id");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->bindValue(":start", $start);
-			$statement->bindValue(":end", $end);
 			$statement->execute();
 			$events = $statement->fetchAll(PDO::FETCH_NAMED);
 		} catch (PDOException $e) {
@@ -213,7 +202,7 @@ class PointsCenter
 		return $events;
 	}
 
-	public function getRecentEvents ($count = 20, $offset = 0)
+	public function getEvents ($count = 20, $offset = 0)
 	{
 		$events = array();
 		try {
@@ -222,10 +211,13 @@ class PointsCenter
 				FROM events
 				WHERE qtr=:qtr AND type<>'committee_only'
 				ORDER BY date DESC, id DESC
-				LIMIT :offset,:count");
+				".($count != -1 ? "LIMIT :offset,:count" : ""));
 			$statement->bindValue(":qtr", self::$qtr);
-			$statement->bindValue(":offset", $offset, PDO::PARAM_INT);
-			$statement->bindValue(":count", $count, PDO::PARAM_INT);
+
+			if($count != -1){
+				$statement->bindValue(":offset", $offset, PDO::PARAM_INT);
+				$statement->bindValue(":count", $count, PDO::PARAM_INT);
+			}
 			$statement->execute();
 			$events = $statement->fetchAll(PDO::FETCH_NAMED);
 		} catch (PDOException $e) {
@@ -527,12 +519,12 @@ class PointsCenter
 		}
 
 		$other_breakdown = array(
-			array($bonus['other1_name'], $bonus['other1']),
-			array($bonus['other2_name'], $bonus['other2']),
-			array($bonus['other3_name'], $bonus['other3']));
+			array($bonus['other1_name'] | '', $bonus['other1'] | 0),
+			array($bonus['other2_name'] | '', $bonus['other2'] | 0),
+			array($bonus['other3_name'] | '', $bonus['other3'] | 0));
 
 
-		return array("helper" => $helper_points, "committee" => $committee_points, "other" => $other_points, "other_breakdown" => $other_breakdown);
+		return array("helper" => $helper_points, "committee" => $committee_points | 0, "other" => $other_points, "other_breakdown" => $other_breakdown);
 	}
 
 	public function getBonusPoints ()
@@ -574,10 +566,9 @@ class PointsCenter
 	{
 		$slivkans = self::getSlivkans();
 		if($showall){
-			$quarter_info = self::getQuarterInfo();
-			$events = self::getEvents($quarter_info['start_date'],$quarter_info['end_date']);
+			$events = self::getEvents(-1);
 		}else{
-			$events = self::getRecentEvents();
+			$events = self::getEvents();
 		}
 		$points = self::getPoints();
 		$event_totals = self::getEventTotals();
@@ -1313,6 +1304,7 @@ class PointsCenter
 
 	private function sendEmail($to_email,$subject,$body)
 	{
+		include_once __DIR__ . "/swift/swift_required.php";
 		$from = array($GLOBALS['MAILBOT_EMAIL'] => "Slivka Points Center");
 
 		if($to_email){

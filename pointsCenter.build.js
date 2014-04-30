@@ -3,7 +3,7 @@ require.config({
 		bootstrap: 'bower_components/bootstrap/dist/js/bootstrap',
 		'bootstrap-daterangepicker': 'bower_components/bootstrap-daterangepicker/daterangepicker',
 		'bootstrap-multiselect': 'bower_components/bootstrap-multiselect/js/bootstrap-multiselect',
-		'bootstrap-switch': 'bower_components/bootstrap-switch/dist/js/bootstrap-switch',
+		'bootstrap-switch': 'bower_components/bootstrap-switch/build/js/bootstrap-switch',
 		datatables: 'bower_components/datatables/media/js/jquery.dataTables',
 		highcharts: 'bower_components/highcharts/highcharts',
 		hogan: 'bower_components/hogan/web/builds/2.0.0/hogan-2.0.0.amd',

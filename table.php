@@ -1,11 +1,10 @@
 <?php
-#ini_set('display_errors', '1');
 include_once "./ajax/PointsCenter.php";
-$points_center = new PointsCenter($_GET['qtr']);
+$points_center = new PointsCenter();
 
 $showall = $_GET['all'] == '1';
 $qtr = $_GET['qtr'];
-$quarters = array_reverse($points_center->getQuarters());
+$quarters = $points_center->getQuarters();
 $points_table = $points_center->getPointsTable($showall);
 
 ?>

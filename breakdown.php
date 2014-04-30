@@ -1,3 +1,9 @@
+<?php
+include_once "./ajax/PointsCenter.php";
+$points_center = new PointsCenter();
+
+$quarters = $points_center->getQuarters();
+?>
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
@@ -26,7 +32,11 @@
 							<option value="">Select One</option>
 						</select>
 					</div>
-					<div class="col-md-6 pull-right hidden-xs">
+					<div class="form-group col-md-2 col-sm-4 col-xs-6">
+						<label for="qtr" class="control-label">Quarter:</label>
+						<select id="qtr" class="form-control"></select>
+					</div>
+					<div class="col-md-6 col-md-offset-1 hidden-xs">
 						<table class="table table-bordered table-condensed">
 							<thead>
 								<tr>
@@ -52,7 +62,7 @@
 							</tbody>
 						</table>
 					</div>
-					<div class="visible-xs">
+					<div class="col-xs-12 visible-xs">
 						<table class="table table-bordered table-condensed">
 							<thead>
 								<th>Type</th>

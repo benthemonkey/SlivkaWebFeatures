@@ -1,6 +1,8 @@
 define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 	'use strict';
-	var slivkans, nicknames, fellows, events, type = 'Other', valid_event_name = false, quarter_start, quarter_end;
+	var slivkans, nicknames, fellows, events, qtrs, //quarter_start, quarter_end,
+		type = 'Other',
+		valid_event_name = false;
 
 	//add indexOfKey (useful: http://jsperf.com/js-for-loop-vs-array-indexof)
 	Array.prototype.indexOfKey = function(key, value) {
@@ -67,13 +69,18 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 	breakdown = {
 		init: function() {
-			$.getJSON('ajax/getSlivkans.php', function(data) {
+			$.getJSON('ajax/getSlivkans.php', {qtr: localStorage.spc_brk_qtr}, function(data) {
 				slivkans = data.slivkans;
-				quarter_start = data.quarter_info.start_date;
-				quarter_end = data.quarter_info.end_date;
+				qtrs = data.qtrs;
+				// quarter_start = data.quarter_info.start_date;
+				// quarter_end = data.quarter_info.end_date;
 
 				for(var i=0; i<slivkans.length; i++){
 					$('<option />').attr('value', slivkans[i].nu_email).text(slivkans[i].full_name).appendTo('#slivkan');
+				}
+
+				for(i=0; i<qtrs.length; i++){
+					$('<option />').attr('value', qtrs[i].qtr).text(qtrs[i].quarter).appendTo('#qtr');
 				}
 
 				if(localStorage.spc_brk_slivkan){
@@ -81,11 +88,20 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					breakdown.getSlivkanPoints();
 				}
 
+				if(localStorage.spc_brk_qtr){
+					$('#qtr').val(localStorage.spc_brk_qtr);
+				}
+
 				$('#slivkan').on('change', breakdown.getSlivkanPoints);
+				$('#qtr').on('change', function() {
+					localStorage.spc_brk_qtr = $(this).val();
+					window.location.href = 'breakdown.php';
+				});
 			});
 		},
 		getSlivkanPoints: function() {
 			var nu_email = $('#slivkan').val(),
+				qtr = localStorage.spc_brk_qtr || qtrs[0].qtr,
 				attendedEventsEl = $('#attendedEvents'),
 				unattendedEventsEl = $('#unattendedEvents');
 
@@ -97,7 +113,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					unattendedEventsEl.empty();
 					$('#otherPointsTableBody').empty();
 
-					$.getJSON('ajax/getPointsBreakdown.php', {nu_email: nu_email, start: quarter_start, end: quarter_end}, function(data) {
+					$.getJSON('ajax/getPointsBreakdown.php', {nu_email: nu_email, qtr: qtr}, function(data) {
 						var i, eventData = [],
 							imData = [],
 							event_total = 0,
@@ -389,7 +405,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('#filled-by').typeahead(common.typeaheadOpts('slivkans', slivkans));
 			});
 
-			$.getJSON('ajax/getEvents.php', function(events) {
+			$.getJSON('ajax/getRecentEvents.php', function(events) {
 				for(var i=events.length-1; i>=0; i--){
 					if(events[i].type == 'p2p'){
 						$('<option disabled="disabled"></option>').text(events[i].event_name).appendTo('#event-name');
@@ -460,7 +476,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 				fellows = data.fellows;
-				var im_teams = data.quarter_info.im_teams;
+				var im_teams = data.im_teams;
 
 				//tack on nicknames to slivkans
 				for(var i=0; i<nicknames.length; i++){
@@ -568,7 +584,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			$('#im-team')			.on('change',	submission.validateIMTeam);
 			$('#committee')			.on('change',	submission.validateCommittee);
 			$('#description')		.on('focusout',	submission.validateDescription);
-			$('#comments')			.on('focusout',	function() { localStorage.spc_sub_comments = $('#comments').val(); });
+			$('#comments')			.on('focusout',	function() { localStorage.spc_sub_comments = $(this).val(); });
 			$('#close-sort-alert')	.on('click',	function() { $('#sort-alert').slideUp(); });
 			$('#close-dupe-alert')	.on('click',	function() { $('#duplicate-alert').slideUp(); });
 			$('#sort-entries')		.on('click',	submission.sortEntries);
@@ -763,7 +779,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			if((event_name.length <= 32 && event_name.length >= 8) || event_name == 'P2P'){
 				event_name += ' ' + $('#date').val();
 
-				$.getJSON('ajax/getEvents.php', function(events) {
+				$.getJSON('ajax/getRecentEvents.php', function(events) {
 					$('.event-control').removeClass('has-warning');
 
 					if(events.length > 0 && events.indexOfKey('event_name', event_name) != -1){
@@ -902,7 +918,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 				common.updateValidity(entry, valid);
 			}else{
-				entry.removeClass('has-success has-error');
+				common.updateValidity(entry, null);
 			}
 
 			return valid;
