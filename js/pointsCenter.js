@@ -28,12 +28,12 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			if(valid === null){
 				element.removeClass('has-success has-warning has-error');
 			}else if(valid){
-				element.addClass('has-success').removeClass('has-error');
+				element.addClass('has-success').removeClass('has-error has-warning');
 			}else{
-				element.removeClass('has-success').addClass('has-error');
+				element.removeClass('has-success has-warning').addClass('has-error');
 			}
 
-			return element;
+			return valid;
 		},
 		checkForNickname: function(slivkan_entry) {
 			var name = slivkan_entry.val(),
@@ -757,7 +757,8 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 		},
 		validateEventName: function() {
 			var valid = false,
-				event_name = $('#event').val(),
+				eventEl = $('#event'),
+				event_name = eventEl.val(),
 				event_name_trimmed = event_name.replace(/^\s+|\s+$/g, '');
 
 			//errors abound in the PHP with trailing whitespace
@@ -766,26 +767,21 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				event_name = event_name_trimmed;
 			}
 
-			if(event_name.length === 0){
-				$('#event').removeClass('has-error');
-				return false;
-			}
-
 			//store value
 			localStorage.spc_sub_name = event_name;
 
 			valid_event_name = false;
 
-			if((event_name.length <= 32 && event_name.length >= 8) || event_name == 'P2P'){
+			if(event_name.length === 0){
+				common.updateValidity($('.event-control'), null);
+			}else if((event_name.length <= 32 && event_name.length >= 8) || (type == 'P2P' && event_name == 'P2P')){
 				event_name += ' ' + $('#date').val();
 
 				$.getJSON('ajax/getRecentEvents.php', function(events) {
-					$('.event-control').removeClass('has-warning');
-
 					if(events.length > 0 && events.indexOfKey('event_name', event_name) != -1){
 						if(type == 'IM'){
-							var last = parseInt($('#event').val().slice(-1), 10);
-							$('#event').val($('#event').val().slice(0, -1) + (last+1).toString());
+							var last = parseInt(eventEl.val().slice(-1), 10);
+							eventEl.val(eventEl.val().slice(0, -1) + (last+1).toString());
 							submission.validateEventName();
 						}else{
 							valid_event_name = false;
@@ -800,7 +796,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					common.updateValidity($('.event-control'), valid_event_name);
 				});
 			}else{
-				$('#event-name-length-error-count').html('Currently '+event_name.length+' characters');
+				$('#event-name-length-error-count').html('Currently ' + event_name.length + ' characters');
 				$('#event-name-length-error').fadeIn();
 				common.updateValidity($('.event-control'), valid_event_name);
 			}
