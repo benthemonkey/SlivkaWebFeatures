@@ -23,7 +23,7 @@ for ($ii = 0; $ii < count($fellows); $ii++)
 				<td><?= $fellows[$ii]["full_name"] ?></td>
 				<td><?= $fellows[$ii]["position"] ?></td>
 				<td><?= $fellows[$ii]["department"] ?></td>
-				<td><img src="./img/slivkans/<?= $fellows[$ii]["photo"] ?>.jpg" width="100px" /></td>
+				<td style="padding:0;"><img src="./img/slivkans/<?= $fellows[$ii]["photo"] ?>.jpg" width="100px" /></td>
 			</tr>
 <?php
 }
