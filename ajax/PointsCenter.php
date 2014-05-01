@@ -146,7 +146,7 @@ class PointsCenter
 		$fellows = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT full_name,photo
+				"SELECT full_name,position,department,photo
 				FROM fellows
 				WHERE qtr_final IS NULL");
 			$statement->execute();
