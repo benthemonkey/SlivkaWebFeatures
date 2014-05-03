@@ -1098,7 +1098,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			}
 		},
 		submitPointsForm: function() {
-			var name, nu_email, val,
+			var name, nu_email, val, ind,
 				data = {
 					date: $('#date').val(),
 					type: type.toLowerCase().replace(' ', '_'),
@@ -1108,15 +1108,20 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					filled_by: slivkans[slivkans.indexOfKey('full_name', $('#filled-by').val())].nu_email,
 					comments: $('#comments').val(),
 					attendees: [],
+					committee_members: [],
 					fellows: []
 				};
 
 			$('#slivkan-entry-tab').find('.slivkan-entry').each(function() {
 				name = $(this).val();
 				if(name.length > 0){
-					nu_email = slivkans[slivkans.indexOfKey('full_name', name)].nu_email;
+					ind = slivkans.indexOfKey('full_name', name);
+					nu_email = slivkans[ind].nu_email;
 
 					data.attendees.push(nu_email);
+					if (slivkans[ind].committee == data.committee && data.committee != 'Exec' && type != 'p2p' && type != 'im') {
+						data.committee_members.push(nu_email);
+					}
 				}
 			});
 
@@ -1133,7 +1138,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			for(var obj in data){
 				if(data.hasOwnProperty(obj)){
-					if(obj == 'attendees' || obj == 'fellows'){
+					if(obj == 'attendees' || obj == 'committee_members' || obj == 'fellows'){
 						val = data[obj].join(', ');
 					}else{
 						val = data[obj];
@@ -1163,7 +1168,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					real_submit.button('reset');
 					$('#results-status').parent().removeClass('has-warning');
 					if(data_in.error){
-						$('#results-status').text('Error in Step '+data_in.step).parent().addClass('has-error');
+						$('#results-status').text('Error in Step '+data_in.step).parent().removeClass('warning').addClass('error');
 					}else{
 						$('#unconfirmed').fadeOut({complete: function() {$('#confirmed').fadeIn();}});
 
@@ -1173,7 +1178,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 							$('#unconfirmed').show();
 						});
 
-						$('#results-status').text('Success!').parent().addClass('has-success');
+						$('#results-status').text('Success!').parent().removeClass('warning').addClass('success');
 
 						submission.resetForm('force');
 					}
@@ -1212,7 +1217,8 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					events = events.sort(function(a, b) { return a[2] - b[2]; });
 
 					for(var i=0; i<events.length; i++){
-						$('<li />').html(events[i][0] + ' ' + events[i][1]).appendTo('#events'); // + ' ' + moment(events[i][2]+'', 'X').format('ddd MMM DD, YYYY h:mma')
+						$('<li />').html(events[i][0] + ' ' + events[i][1]).appendTo('#events');
+							// + ' ' + moment(events[i][2]+'', 'X').format('ddd MMM DD, YYYY h:mma')
 					}
 				}
 			});
@@ -1514,21 +1520,11 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				container: 'body',
 				trigger: 'manual',
 				content: function(){
-					return ['',
-						'<div class="form-group has-success" style="width:100px;">',
-							'<label class="control-label" for="pts-input">Edit Points:</label>',
-							'<div class="input-group">',
-								'<input type="number" id="pts-input" min="0.0" max="3.0" step="0.1" ',
-									'data-original-value="', this.innerText, '" ',
-									'value="', this.innerText, '" class="form-control pts-input" >',
-								'<span class="input-group-btn">',
-									'<button class="btn btn-primary submit-committee-point">',
-										'<span class="glyphicon glyphicon-ok"></span>',
-									'</button>',
-								'</span>',
-							'</div>',
-						'</div>'
-					].join('');
+					var template = $('#pts-input-template');
+
+					template.find('input').data('original-value', this.innerText).attr('value', this.innerText);
+
+					return template.html();
 				}
 			}).on('click', function(e){
 				var target = $(e.target);
@@ -1546,7 +1542,35 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				openPopover = target.popover('show');
 			});
 
-			$('body').on('click', function(e){
+			$('body').on('shown.bs.popover', function(e){
+				var target = $(e.target),
+					popover = $('.popover');
+
+				if(target.hasClass('green')){
+					popover.find('option:disabled').eq(0).attr('selected', 'selected');
+				}else if(target.hasClass('blue')){
+					popover.find('option:disabled').attr('selected', 'selected');
+				}
+
+				popover.find('.multiselect').multiselect({
+					buttonClass: 'btn btn-default',
+					buttonWidth: 244,
+					onChange: function(e, checked){
+						var pts_input = $('.pts-input').last(),
+							newVal = parseFloat(pts_input.val()) + (checked ? 1 : -1) * parseFloat(e.data('pts'));
+
+						if(newVal < 0){
+							pts_input.val(0);
+						}else if(newVal > 3){
+							pts_input.val(3);
+						}else{
+							pts_input.val(newVal);
+						}
+
+						committeeHeadquarters.validatePoints(pts_input);
+					}
+				});
+			}).on('click', function(e){
 				var target = $(e.target);
 
 				if(openPopover && target.closest('.pts').length === 0 && target.closest('.popover').length === 0){
@@ -1573,7 +1597,9 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 						openPopover = null;
 					}
 				});
-			}).on('input', '.pts-input', committeeHeadquarters.validatePoints);
+			}).on('input', '.pts-input', function(e){
+				committeeHeadquarters.validatePoints($(e.target));
+			});
 
 			$('#helper-point-form').on('submit', function(){
 				var nu_email = $('#helper-slivkan').val(),
@@ -1596,11 +1622,6 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					});
 				}
 			});
-
-			// $('body').on('shown.bs.popover', function(e){
-			// 	console.log(e);
-			// });
-			//$('#helper-slivkan')	.on('change', );
 		},
 		updateTotal: function(row){
 			var total = row.find('td.pts').map(function(i, el){
@@ -1611,9 +1632,8 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			row.find('.totals').text(total.toFixed(1));
 		},
-		validatePoints: function(e){
-			var target = $(e.target),
-				control = target.closest('.form-group'),
+		validatePoints: function(target){
+			var control = target.closest('.form-group'),
 				button = control.find('button'),
 				valid = true;
 

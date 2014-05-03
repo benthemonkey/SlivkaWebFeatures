@@ -19,9 +19,8 @@ function getFullName($slivkans, $nu_email){
 
 	return '';
 }
-
-
 ?>
+
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
@@ -84,29 +83,25 @@ function getFullName($slivkans, $nu_email){
 					<thead>
 						<tr>
 							<th class="nameHeader"><div><div></div></div><span>Name</span></th>
-<?php
-	$indent = "\t\t\t\t\t\t\t";
+<?php for($i=0; $i<count($points_table['events']); $i++){ ?>
+							<th class="eventHeader">
+								<div class="slantedHeader">
+									<span><?= substr($points_table['events'][$i], 0, -10) . substr($points_table['events'][$i], -5)?></span>
+								</div>
+								<div class="sort-icon"></div>
+							</th>
+<?php }
 
-	for($i=0; $i<count($points_table['events']); $i++){
-		echo $indent . "<th class=\"eventHeader\">\n" .
-			$indent . "\t<div class=\"slantedHeader\">\n" .
-			$indent . "\t\t<span>" . substr($points_table['events'][$i], 0, -10) . substr($points_table['events'][$i], -5) . "</span>\n" .
-			$indent . "\t</div>\n" .
-			$indent . "\t<div class=\"sort-icon\"></div>\n" .
-			$indent . "</th>\n";
-	}
+$totalsColumns = array("Bonus", "Total");//, "Total (adjusted)");
 
-	$totalsColumns = array("Bonus", "Total");//, "Total (adjusted)");
-
-	for($i=0; $i<count($totalsColumns); $i++){
-		echo $indent . "<th class=\"totalsHeader\">\n" .
-			$indent . "\t<div class=\"slantedHeader\">\n" .
-			$indent . "\t\t<span>" . $totalsColumns[$i] . "</span>\n" .
-			$indent . "\t</div>\n" .
-			$indent . "\t<div class=\"sort-icon\"></div>\n" .
-			$indent . "</th>\n";
-	}
-?>
+for($i=0; $i<count($totalsColumns); $i++){ ?>
+							<th class="totalsHeader">
+								<div class="slantedHeader">
+									<span><?= $totalsColumns[$i] ?></span>
+								</div>
+								<div class="sort-icon"></div>
+							</th>
+<?php } ?>
 							<th class="endHeader">
 								<div class="slantedHeader"></div>
 								<div class="sort-icon"></div>
@@ -166,10 +161,36 @@ function getFullName($slivkans, $nu_email){
 			</div>
 <?php } else { ?>
 			<div class="alert alert-info text-center"><h4>Select a Committee</h4></div>
-
 <?php } ?>
 		<?php include('credits.html'); ?>
 		</div><!--content-->
+	</div>
+	<div id="pts-input-template" style="display: none;">
+		<button type="button" class="close" aria-hidden="true">&times;</button>
+		<div class="form-group has-success">
+			<label class="control-label" for="pts-input">Edit Points:</label>
+			<div class="input-group">
+				<input type="number" id="pts-input" min="0.0" max="3.0" step="0.1" class="form-control pts-input">
+				<span class="input-group-btn">
+					<button class="btn btn-primary submit-committee-point">
+						<span class="glyphicon glyphicon-ok"></span>
+					</button>
+				</span>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="contributions">Contributions (not saved yet):</label>
+			<div class="clearfix"></div>
+			<select id="contributions" class="multiselect" multiple="multiple" style="height: 34px;">
+				<option data-pts="0.5" disabled>Attended (0.5)</option>
+				<option data-pts="0.5" disabled>Took Points (0.5)</option>
+				<option data-pts="2">Ran event (2)</option>
+				<option data-pts="1">Poster (1)</option>
+				<option data-pts="0.5">Set up (0.5)</option>
+				<option data-pts="0.5">Clean up (0.5)</option>
+				<option data-pts="0">Other</option>
+			</select>
+		</div>
 	</div>
 	<div id="helper-point-modal" class="modal fade" role="dialog" >
 		<div class="modal-dialog">

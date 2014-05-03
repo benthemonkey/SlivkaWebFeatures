@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/datastoreVars.php";
+include_once __DIR__ . "/swift/swift_required.php";
 
 class PointsCenter
 {
@@ -42,7 +43,7 @@ class PointsCenter
 			$statement = self::$dbConn->prepare(
 				"SELECT qtr,quarter
 				FROM quarters
-				WHERE 1301<qtr
+				WHERE 1301 < qtr
 				ORDER BY qtr DESC");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->execute();
@@ -974,7 +975,21 @@ class PointsCenter
 
 	public function submitCommitteePoint ($nu_email, $event_name, $points)
 	{
-		if($event_name == 'bonus'){
+		if($points == '0' || $points == '0.0'){
+			try {
+				$statement = self::$dbConn->prepare(
+					"DELETE FROM committeepoints
+					WHERE nu_email=:nu_email AND event_name=:event_name AND qtr=:qtr");
+				$statement->bindValue(':nu_email', $nu_email);
+				$statement->bindValue(':event_name', $event_name);
+				$statement->bindValue(':qtr', self::$qtr);
+
+				$statement->execute();
+			} catch (PDOException $e) {
+				echo "Error: " . $e->getMessage();
+				die();
+			}
+		}else if($event_name == 'bonus'){
 			try {
 				$statement = self::$dbConn->prepare(
 					"INSERT INTO committees (nu_email,bonus,qtr) VALUES (?,?,?)
@@ -1020,6 +1035,7 @@ class PointsCenter
 	{
 		$real_event_name = $get['event_name'] . " " . $get['date'];
 
+		if($get['committee_members'] === NULL){ $get['committee_members'] = array(""); }
 		if($get['fellows'] === NULL){ $get['fellows'] = array(""); }
 
 		# Begin PDO Transaction
@@ -1027,9 +1043,9 @@ class PointsCenter
 
 		try {
 			$statement = self::$dbConn->prepare(
-				"INSERT INTO `pointsform` SET
-				date=:date, type=:type, committee=:committee, event_name=:event_name, description=:description,
-				filled_by=:filled_by, comments=:comments, attendees=:attendees, fellows=:fellows");
+				"INSERT INTO pointsform SET date=:date, type=:type, committee=:committee, event_name=:event_name,
+				description=:description, filled_by=:filled_by, comments=:comments, attendees=:attendees,
+				committee_members=:committee_members, fellows=:fellows");
 			$statement->bindValue(":date", $get['date']);
 			$statement->bindValue(":type", $get['type']);
 			$statement->bindValue(":committee", $get['committee']);
@@ -1038,6 +1054,7 @@ class PointsCenter
 			$statement->bindValue(":filled_by", $get['filled_by']);
 			$statement->bindValue(":comments", $get['comments']);
 			$statement->bindValue(":attendees", implode(", ",$get['attendees']));
+			$statement->bindValue(":committee_members", implode(", ",$get['committee_members']));
 			$statement->bindValue(":fellows", implode(", ",$get['fellows']));
 
 			$statement->execute();
@@ -1095,23 +1112,23 @@ class PointsCenter
 				self::$dbConn->rollBack();
 				die();
 			}
-		}
+		}*/
 
 		if ($get['committee_members'][0] != ""){
 			try {
 				$statement = self::$dbConn->prepare(
-					"INSERT INTO committeepoints (nu_email, event_name, qtr)
-					VALUES (?,?,?)");
+					"INSERT INTO committeepoints (nu_email, event_name, points, qtr)
+					VALUES (?,?,?,?)");
 
 				foreach($get['committee_members'] as $c){
-					$statement->execute(array($c,$real_event_name,self::$qtr));
+					$statement->execute(array($c,$real_event_name,$get['filled_by'] == $c ? 1.0 : 0.5,self::$qtr));
 				}
 			} catch (PDOException $e) {
 				echo json_encode(array("error" => $e->getMessage(), "step" => "5"));
 				self::$dbConn->rollBack();
 				die();
 			}
-		}*/
+		}
 
 		if ($get['fellows'][0] != ""){
 			try {
@@ -1134,12 +1151,12 @@ class PointsCenter
 			$html = "<table border=\"1\">";
 
 			foreach($get as $key => $value){
-				$html .= "<tr><td style=\"text-align:right;\">";
+				$html .= "<tr><td style=\"text-align:right;\">" . $key . "</td><td>";
 
 				if(is_array($value)){
-					$html .=  $key . "</td><td>" . implode(", ", $value);
+					$html .= implode(", ", $value);
 				}else{
-					$html .= $key . "</td><td>" . $value;
+					$html .= $value;
 				}
 
 				$html .= "</td></tr>\n";
@@ -1147,7 +1164,7 @@ class PointsCenter
 
 			$html .= "</table>";
 
-			self::sendEmail(null, "Points Submitted for " . $real_event_name, $html);
+			self::sendEmail(false, "Points Submitted for " . $real_event_name, $html);
 		}
 
 		return self::$dbConn->commit();
@@ -1304,7 +1321,6 @@ class PointsCenter
 
 	private function sendEmail($to_email,$subject,$body)
 	{
-		include_once __DIR__ . "/swift/swift_required.php";
 		$from = array($GLOBALS['MAILBOT_EMAIL'] => "Slivka Points Center");
 
 		if($to_email){
