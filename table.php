@@ -94,15 +94,10 @@ $points_table = $points_center->getPointsTable($showall);
 					<div class="filter dropdown fix-top">
 						<a class="btn btn-default" data-toggle="dropdown" href="#">Quarter <b class="caret"></b></a>
 						<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-<?php
-	$indent = "\t\t\t\t\t\t\t";
-
-	echo $indent . '<li><a href="./table.php">' . $quarters[0]['quarter'] . "</a></li>\n";
-
-	for($i=1; $i<count($quarters); $i++){
-		echo $indent . '<li><a href="./table.php?all=1&qtr=' . $quarters[$i]['qtr'] . '">' . $quarters[$i]['quarter'] . "</a></li>\n";
-	}
-?>
+							<li><a href="./table.php"><?= $quarters[0]['quarter'] ?></a></li>
+<?php for($i=1; $i<count($quarters); $i++){ ?>
+							<li><a href="./table.php?all=1&qtr=<?= $quarters[$i]['qtr'] ?>"><?= $quarters[$i]['quarter'] ?></a></li>
+<?php } ?>
 						</ul>
 					</div>
 					<a href="#stats" class="btn btn-default show-stats fix-top" data-toggle="modal">Stats</a>
@@ -115,29 +110,25 @@ $points_table = $points_center->getPointsTable($showall);
 						<tr>
 							<th class="nameHeader"><div><div></div></div><span>Name</span></th>
 							<th style="display:none;"></th>
-<?php
-	$indent = "\t\t\t\t\t\t\t";
+<?php for($i=0; $i<count($points_table['events']); $i++){ ?>
+							<th class="eventHeader">
+								<div class="slantedHeader">
+									<span><?= substr($points_table['events'][$i]['event_name'],0,-11) ?></span>
+								</div>
+								<div class="sort-icon"></div>
+							</th>
+<?php }
 
-	for($i=0; $i<count($points_table['events']); $i++){
-		echo $indent . "<th class=\"eventHeader\">\n" .
-			$indent . "\t<div class=\"slantedHeader\">\n" .
-			$indent . "\t\t<span>" . substr($points_table['events'][$i]['event_name'],0,-11) . "</span>\n" .
-			$indent . "\t</div>\n" .
-			$indent . "\t<div class=\"sort-icon\"></div>\n" .
-			$indent . "</th>\n";
-	}
+$totalsColumns = array("Events Total", "Helper Points", "IM Sports", "Standing Committees", "Other", "Total");
 
-	$totalsColumns = array("Events Total", "Helper Points", "IM Sports", "Standing Committees", "Other", "Total");
-
-	for($i=0; $i<count($totalsColumns); $i++){
-		echo $indent . "<th class=\"totalsHeader\">\n" .
-			$indent . "\t<div class=\"slantedHeader\">\n" .
-			$indent . "\t\t<span>" . $totalsColumns[$i] . "</span>\n" .
-			$indent . "\t</div>\n" .
-			$indent . "\t<div class=\"sort-icon\"></div>\n" .
-			$indent . "</th>\n";
-	}
-?>
+for($i=0; $i<count($totalsColumns); $i++){ ?>
+							<th class="totalsHeader">
+								<div class="slantedHeader">
+									<span><?= $totalsColumns[$i] ?></span>
+								</div>
+								<div class="sort-icon"></div>
+							</th>
+<?php } ?>
 							<th class="endHeader">
 								<div class="slantedHeader"></div>
 								<div class="sort-icon"></div>
