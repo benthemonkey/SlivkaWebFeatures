@@ -65,21 +65,6 @@ legend{
   min-width: 260px;
 }
 
-/* custom nav collapse point */
-@media (max-width: 991px){
-  .navbar-collapse.collapse{
-    display: none!important;
-  }
-
-  .navbar-header{
-    float: none;
-  }
-
-  .navbar-toggle{
-    display: block;
-  }
-}
-
 @media (max-width: 768px){
   .container{
     padding-right: 10px;
