@@ -3,7 +3,7 @@ include_once "./ajax/PointsCenter.php";
 $points_center = new PointsCenter();
 
 $showall = $_GET['all'] == '1';
-$qtr = $_GET['qtr'];
+$qtr = $points_center->getQuarter();
 $quarters = $points_center->getQuarters();
 $points_table = $points_center->getPointsTable($showall);
 
