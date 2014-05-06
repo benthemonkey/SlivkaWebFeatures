@@ -211,20 +211,37 @@ class PointsCenter
 	{
 		$events = array();
 
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT event_name, filled_by
-				FROM events
-				WHERE qtr=:qtr AND committee=:committee AND type<>'im'
-				ORDER BY date, id");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->bindValue(":committee", $committee);
-			$statement->execute();
-			$events = $statement->fetchAll(PDO::FETCH_ASSOC);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
+		if($committee == "Facilities"){
+			try {
+				$statement = self::$dbConn->prepare(
+					"SELECT event_name, filled_by
+					FROM events
+					WHERE qtr=:qtr AND type<>'im' AND type<>'p2p'
+					ORDER BY date, id");
+				$statement->bindValue(":qtr", self::$qtr);
+				$statement->execute();
+				$events = $statement->fetchAll(PDO::FETCH_ASSOC);
+			} catch (PDOException $e) {
+				echo "Error: " . $e->getMessage();
+				die();
+			}
+		}else{
+			try {
+				$statement = self::$dbConn->prepare(
+					"SELECT event_name, filled_by
+					FROM events
+					WHERE qtr=:qtr AND committee=:committee AND type<>'im'
+					ORDER BY date, id");
+				$statement->bindValue(":qtr", self::$qtr);
+				$statement->bindValue(":committee", $committee);
+				$statement->execute();
+				$events = $statement->fetchAll(PDO::FETCH_ASSOC);
+			} catch (PDOException $e) {
+				echo "Error: " . $e->getMessage();
+				die();
+			}
 		}
+
 		return $events;
 	}
 
@@ -288,7 +305,7 @@ class PointsCenter
 		$committee_points = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT event_name,nu_email,points
+				"SELECT event_name,nu_email,points,contributions,comments
 				FROM committeepoints
 				WHERE qtr=:qtr");
 			$statement->bindValue(":qtr", self::$qtr);
@@ -325,13 +342,13 @@ class PointsCenter
 		$committee_bonus_points = array();
 		try {
 			$statement = self::$dbConn->prepare(
-				"SELECT nu_email,bonus
+				"SELECT nu_email,bonus,comments
 				FROM committees
 				WHERE qtr=:qtr AND committee=:committee");
 			$statement->bindValue(":qtr", self::$qtr);
 			$statement->bindValue(":committee", $committee);
 			$statement->execute();
-			$committee_bonus_points = $statement->fetchAll(PDO::FETCH_KEY_PAIR);
+			$committee_bonus_points = $statement->fetchAll(PDO::FETCH_ASSOC);
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();
@@ -665,9 +682,18 @@ class PointsCenter
 		for($s=0; $s<count($slivkans); $s++){
 			$nu_email = $slivkans[$s]['nu_email'];
 
-			$committee_points_table[$nu_email] = array_fill(0, $events_count+2, array('points' => 0.0, 'filled_by' => false, 'attended' => false));
-			$committee_points_table[$nu_email][$events_count]['points'] = (float) $committee_bonus_points[$nu_email];
-			$committee_points_table[$nu_email][$total_ind]['points'] = (float) $committee_bonus_points[$nu_email]; # total column
+			$committee_points_table[$nu_email] = array_fill(
+				0,
+				$events_count+2,
+				array('points' => 0.0, 'filled_by' => false, 'attended' => false, 'contributions' => '', 'comments' => ''));
+		}
+
+		for($i=0; $i<count($committee_bonus_points); $i++){
+			$nu_email = $committee_bonus_points[$i]['nu_email'];
+
+			$committee_points_table[$nu_email][$events_count]['points'] = (float) $committee_bonus_points[$i]['bonus'];
+			$committee_points_table[$nu_email][$events_count]['comments'] = $committee_bonus_points[$i]['comments'];
+			$committee_points_table[$nu_email][$total_ind]['points'] = (float) $committee_bonus_points[$i]['bonus']; # total column
 		}
 
 		for($e=0; $e<$events_count; $e++){
@@ -689,6 +715,8 @@ class PointsCenter
 			if(array_key_exists($event_name, $committee_points)){
 				foreach($committee_points[$event_name] as $s){
 					$committee_points_table[$s['nu_email']][$e]['points'] += $s['points'];
+					$committee_points_table[$s['nu_email']][$e]['contributions'] = $s['contributions'];
+					$committee_points_table[$s['nu_email']][$e]['comments'] = $s['comments'];
 					$committee_points_table[$s['nu_email']][$total_ind]['points'] += $s['points'];
 				}
 			}
@@ -973,9 +1001,9 @@ class PointsCenter
 		return true;
 	}
 
-	public function submitCommitteePoint ($nu_email, $event_name, $points)
+	public function submitCommitteePoint ($nu_email, $event_name, $points, $contributions, $comments)
 	{
-		if($points == '0' || $points == '0.0'){
+		if(($points == '0' || $points == '0.0') && $contributions == '' && $comments == ''){
 			try {
 				$statement = self::$dbConn->prepare(
 					"DELETE FROM committeepoints
@@ -992,10 +1020,15 @@ class PointsCenter
 		}else if($event_name == 'bonus'){
 			try {
 				$statement = self::$dbConn->prepare(
-					"INSERT INTO committees (nu_email,bonus,qtr) VALUES (?,?,?)
-					ON DUPLICATE KEY UPDATE bonus=VALUES(bonus)");
+					"UPDATE committees
+					SET bonus=:bonus, comments=:comments
+					WHERE nu_email=:nu_email AND qtr=:qtr");
+				$statement->bindValue(':bonus', $points);
+				$statement->bindValue(':comments', strip_tags($comments));
+				$statement->bindValue(':nu_email', $nu_email);
+				$statement->bindValue(':qtr', self::$qtr);
 
-				$statement->execute(array($nu_email, $points, self::$qtr));
+				$statement->execute();
 			} catch (PDOException $e) {
 				echo "Error: " . $e->getMessage();
 				die();
@@ -1003,10 +1036,11 @@ class PointsCenter
 		}else{
 			try {
 				$statement = self::$dbConn->prepare(
-					"INSERT INTO committeepoints (nu_email,event_name,points,qtr) VALUES (?,?,?,?)
-					ON DUPLICATE KEY UPDATE points=VALUES(points)");
+					"INSERT INTO committeepoints (nu_email,event_name,points,contributions,comments,qtr)
+					VALUES (?,?,?,?,?,?)
+					ON DUPLICATE KEY UPDATE points=VALUES(points), contributions=VALUES(contributions), comments=VALUES(comments)");
 
-				$statement->execute(array($nu_email, $event_name, $points, self::$qtr));
+				$statement->execute(array($nu_email, $event_name, $points, $contributions, strip_tags($comments), self::$qtr));
 			} catch (PDOException $e) {
 				echo "Error: " . $e->getMessage();
 				die();
@@ -1024,19 +1058,19 @@ class PointsCenter
 
 			$statement->execute(array($nu_email, $event_name, self::$qtr));
 		} catch (PDOException $e) {
-			echo "{\"status\": \"Error: " . $e->getMessage() . "\"}";
+			echo "Error: " . $e->getMessage();
 			die();
 		}
 
 		return true;
 	}
 
-	public function submitPointsForm ($get)
+	public function submitPointsForm ($form_data)
 	{
-		$real_event_name = $get['event_name'] . " " . $get['date'];
+		$real_event_name = $form_data['event_name'] . " " . $form_data['date'];
 
-		if($get['committee_members'] === NULL){ $get['committee_members'] = array(""); }
-		if($get['fellows'] === NULL){ $get['fellows'] = array(""); }
+		if($form_data['committee_members'] === NULL){ $form_data['committee_members'] = array(""); }
+		if($form_data['fellows'] === NULL){ $form_data['fellows'] = array(""); }
 
 		# Begin PDO Transaction
 		self::$dbConn->beginTransaction();
@@ -1046,16 +1080,16 @@ class PointsCenter
 				"INSERT INTO pointsform SET date=:date, type=:type, committee=:committee, event_name=:event_name,
 				description=:description, filled_by=:filled_by, comments=:comments, attendees=:attendees,
 				committee_members=:committee_members, fellows=:fellows");
-			$statement->bindValue(":date", $get['date']);
-			$statement->bindValue(":type", $get['type']);
-			$statement->bindValue(":committee", $get['committee']);
-			$statement->bindValue(":event_name", $get['event_name']);
-			$statement->bindValue(":description", $get['description']);
-			$statement->bindValue(":filled_by", $get['filled_by']);
-			$statement->bindValue(":comments", $get['comments']);
-			$statement->bindValue(":attendees", implode(", ",$get['attendees']));
-			$statement->bindValue(":committee_members", implode(", ",$get['committee_members']));
-			$statement->bindValue(":fellows", implode(", ",$get['fellows']));
+			$statement->bindValue(":date", $form_data['date']);
+			$statement->bindValue(":type", $form_data['type']);
+			$statement->bindValue(":committee", $form_data['committee']);
+			$statement->bindValue(":event_name", $form_data['event_name']);
+			$statement->bindValue(":description", $form_data['description']);
+			$statement->bindValue(":filled_by", $form_data['filled_by']);
+			$statement->bindValue(":comments", $form_data['comments']);
+			$statement->bindValue(":attendees", implode(", ", $form_data['attendees']));
+			$statement->bindValue(":committee_members", implode(", ", $form_data['committee_members']));
+			$statement->bindValue(":fellows", implode(", ", $form_data['fellows']));
 
 			$statement->execute();
 		} catch (PDOException $e) {
@@ -1069,13 +1103,13 @@ class PointsCenter
 				"INSERT INTO events (event_name,date,qtr,filled_by,committee,description,type,attendees)
 				VALUES (:event_name,:date,:qtr,:filled_by,:committee,:description,:type,:attendees)");
 			$statement->bindValue(":event_name", $real_event_name);
-			$statement->bindValue(":date", $get['date']);
+			$statement->bindValue(":date", $form_data['date']);
 			$statement->bindValue(":qtr", self::$qtr);
-			$statement->bindValue(":filled_by", $get['filled_by']);
-			$statement->bindValue(":committee", $get['committee']);
-			$statement->bindValue(":description", $get['description']);
-			$statement->bindValue(":type", $get['type']);
-			$statement->bindValue(":attendees", count($get['attendees']));
+			$statement->bindValue(":filled_by", $form_data['filled_by']);
+			$statement->bindValue(":committee", $form_data['committee']);
+			$statement->bindValue(":description", $form_data['description']);
+			$statement->bindValue(":type", $form_data['type']);
+			$statement->bindValue(":attendees", count($form_data['attendees']));
 
 			$statement->execute();
 		} catch (PDOException $e) {
@@ -1089,7 +1123,7 @@ class PointsCenter
 				"INSERT INTO points (nu_email,event_name,qtr)
 				VALUES (?,?,?)");
 
-			foreach($get['attendees'] as $a){
+			foreach($form_data['attendees'] as $a){
 				$statement->execute(array($a,$real_event_name,self::$qtr));
 			}
 		} catch (PDOException $e) {
@@ -1098,13 +1132,13 @@ class PointsCenter
 			die();
 		}
 
-		/*if ($get['helper_points'][0] != ""){
+		/*if ($form_data['helper_points'][0] != ""){
 			try {
 				$statement = self::$dbConn->prepare(
 					"INSERT INTO helperpoints (nu_email, event_name, qtr)
 					VALUES (?,?,?)");
 
-				foreach($get['helper_points'] as $h){
+				foreach($form_data['helper_points'] as $h){
 					$statement->execute(array($h,$real_event_name,self::$qtr));
 				}
 			} catch (PDOException $e) {
@@ -1114,14 +1148,14 @@ class PointsCenter
 			}
 		}*/
 
-		if ($get['committee_members'][0] != ""){
+		if ($form_data['committee_members'][0] != ""){
 			try {
 				$statement = self::$dbConn->prepare(
 					"INSERT INTO committeepoints (nu_email, event_name, points, qtr)
 					VALUES (?,?,?,?)");
 
-				foreach($get['committee_members'] as $c){
-					$statement->execute(array($c,$real_event_name,$get['filled_by'] == $c ? 1.0 : 0.5,self::$qtr));
+				foreach($form_data['committee_members'] as $c){
+					$statement->execute(array($c,$real_event_name,$form_data['filled_by'] == $c ? 1.0 : 0.5,self::$qtr));
 				}
 			} catch (PDOException $e) {
 				echo json_encode(array("error" => $e->getMessage(), "step" => "5"));
@@ -1130,13 +1164,13 @@ class PointsCenter
 			}
 		}
 
-		if ($get['fellows'][0] != ""){
+		if ($form_data['fellows'][0] != ""){
 			try {
 				$statement = self::$dbConn->prepare(
 					"INSERT INTO fellowattendance (full_name,event_name,qtr)
 					VALUES (?,?,?)");
 
-				foreach($get['fellows'] as $f){
+				foreach($form_data['fellows'] as $f){
 					$statement->execute(array($f,$real_event_name,self::$qtr));
 				}
 			} catch (PDOException $e) {
@@ -1150,7 +1184,7 @@ class PointsCenter
 		if($GLOBALS['VP_EMAIL_POINT_SUBMISSION_NOTIFICATIONS']){
 			$html = "<table border=\"1\">";
 
-			foreach($get as $key => $value){
+			foreach($form_data as $key => $value){
 				$html .= "<tr><td style=\"text-align:right;\">" . $key . "</td><td>";
 
 				if(is_array($value)){
@@ -1170,15 +1204,15 @@ class PointsCenter
 		return self::$dbConn->commit();
 	}
 
-	public function submitPointsCorrectionForm($get,$key){
-
+	public function submitPointsCorrectionForm($form_data, $key)
+	{
 		try {
 			$statement = self::$dbConn->prepare(
 				"SELECT *
 				FROM points
 				WHERE event_name=:event_name AND nu_email=:nu_email");
-			$statement->bindValue(":event_name", $get['event_name']);
-			$statement->bindValue(":nu_email", $get['sender_email']);
+			$statement->bindValue(":event_name", $form_data['event_name']);
+			$statement->bindValue(":nu_email", $form_data['sender_email']);
 
 			$statement->execute();
 			if($statement->rowCount() > 0){
@@ -1196,7 +1230,7 @@ class PointsCenter
 				"SELECT filled_by
 				FROM events
 				WHERE event_name=:event_name");
-			$statement->bindValue(":event_name", $get['event_name']);
+			$statement->bindValue(":event_name", $form_data['event_name']);
 			$statement->execute();
 
 			$filled_by = $statement->fetch(PDO::FETCH_COLUMN);
@@ -1205,16 +1239,16 @@ class PointsCenter
 			die();
 		}
 
-		if($get['comments'] === NULL){ $get['comments'] = ""; }
+		if($form_data['comments'] === NULL){ $form_data['comments'] = ""; }
 
 		try {
 			$statement = self::$dbConn->prepare(
 				"INSERT INTO pointscorrection (message_key,nu_email,event_name,comments)
 				VALUES (:message_key,:nu_email,:event_name,:comments)");
 			$statement->bindValue(":message_key", $key);
-			$statement->bindValue(":nu_email", $get['sender_email']);
-			$statement->bindValue(":event_name", $get['event_name']);
-			$statement->bindValue(":comments", $get['comments']);
+			$statement->bindValue(":nu_email", $form_data['sender_email']);
+			$statement->bindValue(":event_name", $form_data['event_name']);
+			$statement->bindValue(":comments", $form_data['comments']);
 
 			$statement->execute();
 		} catch (PDOException $e) {
@@ -1226,21 +1260,23 @@ class PointsCenter
 		$enc2 = md5('2');
 		$enc3 = md5('3');
 
+		$url = "http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php";
+
 		$html = "<h2>Slivka Points Correction</h2>
 		<h3>Automated Email</h3>
-		<p style=\"padding: 10; width: 70%\">" . $get['name'] . " has submitted a points correction for the
-		event, " . $get['event_name'] . ", for which you took points. Please click one of the following links
+		<p style=\"padding: 10; width: 70%\">" . $form_data['name'] . " has submitted a points correction for the
+		event, " . $form_data['event_name'] . ", for which you took points. Please click one of the following links
 		to respond to this request. Please do so within 2 days of receiving this email.</p>
-		<p style=\"padding: 10; width: 70%\">" . $get['name'] . "'s comment: " . strip_tags($get['comments']) . "</p>
+		<p style=\"padding: 10; width: 70%\">" . $form_data['name'] . "'s comment: " . strip_tags($form_data['comments']) . "</p>
 		<ul>
-			<li><a href=\"http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php?key=$key&reply=$enc1\">" . $get['name'] . " was at " . $get['event_name'] . "</a></li>
-			<li><a href=\"http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php?key=$key&reply=$enc2\">" . $get['name'] . " was NOT at " . $get['event_name'] . "</a></li>
-			<li><a href=\"http://slivka.northwestern.edu/points/ajax/pointsCorrectionReply.php?key=$key&reply=$enc3\">Not sure</a></li>
+			<li><a href=\"$url?key=$key&reply=$enc1\">" . $form_data['name'] . " was at " . $form_data['event_name'] . "</a></li>
+			<li><a href=\"$url?key=$key&reply=$enc2\">" . $form_data['name'] . " was NOT at " . $form_data['event_name'] . "</a></li>
+			<li><a href=\"$url?key=$key&reply=$enc3\">Not sure</a></li>
 		</ul>
 
 		<p style=\"padding: 10; width: 70%\">If you received this email in error, please contact " . $GLOBALS['VP_EMAIL'] . "</p>";
 
-		return self::sendEmail($filled_by,"Points Correction for " . $get['event_name'] . " (Automated)", $html);
+		return self::sendEmail($filled_by,"Points Correction for " . $form_data['event_name'] . " (Automated)", $html);
 	}
 
 	public function pointsCorrectionReply($get)

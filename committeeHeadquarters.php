@@ -116,10 +116,10 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 	foreach($points_table['points_table'] AS $s => $tr){
 		if($odd){
 			$odd = false;
-			echo $indent . "<tr class=\"odd\">\n";
+			echo $indent . "<tr data-slivkan=\"" . $s . "\" class=\"odd\">\n";
 		}else{
 			$odd = true;
-			echo $indent . "<tr class=\"even\">\n";
+			echo $indent . "<tr data-slivkan=\"" . $s . "\" class=\"even\">\n";
 		}
 
 		echo $indent . '<td class="name">' . getFullName($slivkans, $s) . "</td>\n";
@@ -132,13 +132,12 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 			echo $indent . "\t";
 
 			if($i == $rowcount - 2){
-				echo '<td data-slivkan="'.$s.'" data-event="bonus" class="pts white">';
-				printf("%.1f", $td['points']);
+				echo '<td data-slivkan="'.$s.'" data-event="bonus" data-comments="'.$td['comments'].'" class="pts white">';
 			}else if($i == $rowcount - 1){
 				echo '<td class="totals">';
-				printf("%.1f", $td['points']);
 			}else{
-				echo '<td data-slivkan="'.$s.'" data-event="'.$points_table['events'][$i].'" class="pts';
+				echo '<td data-event="'.$points_table['events'][$i].'" data-contributions="'.$td['contributions'].'" ';
+				echo 'data-comments="'.$td['comments'].'" class="pts';
 
 				if($td['filled_by']){
 					echo ' blue';
@@ -147,9 +146,9 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 				}
 
 				echo '">';
-				printf("%.1f", $td['points']);
 			}
 
+			printf("%.1f", $td['points']);
 			echo "</td>\n";
 		}
 		echo $indent . "\t<td class=\"end\"></td>\n" .
@@ -164,33 +163,6 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 <?php } ?>
 		<?php include('credits.html'); ?>
 		</div><!--content-->
-	</div>
-	<div id="pts-input-template" style="display: none;">
-		<button type="button" class="close" aria-hidden="true">&times;</button>
-		<div class="form-group has-success">
-			<label class="control-label" for="pts-input">Edit Points:</label>
-			<div class="input-group">
-				<input type="number" id="pts-input" min="0.0" max="3.0" step="0.1" class="form-control pts-input">
-				<span class="input-group-btn">
-					<button class="btn btn-primary submit-committee-point">
-						<span class="glyphicon glyphicon-ok"></span>
-					</button>
-				</span>
-			</div>
-		</div>
-		<div class="form-group">
-			<label class="control-label" for="contributions">Contributions (not saved yet):</label>
-			<div class="clearfix"></div>
-			<select id="contributions" class="multiselect" multiple="multiple" style="height: 34px;">
-				<option data-pts="0.5" disabled>Attended (0.5)</option>
-				<option data-pts="0.5" disabled>Took Points (0.5)</option>
-				<option data-pts="2">Ran event (2)</option>
-				<option data-pts="1">Poster (1)</option>
-				<option data-pts="0.5">Set up (0.5)</option>
-				<option data-pts="0.5">Clean up (0.5)</option>
-				<option data-pts="0">Other</option>
-			</select>
-		</div>
 	</div>
 	<div id="helper-point-modal" class="modal fade" role="dialog" >
 		<div class="modal-dialog">
@@ -241,6 +213,39 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 			</div>
 		</div>
 	</div>
+	<script id="pts-input-template" type="text/template">
+		<div class="row">
+			<div class="form-group has-success col-sm-4">
+				<label class="control-label" for="pts-input">Points:</label>
+				<input type="number" id="pts-input" value="{{value}}" data-original-value="{{value}}"
+					min="0.0" max="3.0" step="0.1" class="form-control pts-input">
+			</div>
+			{{#contributions}}
+			<div class="form-group col-sm-8">
+				<label class="control-label" for="contributions">Contributions:</label>
+				<select id="contributions" class="multiselect" multiple="multiple" style="height: 34px;">
+				{{#contributions_list}}
+					<option value={{value}} {{#pts}}data-pts="{{pts}}"{{/pts}} {{disabled}} {{#selected}}selected{{/selected}}>
+						{{title}}{{#pts}} ({{pts}}){{/pts}}
+					</option>
+				{{/contributions_list}}
+				</select>
+			</div>
+			{{/contributions}}
+
+			<div class="form-group col-sm-12">
+				<label for="comments" class="control-label">Comments:</label>
+				<textarea id="comments" class="form-control" maxlength="200" rows="5">{{comments}}</textarea>
+			</div>
+
+			<div class="col-sm-6">
+				<button class="btn btn-primary btn-block pts-input-submit">Submit</button>
+			</div>
+			<div class="col-sm-6">
+				<button class="btn btn-default btn-block pts-input-cancel">Cancel</button>
+			</div>
+		</div>
+	</script>
 	<?php include('footer.html'); ?>
 </body>
 </html>

@@ -3,7 +3,7 @@ header('Content-type: text/html; charset=utf-8');
 require_once "./PointsCenter.php";
 $points_center = new PointsCenter();
 
-$status = $points_center->submitHelperPoint($_GET['nu_email'], $_GET['event_name']);
+$status = $points_center->submitHelperPoint($_POST['nu_email'], $_POST['event_name']);
 
-echo '{"status":"1"}';
+echo $status;
 ?>

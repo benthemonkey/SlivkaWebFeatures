@@ -69,7 +69,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 	breakdown = {
 		init: function() {
-			$.getJSON('ajax/getSlivkans.php', {qtr: localStorage.spc_brk_qtr}, function(data) {
+			$.getJSON('./ajax/getSlivkans.php', {qtr: localStorage.spc_brk_qtr}, function(data) {
 				slivkans = data.slivkans;
 				qtrs = data.qtrs;
 				// quarter_start = data.quarter_info.start_date;
@@ -113,7 +113,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					unattendedEventsEl.empty();
 					$('#otherPointsTableBody').empty();
 
-					$.getJSON('ajax/getPointsBreakdown.php', {nu_email: nu_email, qtr: qtr}, function(data) {
+					$.getJSON('./ajax/getPointsBreakdown.php', {nu_email: nu_email, qtr: qtr}, function(data) {
 						var i, eventData = [],
 							imData = [],
 							event_total = 0,
@@ -390,7 +390,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 	correction = {
 		init: function() {
-			$.getJSON('ajax/getSlivkans.php', function(data) {
+			$.getJSON('./ajax/getSlivkans.php', function(data) {
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 
@@ -405,7 +405,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('#filled-by').typeahead(common.typeaheadOpts('slivkans', slivkans));
 			});
 
-			$.getJSON('ajax/getRecentEvents.php', function(events) {
+			$.getJSON('./ajax/getRecentEvents.php', function(events) {
 				for(var i=events.length-1; i>=0; i--){
 					if(events[i].type == 'p2p'){
 						$('<option disabled="disabled"></option>').text(events[i].event_name).appendTo('#event-name');
@@ -453,12 +453,12 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			};
 			$('#response').fadeOut();
 
-			$.getJSON('./ajax/sendPointsCorrection.php', data, function(response) {
+			$.post('./ajax/sendPointsCorrection.php', data, function(response) {
 				$('#response').text('Response: '+response.message);
 				$('#form-actions').html('<a class="btn btn-primary" href="table.php">View Points</a>' +
 					'<a class="btn btn-default" href="correction.php">Submit Another</a>');
 				$('#response').fadeIn();
-			});
+			}, 'json');
 		}
 	},
 
@@ -472,7 +472,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				}
 			});
 
-			$.getJSON('ajax/getSlivkans.php', function(data) {
+			$.getJSON('./ajax/getSlivkans.php', function(data) {
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 				fellows = data.fellows;
@@ -777,7 +777,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			}else if((event_name.length <= 32 && event_name.length >= 8) || (type == 'P2P' && event_name == 'P2P')){
 				event_name += ' ' + $('#date').val();
 
-				$.getJSON('ajax/getRecentEvents.php', function(events) {
+				$.getJSON('./ajax/getRecentEvents.php', function(events) {
 					if(events.length > 0 && events.indexOfKey('event_name', event_name) != -1){
 						if(type == 'IM'){
 							var last = parseInt(eventEl.val().slice(-1), 10);
@@ -805,7 +805,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 		},
 		validateIMTeam: function() {
 			var im_team = $('#im-team').val();
-			$.getJSON('ajax/getIMs.php', {team: im_team}, function(events) {
+			$.getJSON('./ajax/getIMs.php', {team: im_team}, function(events) {
 				$('#event').val(im_team + ' ' + (events.length + 1));
 				$('#description').val(im_team.split(' ')[1]);
 				submission.validateEventName();
@@ -1164,7 +1164,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			real_submit.on('click', function() {
 				real_submit.button('loading');
 
-				$.getJSON('./ajax/submitPointsForm.php', data, function(data_in) {
+				$.post('./ajax/submitPointsForm.php', data, function(data_in) {
 					real_submit.button('reset');
 					$('#results-status').parent().removeClass('has-warning');
 					if(data_in.error){
@@ -1182,7 +1182,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 						submission.resetForm('force');
 					}
-				});
+				}, 'json');
 			});
 		}
 	},
@@ -1333,7 +1333,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			// $('#update').on('click', function() {
 			// 	$('#update').button('loading');
-			// 	$.getJSON('ajax/updateTotals.php', function() {
+			// 	$.getJSON('./ajax/updateTotals.php', function() {
 			// 		window.location.reload();
 			// 	});
 			// });
@@ -1356,7 +1356,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 	updateSlivkans = {
 		init: function() {
-			$.getJSON('ajax/getSlivkans.php', function(data) {
+			$.getJSON('./ajax/getSlivkans.php', function(data) {
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 
@@ -1381,7 +1381,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('.committee-points').val(0).show();
 
 				if(event.target.value.length > 0){
-					$.getJSON('ajax/getCommitteeOrSuite.php', {committee: event.target.value}, updateSlivkans.addSlivkans);
+					$.getJSON('./ajax/getCommitteeOrSuite.php', {committee: event.target.value}, updateSlivkans.addSlivkans);
 				}
 			});
 
@@ -1390,7 +1390,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('.committee-points').hide();
 
 				if(event.target.value.length > 0){
-					$.getJSON('ajax/getCommitteeOrSuite.php', {suite: event.target.value}, updateSlivkans.addSlivkans);
+					$.getJSON('./ajax/getCommitteeOrSuite.php', {suite: event.target.value}, updateSlivkans.addSlivkans);
 				}
 			});
 
@@ -1416,11 +1416,11 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				}
 
 				if(committee.length > 0){
-					$.getJSON('ajax/submitCommitteeOrSuite.php', {committee: committee, slivkans: nuEmailArray, points: committeePointsArray}, function(data){
+					$.post('./ajax/submitCommitteeOrSuite.php', {committee: committee, slivkans: nuEmailArray, points: committeePointsArray}, function(data){
 						window.alert(data);
 					});
 				}else if(suite.length > 0){
-					$.getJSON('ajax/submitCommitteeOrSuite.php', {suite: suite, slivkans: nuEmailArray}, function(data){
+					$.post('./ajax/submitCommitteeOrSuite.php', {suite: suite, slivkans: nuEmailArray}, function(data){
 						window.alert(data);
 					});
 				}
@@ -1511,8 +1511,10 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 	},
 
 	committeeHeadquarters = {
+		openPopover: null,
 		init: function() {
-			var openPopover;
+			var self = this,
+				ptsInputTemplate = Hogan.compile($('#pts-input-template').html());
 
 			$('.committee-points-table td.pts').popover({
 				placement: 'bottom auto',
@@ -1520,42 +1522,50 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				container: 'body',
 				trigger: 'manual',
 				content: function(){
-					var template = $('#pts-input-template');
+					var contributions = [],
+						el = $(this),
+						isBonus = el.data('event') == 'bonus',
+						check = function(value){
+							return contributions.indexOf(value) != -1;
+						};
 
-					template.find('input').data('original-value', this.innerText).attr('value', this.innerText);
+					if(isBonus){
+						return ptsInputTemplate.render({
+							value: el.text(),
+							contributions: false,
+							comments: el.data('comments')
+						});
+					}
 
-					return template.html();
+					contributions = el.data('contributions').split(',');
+
+					return ptsInputTemplate.render({
+						value: el.text(),
+						contributions: true,
+						contributions_list: [
+							{ pts: 0.5, title: 'Attended', disabled: 'disabled', selected: el.hasClass('green') || el.hasClass('blue') },
+							{ pts: 0.5, title: 'Took Points', disabled: 'disabled', selected: el.hasClass('blue') },
+							{ pts: 2.0, title: 'Ran event',	value: 'ran', selected: check('ran') },
+							{ pts: 1.0, title: 'Poster',	value: 'poster', selected: check('poster') },
+							{ pts: 0.5, title: 'Set up',	value: 'setup', selected: check('setup') },
+							{ pts: 0.5, title: 'Clean up',	value: 'clean', selected: check('clean') },
+							{			title: 'Other',		value: 'other', selected: check('other') }
+						],
+						comments: el.data('comments')
+					});
 				}
-			}).on('click', function(e){
-				var target = $(e.target);
-
-				if(target.is(openPopover)){
-					target.popover('hide');
-					openPopover = null;
-					return;
-				}
-
-				if(openPopover){
-					openPopover.popover('hide');
-				}
-
-				openPopover = target.popover('show');
 			});
 
-			$('body').on('shown.bs.popover', function(e){
-				var target = $(e.target),
-					popover = $('.popover');
-
-				if(target.hasClass('green')){
-					popover.find('option:disabled').eq(0).attr('selected', 'selected');
-				}else if(target.hasClass('blue')){
-					popover.find('option:disabled').attr('selected', 'selected');
-				}
-
-				popover.find('.multiselect').multiselect({
+			$('body').on('shown.bs.popover', function(){
+				$('.multiselect').multiselect({
 					buttonClass: 'btn btn-default',
-					buttonWidth: 244,
+					buttonWidth: '153px',
+					numberDisplayed: 2,
 					onChange: function(e, checked){
+						if(!e.data('pts')){
+							return;
+						}
+
 						var pts_input = $('.pts-input').last(),
 							newVal = parseFloat(pts_input.val()) + (checked ? 1 : -1) * parseFloat(e.data('pts'));
 
@@ -1567,61 +1577,41 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 							pts_input.val(newVal);
 						}
 
-						committeeHeadquarters.validatePoints(pts_input);
+						self.validatePoints(pts_input);
 					}
 				});
 			}).on('click', function(e){
-				var target = $(e.target);
+				var modified,
+					target = $(e.target),
+					clickedOutsidePopover = target.closest('.popover').length === 0;
 
-				if(openPopover && target.closest('.pts').length === 0 && target.closest('.popover').length === 0){
-					openPopover.popover('hide');
-					openPopover = null;
-				}
-			}).on('click', '.submit-committee-point', function(e){
-				var input = $(e.target).closest('.input-group').find('input'),
-					points = input.val();
+				if(!self.openPopover && target.hasClass('pts')){
+					self.openPopover = target.popover('show');
+				}else{
+					modified = self.isModified();
 
-				if(points == input.data('original-value')){
-					return;
-				}
-
-				$.getJSON('ajax/submitCommitteePoint.php', {
-					nu_email: openPopover.data('slivkan'),
-					event_name: openPopover.data('event'),
-					points: points
-				}, function(status){
-					if(status == '1'){
-						openPopover.text(parseFloat(points).toFixed(1))
-							.popover('hide');
-						committeeHeadquarters.updateTotal(openPopover.closest('tr'));
-						openPopover = null;
-					}
-				});
-			}).on('input', '.pts-input', function(e){
-				committeeHeadquarters.validatePoints($(e.target));
-			});
-
-			$('#helper-point-form').on('submit', function(){
-				var nu_email = $('#helper-slivkan').val(),
-					event_name = $('#helper-event').val();
-
-				if(nu_email.length > 0 && event_name.length > 0){
-					$.getJSON('ajax/submitHelperPoint.php', {
-						nu_email: nu_email,
-						event_name: event_name
-					}, function(data) {
-						if(data.status == '1'){
-							window.alert('Success!');
+					if(target.hasClass('pts-input-submit')){
+						if(modified){
+							self.submitCommitteePoint();
 						}else{
-							window.alert('Something went wrong. Ask the VP.');
+							self.openPopover.popover('hide');
+							self.openPopover = null;
 						}
+					}else if((!modified && clickedOutsidePopover) || target.hasClass('pts-input-cancel')){
+						self.openPopover.popover('hide');
 
-						$('#helper-point-modal').modal('hide');
-						$('#helper-slivkan').val('');
-						$('#helper-event').val('');
-					});
+						if(target.hasClass('pts')){
+							self.openPopover = target.popover('show');
+						}else{
+							self.openPopover = null;
+						}
+					}
 				}
+			}).on('input', '.pts-input', function(e){
+				self.validatePoints($(e.target));
 			});
+
+			$('#helper-point-form').on('submit', this.submitHelperPoint);
 		},
 		updateTotal: function(row){
 			var total = row.find('td.pts').map(function(i, el){
@@ -1645,6 +1635,65 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			}
 
 			common.updateValidity(control, valid);
+		},
+		isModified: function(){
+			var isBonus = this.openPopover.data('event') == 'bonus',
+				ptsInput = $('#pts-input');
+
+			return ptsInput.val() != ptsInput.data('original-value') ||
+					$('#comments').val() != this.openPopover.data('comments') ||
+					(!isBonus && ($('#contributions').val() || []).join() != this.openPopover.data('contributions'));
+		},
+		submitCommitteePoint: function(){
+			this.points = $('#pts-input').val();
+			this.contributions = ($('#contributions').val() || []).join();
+			this.comments = $('#comments').val();
+
+			$.ajax({
+				type: 'POST',
+				url: './ajax/submitCommitteePoint.php',
+				context: this,
+				data: {
+					nu_email: this.openPopover.parent().data('slivkan'),
+					event_name: this.openPopover.data('event'),
+					points: this.points,
+					contributions: this.contributions,
+					comments: this.comments
+				},
+				success: function(status){
+					if(status == '1'){
+						this.openPopover.text(parseFloat(this.points).toFixed(1));
+						this.openPopover.data({
+							contributions: this.contributions,
+							comments: this.comments
+						});
+						committeeHeadquarters.updateTotal(this.openPopover.closest('tr'));
+						this.openPopover.popover('hide');
+						this.openPopover = null;
+					}
+				}
+			});
+		},
+		submitHelperPoint: function(){
+			var nu_email = $('#helper-slivkan').val(),
+				event_name = $('#helper-event').val();
+
+			if(nu_email.length > 0 && event_name.length > 0){
+				$.post('./ajax/submitHelperPoint.php', {
+					nu_email: nu_email,
+					event_name: event_name
+				}, function(status) {
+					if(status == '1'){
+						window.alert('Success!');
+					}else{
+						window.alert('Something went wrong. Ask the VP.');
+					}
+
+					$('#helper-point-modal').modal('hide');
+					$('#helper-slivkan').val('');
+					$('#helper-event').val('');
+				});
+			}
 		}
 	};
 
