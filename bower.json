@@ -13,8 +13,6 @@
     "hogan": "3.0.0",
     "nprogress": "0.1.2",
     "moment": "*",
-    "bootstrap-daterangepicker": "*",
-    "bootstrap-switch": "*",
     "bootstrap-multiselect": "*",
     "add-to-homescreen": "2.0.11"
   },

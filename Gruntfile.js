@@ -63,7 +63,7 @@ module.exports = function(grunt) {
 		cssmin: {
 			combine: {
 				options: {
-					banner: '/* Slivka Points Center minified css (includes Bootstrap, Bootstrap-theme, jquery-ui, typeahead, nprogress, bootstrap-switch, and daterangepicker) */',
+					banner: '/* Slivka Points Center minified css (includes Bootstrap, Bootstrap-theme, typeahead, nprogress, bootstrap-multiselect, and add2home) */',
 					keepSpecialComments: 0,
 					report: 'gzip'
 				},
@@ -71,11 +71,11 @@ module.exports = function(grunt) {
 					'css/<%= pkg.name %>.built.css': [
 						'css/bootstrap.css',
 						'css/bootstrap-theme.css',
-						'css/jquery-ui-1.10.3.custom.css',
+						//'css/jquery-ui-1.10.3.custom.css',
 						'css/typeahead.js-bootstrap.css',
 						'css/nprogress.css',
-						'css/bootstrap-switch.css',
-						'css/daterangepicker-bs3.css',
+						//'css/bootstrap-switch.css',
+						//'css/daterangepicker-bs3.css',
 						'css/bootstrap-multiselect.css',
 						'css/add2home.css'
 					]
