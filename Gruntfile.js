@@ -77,7 +77,9 @@ module.exports = function(grunt) {
 						//'css/bootstrap-switch.css',
 						//'css/daterangepicker-bs3.css',
 						'css/bootstrap-multiselect.css',
-						'css/add2home.css'
+						'css/add2home.css',
+						'css/pointsTable.css',
+						'css/pointsCenter.css'
 					]
 				}
 			},
