@@ -1587,7 +1587,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 				if(!self.openPopover && target.hasClass('pts')){
 					self.openPopover = target.popover('show');
-				}else{
+				}else if(self.openPopover){
 					modified = self.isModified();
 
 					if(target.hasClass('pts-input-submit')){
@@ -1640,13 +1640,13 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			var isBonus = this.openPopover.data('event') == 'bonus',
 				ptsInput = $('#pts-input');
 
-			return ptsInput.val() != ptsInput.data('original-value') ||
+			return parseFloat(ptsInput.val()) != parseFloat(ptsInput.data('original-value')) ||
 					$('#comments').val() != this.openPopover.data('comments') ||
-					(!isBonus && ($('#contributions').val() || []).join() != this.openPopover.data('contributions'));
+					(!isBonus && ($('#contributions').val() || []).sort().join() != this.openPopover.data('contributions'));
 		},
 		submitCommitteePoint: function(){
 			this.points = $('#pts-input').val();
-			this.contributions = ($('#contributions').val() || []).join();
+			this.contributions = ($('#contributions').val() || []).sort().join();
 			this.comments = $('#comments').val();
 
 			$.ajax({
