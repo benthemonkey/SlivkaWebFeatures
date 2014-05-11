@@ -360,21 +360,37 @@ class PointsCenter
 	public function getCommitteeAttendance ($committee)
 	{
 		$committee_attendance = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT p.event_name, p.nu_email FROM
-					(SELECT event_name, committee, qtr
-						FROM events
-						WHERE qtr=:qtr AND committee=:committee AND type<>'im') AS e
-				INNER Join committees AS c USING (committee, qtr)
-				INNER JOIN points AS p USING (event_name, nu_email)");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->bindValue(":committee", $committee);
-			$statement->execute();
-			$committee_attendance = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
+
+		if($committee == "Facilities"){
+			try {
+				$statement = self::$dbConn->prepare(
+					"SELECT event_name, nu_email FROM
+					committees INNER JOIN points USING (nu_email,qtr)
+					WHERE committee='Facilities' AND qtr=:qtr");
+				$statement->bindValue(":qtr", self::$qtr);
+				$statement->execute();
+				$committee_attendance = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
+			} catch (PDOException $e) {
+				echo "Error: " . $e->getMessage();
+				die();
+			}
+		}else{
+			try {
+				$statement = self::$dbConn->prepare(
+					"SELECT p.event_name, p.nu_email FROM
+						(SELECT event_name, committee, qtr
+							FROM events
+							WHERE qtr=:qtr AND committee=:committee AND type<>'im') AS e
+					INNER JOIN committees AS c USING (committee, qtr)
+					INNER JOIN points AS p USING (event_name, nu_email)");
+				$statement->bindValue(":qtr", self::$qtr);
+				$statement->bindValue(":committee", $committee);
+				$statement->execute();
+				$committee_attendance = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
+			} catch (PDOException $e) {
+				echo "Error: " . $e->getMessage();
+				die();
+			}
 		}
 
 		return $committee_attendance;
@@ -714,10 +730,12 @@ class PointsCenter
 
 			if(array_key_exists($event_name, $committee_points)){
 				foreach($committee_points[$event_name] as $s){
-					$committee_points_table[$s['nu_email']][$e]['points'] += $s['points'];
-					$committee_points_table[$s['nu_email']][$e]['contributions'] = $s['contributions'];
-					$committee_points_table[$s['nu_email']][$e]['comments'] = $s['comments'];
-					$committee_points_table[$s['nu_email']][$total_ind]['points'] += $s['points'];
+					if(array_key_exists($s['nu_email'], $committee_points_table)){
+						$committee_points_table[$s['nu_email']][$e]['points'] += $s['points'];
+						$committee_points_table[$s['nu_email']][$e]['contributions'] = $s['contributions'];
+						$committee_points_table[$s['nu_email']][$e]['comments'] = $s['comments'];
+						$committee_points_table[$s['nu_email']][$total_ind]['points'] += $s['points'];
+					}
 				}
 			}
 		}
