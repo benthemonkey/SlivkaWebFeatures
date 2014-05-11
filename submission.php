@@ -1,4 +1,3 @@
-<?php require_once __DIR__ . "/ajax/datastoreVars.php"; ?>
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
@@ -56,10 +55,14 @@
 									<input type="radio" name="type" value="IM"> IM
 								</label>
 								<label class="btn btn-default btn-sm type-btn">
-									<input type="radio" name="type" value="House Meeting"> House Meeting
+									<input type="radio" name="type" value="House Meeting">
+									<span class="hidden-xs"> House Meeting</span>
+									<span class="visible-xs"> Hse Mtg</span>
 								</label>
 								<label class="btn btn-default btn-sm type-btn">
-									<input type="radio" name="type" value="Committee Only"> Committee Only
+									<input type="radio" name="type" value="Committee Only">
+									<span class="hidden-xs"> Committee Only</span>
+									<span class="visible-xs"> Cmte Only</span>
 								</label>
 								<label class="btn btn-default btn-sm type-btn active">
 									<input type="radio" name="type" value="Other"> Other
@@ -209,7 +212,7 @@
 						<a href="#" class="btn btn-default" data-dismiss="modal">Cancel</a>
 					</div>
 					<div id="confirmed" style="display: none;">
-						<span>If an error occurs, email the receipt to <?php echo $GLOBALS['VP_NAME']; ?>.</span>
+						<span>If an error occurs, email the receipt to the VP.</span>
 						<a href="table.php" class="btn btn-primary">View Points</a>
 					</div>
 				</div>
