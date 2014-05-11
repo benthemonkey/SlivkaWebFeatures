@@ -80,8 +80,8 @@
 				</div><!--tab-content-->
 			</div>
 			<div class="clearfix"></div>
+			<?php include('credits.html'); ?>
 		</div>
-		<?php include('credits.html'); ?>
 	</div>
 	<?php include('footer.html'); ?>
 </body>

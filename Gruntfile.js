@@ -71,14 +71,10 @@ module.exports = function(grunt) {
 					'css/<%= pkg.name %>.built.css': [
 						'css/bootstrap.css',
 						'css/bootstrap-theme.css',
-						//'css/jquery-ui-1.10.3.custom.css',
 						'css/typeahead.js-bootstrap.css',
 						'css/nprogress.css',
-						//'css/bootstrap-switch.css',
-						//'css/daterangepicker-bs3.css',
 						'css/bootstrap-multiselect.css',
 						'css/add2home.css',
-						'css/pointsTable.css',
 						'css/pointsCenter.css'
 					]
 				}
