@@ -2,22 +2,19 @@
 require_once __DIR__ . "/datastoreVars.php";
 include_once __DIR__ . "/swift/swift_required.php";
 
-class PointsCenter
-{
+class PointsCenter {
 	private static $qtr = 0;
 
 	private static $dbConn = null;
 
-	public function __construct ()
-	{
+	public function __construct() {
 		error_reporting(E_ALL & ~E_NOTICE);
 		//ini_set('display_errors', '1');
 		self::initializeConnection();
 		self::$qtr = (isset($_GET['qtr']) ? $_GET['qtr'] : $GLOBALS['QTR']);
 	}
 
-	private static function initializeConnection ()
-	{
+	private static function initializeConnection() {
 		if (is_null(self::$dbConn)) {
             $dsn = $GLOBALS['DB_TYPE'] . ":host=" . $GLOBALS['DB_HOST'] . ";dbname=" . $GLOBALS['DB_NAME'];
             try {
@@ -31,34 +28,37 @@ class PointsCenter
 		}
 	}
 
-	public function getQuarter ()
-	{
-		return self::$qtr;
-	}
+	private static function fetchAllQuery($query, $fetch=PDO::FETCH_ASSOC, $params) {
+		$out = array();
 
-	public function getQuarters ()
-	{
-		$quarters = array();
 		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT qtr,quarter
-				FROM quarters
-				WHERE 1301 < qtr
-				ORDER BY qtr DESC");
+			$statement = self::$dbConn->prepare($query);
 			$statement->bindValue(":qtr", self::$qtr);
+
+			foreach($params as $var => $value){
+				$statement->bindValue($var, $value);
+			}
+
 			$statement->execute();
-			$quarters = $statement->fetchAll(PDO::FETCH_ASSOC);
+			$out = $statement->fetchAll($fetch);
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();
 		}
 
-		return $quarters;
+		return $out;
 	}
 
-	public function getQuarterInfo ()
-	{
-		$quarter_info;
+	public function getQuarter() {
+		return self::$qtr;
+	}
+
+	public function getQuarters() {
+		return self::fetchAllQuery("SELECT qtr,quarter FROM quarters WHERE 1301 < qtr ORDER BY qtr DESC");
+	}
+
+	public function getQuarterInfo() {
+		$quarter_info;// = self::fetchAllQuery("SELECT * FROM quarters WHERE qtr=:qtr");
 		try {
 			$statement = self::$dbConn->prepare(
 				"SELECT *
@@ -76,46 +76,27 @@ class PointsCenter
 		return $quarter_info;
 	}
 
-	public function getDirectory ()
-	{
-		$directory = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT first_name,last_name,year,major,suite,photo
+	public function getDirectory() {
+		return self::fetchAllQuery(
+			"SELECT first_name,last_name,year,major,suite,photo
 				FROM slivkans
 				LEFT JOIN suites ON slivkans.nu_email=suites.nu_email AND suites.qtr=:qtr
 				WHERE qtr_joined <= :qtr AND (qtr_final IS NULL OR qtr_final >= :qtr)
-				ORDER BY first_name,last_name");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->execute();
-			$directory = $statement->fetchAll(PDO::FETCH_NUM);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-		return $directory;
+				ORDER BY first_name,last_name",
+			PDO::FETCH_NUM
+		);
 	}
 
-	public function getSlivkans ()
-	{
-		$slivkans = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT CONCAT(first_name, ' ', last_name) AS full_name,
-					slivkans.nu_email,gender,wildcard,committee,photo,suite,year
-				FROM slivkans
-				LEFT JOIN committees ON slivkans.nu_email=committees.nu_email AND committees.qtr=:qtr
-				LEFT JOIN suites ON slivkans.nu_email=suites.nu_email AND suites.qtr=:qtr
-				WHERE qtr_joined <= :qtr AND (qtr_final IS NULL OR qtr_final >= :qtr)
-				ORDER BY first_name,last_name");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->execute();
-			$slivkans = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
+	public function getSlivkans() {
+		$slivkans = self::fetchAllQuery(
+			"SELECT CONCAT(first_name, ' ', last_name) AS full_name,
+				slivkans.nu_email,gender,wildcard,committee,photo,suite,year
+			FROM slivkans
+			LEFT JOIN committees ON slivkans.nu_email=committees.nu_email AND committees.qtr=:qtr
+			LEFT JOIN suites ON slivkans.nu_email=suites.nu_email AND suites.qtr=:qtr
+			WHERE qtr_joined <= :qtr AND (qtr_final IS NULL OR qtr_final >= :qtr)
+			ORDER BY first_name,last_name"
+		);
 
 		# Add tokens for typeahead.js
 		$n = count($slivkans);
@@ -126,41 +107,19 @@ class PointsCenter
 		return $slivkans;
 	}
 
-	public function getNicknames ()
-	{
-		$nicknames = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT nu_email,nickname
-				FROM nicknames");
-			$statement->execute();
-			$nicknames = $statement->fetchAll(PDO::FETCH_NAMED);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-		return $nicknames;
+	public function getNicknames() {
+		return self::fetchAllQuery("SELECT nu_email,nickname FROM nicknames", PDO::FETCH_NAMED);
 	}
 
-	public function getFellows ()
-	{
-		$fellows = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT full_name,position,department,photo
-				FROM fellows
-				WHERE qtr_final IS NULL");
-			$statement->execute();
-			$fellows = $statement->fetchAll(PDO::FETCH_ASSOC);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-		return $fellows;
+	public function getFellows() {
+		return self::fetchAllQuery(
+			"SELECT full_name,position,department,photo
+			FROM fellows
+			WHERE qtr_final IS NULL"
+		);
 	}
 
-	public function getEvents ($count = 20, $offset = 0)
-	{
+	public function getEvents($count = 20, $offset = 0) {
 		$events = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -171,7 +130,7 @@ class PointsCenter
 				".($count != -1 ? "LIMIT :offset,:count" : ""));
 			$statement->bindValue(":qtr", self::$qtr);
 
-			if($count != -1){
+			if ($count != -1) {
 				$statement->bindValue(":offset", $offset, PDO::PARAM_INT);
 				$statement->bindValue(":count", $count, PDO::PARAM_INT);
 			}
@@ -184,320 +143,154 @@ class PointsCenter
 		return array_reverse($events);
 	}
 
-	public function getRecentEvents ()
-	{
-		$events = array();
+	public function getRecentEvents() {
 		$days_later = 14;
 		$start = date('Y-m-d',mktime(0,0,0,date("m"),date("d")-$days_later,date("Y")));
 
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT event_name,date,type,attendees,committee,description
+		return self::fetchAllQuery(
+			"SELECT event_name,date,type,attendees,committee,description
 				FROM events
 				WHERE qtr=:qtr AND date>:start AND type<>'committee_only'
-				ORDER BY date, id");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->bindValue(":start", $start);
-			$statement->execute();
-			$events = $statement->fetchAll(PDO::FETCH_NAMED);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-		return $events;
+				ORDER BY date, id",
+			PDO::FETCH_NAMED,
+			array(":start" => $start)
+		);
 	}
 
-	public function getCommitteeEvents ($committee)
-	{
-		$events = array();
-
-		if($committee == "Facilities"){
-			try {
-				$statement = self::$dbConn->prepare(
-					"SELECT event_name, filled_by
+	public function getCommitteeEvents($committee) {
+		if ($committee == "Facilities") {
+			return self::fetchAllQuery(
+				"SELECT event_name,filled_by
 					FROM events
 					WHERE qtr=:qtr AND type<>'im' AND type<>'p2p'
-					ORDER BY date, id");
-				$statement->bindValue(":qtr", self::$qtr);
-				$statement->execute();
-				$events = $statement->fetchAll(PDO::FETCH_ASSOC);
-			} catch (PDOException $e) {
-				echo "Error: " . $e->getMessage();
-				die();
-			}
-		}else{
-			try {
-				$statement = self::$dbConn->prepare(
-					"SELECT event_name, filled_by
+					ORDER BY date, id"
+			);
+		} else {
+			return self::fetchAllQuery(
+				"SELECT event_name,filled_by
 					FROM events
 					WHERE qtr=:qtr AND committee=:committee AND type<>'im'
-					ORDER BY date, id");
-				$statement->bindValue(":qtr", self::$qtr);
-				$statement->bindValue(":committee", $committee);
-				$statement->execute();
-				$events = $statement->fetchAll(PDO::FETCH_ASSOC);
-			} catch (PDOException $e) {
-				echo "Error: " . $e->getMessage();
-				die();
-			}
+					ORDER BY date, id",
+				PDO::FETCH_ASSOC,
+				array(":committee" => $committee)
+			);
 		}
-
-		return $events;
 	}
 
-	public function getIMs ($team)
-	{
-		$IMs = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT event_name
+	public function getIMs($team) {
+		return self::fetchAllQuery(
+			"SELECT event_name
 				FROM events
-				WHERE qtr=:qtr AND type='im' AND event_name LIKE :team");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->bindValue(":team", "%".$team."%");
-			$statement->execute();
-			$IMs = $statement->fetchAll(PDO::FETCH_COLUMN,0);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-		return $IMs;
+				WHERE qtr=:qtr AND type='im' AND event_name LIKE :team",
+			PDO::FETCH_COLUMN,
+			array(":team" => "%".$team."%")
+		);
 	}
 
-	public function getPoints ()
-	{
-		$points = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT event_name,nu_email
-				FROM points
-				WHERE qtr=:qtr");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->execute();
-			$points = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-		return $points;
+	public function getPoints() {
+		return self::fetchAllQuery(
+			"SELECT event_name,nu_email FROM points WHERE qtr=:qtr",
+			PDO::FETCH_COLUMN|PDO::FETCH_GROUP
+		);
 	}
 
-	public function getHelperPoints ()
-	{
-		$helper_points = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT event_name,nu_email
-				FROM helperpoints
-				WHERE qtr=:qtr");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->execute();
-			$helper_points = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-		return $helper_points;
+	public function getHelperPoints() {
+		return self::fetchAllQuery(
+			"SELECT event_name,nu_email FROM helperpoints WHERE qtr=:qtr",
+			PDO::FETCH_COLUMN|PDO::FETCH_GROUP
+		);
 	}
 
-	public function getCommitteePoints ()
-	{
-		$committee_points = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT event_name,nu_email,points,contributions,comments
-				FROM committeepoints
-				WHERE qtr=:qtr");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->execute();
-			$committee_points = $statement->fetchAll(PDO::FETCH_GROUP|PDO::FETCH_ASSOC);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-
-		return $committee_points;
+	public function getCommitteePoints() {
+		return self::fetchAllQuery(
+			"SELECT event_name,nu_email,points,contributions,comments FROM committeepoints WHERE qtr=:qtr",
+			PDO::FETCH_GROUP|PDO::FETCH_ASSOC
+		);
 	}
 
-	public function getCommitteeTotals ()
-	{
-		$committee_points = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT nu_email,points
-				FROM committees
-				WHERE qtr=:qtr");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->execute();
-			$committee_points = $statement->fetchAll(PDO::FETCH_KEY_PAIR);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-		return $committee_points;
+	public function getCommitteeTotals() {
+		return self::fetchAllQuery("SELECT nu_email,points FROM committees WHERE qtr=:qtr", PDO::FETCH_KEY_PAIR);
 	}
 
-	public function getCommitteeBonusPoints ($committee)
-	{
-		$committee_bonus_points = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT nu_email,bonus,comments
-				FROM committees
-				WHERE qtr=:qtr AND committee=:committee");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->bindValue(":committee", $committee);
-			$statement->execute();
-			$committee_bonus_points = $statement->fetchAll(PDO::FETCH_ASSOC);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-
-		return $committee_bonus_points;
+	public function getCommitteeBonusPoints($committee) {
+		return self::fetchAllQuery(
+			"SELECT nu_email,bonus,comments FROM committees WHERE qtr=:qtr AND committee=:committee",
+			PDO::FETCH_ASSOC,
+			array(":committee" => $committee)
+		);
 	}
 
-	public function getCommitteeAttendance ($committee)
-	{
-		$committee_attendance = array();
-
-		if($committee == "Facilities"){
-			try {
-				$statement = self::$dbConn->prepare(
-					"SELECT event_name, nu_email FROM
+	public function getCommitteeAttendance($committee) {
+		if ($committee == "Facilities") {
+			return self::fetchAllQuery(
+				"SELECT event_name, nu_email FROM
 					committees INNER JOIN points USING (nu_email,qtr)
-					WHERE committee='Facilities' AND qtr=:qtr");
-				$statement->bindValue(":qtr", self::$qtr);
-				$statement->execute();
-				$committee_attendance = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
-			} catch (PDOException $e) {
-				echo "Error: " . $e->getMessage();
-				die();
-			}
-		}else{
-			try {
-				$statement = self::$dbConn->prepare(
-					"SELECT p.event_name, p.nu_email FROM
-						(SELECT event_name, committee, qtr
-							FROM events
-							WHERE qtr=:qtr AND committee=:committee AND type<>'im') AS e
+					WHERE committee='Facilities' AND qtr=:qtr",
+				PDO::FETCH_COLUMN|PDO::FETCH_GROUP
+			);
+		} else {
+			return self::fetchAllQuery(
+				"SELECT p.event_name, p.nu_email FROM
+					(SELECT event_name, committee, qtr
+						FROM events
+						WHERE qtr=:qtr AND committee=:committee AND type<>'im') AS e
 					INNER JOIN committees AS c USING (committee, qtr)
-					INNER JOIN points AS p USING (event_name, nu_email)");
-				$statement->bindValue(":qtr", self::$qtr);
-				$statement->bindValue(":committee", $committee);
-				$statement->execute();
-				$committee_attendance = $statement->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
-			} catch (PDOException $e) {
-				echo "Error: " . $e->getMessage();
-				die();
-			}
+					INNER JOIN points AS p USING (event_name, nu_email)",
+				PDO::FETCH_COLUMN|PDO::FETCH_GROUP,
+				array(":committee" => $committee)
+			);
 		}
-
-		return $committee_attendance;
 	}
 
-	public function getEventTotals ()
-	{
-		$points = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT nu_email, count(event_name) AS total
+	public function getEventTotals() {
+		return self::fetchAllQuery(
+			"SELECT nu_email, count(event_name) AS total
 				FROM points INNER JOIN events USING (event_name, qtr)
-				WHERE qtr=:qtr AND type NOT IN ('im','committee_only')
-				GROUP BY nu_email");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->execute();
-			$points = $statement->fetchAll(PDO::FETCH_KEY_PAIR);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-		return $points;
+				WHERE qtr=:qtr AND type<>'im' AND type<>'committee_only'
+				GROUP BY nu_email",
+			PDO::FETCH_KEY_PAIR
+		);
 	}
 
-	public function getIMPoints ()
-	{
-		$im_points = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT nu_email, LEAST(SUM(count),15) AS total
+	public function getIMPoints() {
+		return self::fetchAllQuery(
+			"SELECT nu_email, LEAST(SUM(count),15) AS total
 				FROM imcounts
 				WHERE count>=3 AND qtr=:qtr
-				GROUP BY nu_email");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->execute();
-			$im_points = $statement->fetchAll(PDO::FETCH_KEY_PAIR);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-
-		return $im_points;
+				GROUP BY nu_email",
+			PDO::FETCH_KEY_PAIR
+		);
 	}
 
-	public function getSlivkanPoints ($nu_email)
-	{
-		$events = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT event_name
-				FROM points
-				WHERE qtr=:qtr AND nu_email=:nu_email");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->bindValue(":nu_email", $nu_email);
-			$statement->execute();
-			$events = $statement->fetchAll(PDO::FETCH_COLUMN);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-		return $events;
+	public function getSlivkanPoints($nu_email) {
+		return self::fetchAllQuery(
+			"SELECT event_name FROM points WHERE qtr=:qtr AND nu_email=:nu_email",
+			PDO::FETCH_COLUMN,
+			array(":nu_email" => $nu_email)
+		);
 	}
 
-	public function getSlivkanPointsByCommittee ($nu_email)
-	{
-		$points = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT committee, count(nu_email) AS count
+	public function getSlivkanPointsByCommittee($nu_email) {
+		return self::fetchAllQuery(
+			"SELECT committee, count(nu_email) AS count
 				FROM points
 				INNER JOIN events USING (event_name,qtr)
-				WHERE nu_email=:nu_email AND qtr=:qtr AND type NOT IN ('im','committee_only')
-				GROUP BY committee");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->bindValue(":nu_email", $nu_email);
-			$statement->execute();
-			$points = $statement->fetchAll(PDO::FETCH_ASSOC);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-
-		return $points;
+				WHERE nu_email=:nu_email AND qtr=:qtr AND type<>'im' AND type<>'committee_only'
+				GROUP BY committee",
+			PDO::FETCH_ASSOC,
+			array(":nu_email" => $nu_email)
+		);
 	}
 
-	public function getSlivkanIMPoints ($nu_email)
-	{
-		$im_points = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT sport, count
-				FROM imcounts
-				WHERE nu_email=:nu_email AND qtr=:qtr");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->bindValue(":nu_email", $nu_email);
-			$statement->execute();
-			$im_points = $statement->fetchAll(PDO::FETCH_ASSOC);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-
-		return $im_points;
+	public function getSlivkanIMPoints($nu_email) {
+		return self::fetchAllQuery(
+			"SELECT sport,count FROM imcounts WHERE nu_email=:nu_email AND qtr=:qtr",
+			PDO::FETCH_ASSOC,
+			array(":nu_email" => $nu_email)
+		);
 	}
 
-	public function getSlivkanBonusPoints ($nu_email)
-	{
+	public function getSlivkanBonusPoints($nu_email) {
 		$helper_points = 0;
 		try {
 			$statement = self::$dbConn->prepare(
@@ -561,8 +354,7 @@ class PointsCenter
 		return array("helper" => $helper_points, "committee" => $committee_points | 0, "other" => $other_points, "other_breakdown" => $other_breakdown);
 	}
 
-	public function getBonusPoints ()
-	{
+	public function getBonusPoints() {
 		$bonus_points = array();
 		try {
 			$statement = self::$dbConn->prepare( #using left + right join to mimic full outer join
@@ -596,8 +388,7 @@ class PointsCenter
 		return $bonus_points;
 	}
 
-	public function getPointsTable ($showall = false)
-	{
+	public function getPointsTable($showall = false) {
 		$slivkans = self::getSlivkans();
 		if($showall){
 			$events = self::getEvents(-1);
@@ -682,8 +473,7 @@ class PointsCenter
 		return array('points_table' => array_values($points_table), 'events' => $events, 'by_year' => $by_year, 'by_suite' => $by_suite);
 	}
 
-	public function getCommitteePointsTable ($committee)
-	{
+	public function getCommitteePointsTable($committee) {
 		$slivkans = self::getCommittee($committee);
 		$events = self::getCommitteeEvents($committee);
 		$committee_points = self::getCommitteePoints();
@@ -743,24 +533,15 @@ class PointsCenter
 		return array('points_table' => $committee_points_table, 'events' => $event_names);
 	}
 
-	public function getMultipliers ()
-	{
-		$slivkans = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT CONCAT(first_name,' ',last_name) AS full_name,
+	public function getMultipliers() {
+		$slivkans = self::fetchAllQuery(
+			"SELECT CONCAT(first_name,' ',last_name) AS full_name,
 					nu_email,gender,qtr_joined,qtrs_away,qtr_final
 				FROM slivkans
 				WHERE qtr_final IS NULL OR qtr_final>=:qtr
-				ORDER BY first_name, last_name");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->execute();
-			$slivkans = $statement->fetchAll(PDO::FETCH_ASSOC);
+				ORDER BY first_name, last_name"
+		);
 
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
 		$count = count($slivkans);
 		$is_housing = $GLOBALS['IS_HOUSING'] == true;
 
@@ -789,8 +570,7 @@ class PointsCenter
 		return $slivkans;
 	}
 
-	public function getRankings ()
-	{
+	public function getRankings() {
 		$is_housing = $GLOBALS['IS_HOUSING'] == true;
 		# figure out how many qtrs to consider
 		# if its spring, you're trying to get final housing rankings.
@@ -811,19 +591,14 @@ class PointsCenter
 		# spring 13, fall 13, winter 14 HOUSING spring 14
 		$abstentions = self::getAbstentions();
 		$rankings = self::getMultipliers();
-		$totals = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT nu_email,total
+
+		$totals = self::fetchAllQuery(
+			"SELECT nu_email,total
 				FROM totals
 				WHERE qtr IN (".implode(",",$qtrs).")
-				ORDER BY qtr");
-			$statement->execute();
-			$totals = $statement->fetchAll(PDO::FETCH_GROUP|PDO::FETCH_COLUMN);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
+				ORDER BY qtr",
+			PDO::FETCH_GROUP|PDO::FETCH_COLUMN
+		);
 
 		$house_meetings;
 
@@ -857,8 +632,7 @@ class PointsCenter
 		return array('rankings' => $rankings, 'qtrs' => $qtrs, 'is_housing' => $is_housing);
 	}
 
-	public function updateTotals ()
-	{
+	public function updateTotals() {
 		$slivkans = self::getSlivkans();
 		$event_totals = self::getEventTotals();
 		$im_points = self::getIMPoints();
@@ -893,8 +667,7 @@ class PointsCenter
 		return true;
 	}
 
-	public function getAbstentions ()
-	{
+	public function getAbstentions() {
 		$q = self::$qtr - round(self::$qtr,-2);
 
 		#round up to closest "YY02"
@@ -904,28 +677,14 @@ class PointsCenter
 			$qtr_final = round(self::$qtr,-2) + 2;
 		}
 
-		$abstentions = array();
-
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT nu_email
-				FROM slivkans
-				WHERE qtr_final>=:qtr AND qtr_final<=:qtr_final");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->bindValue(":qtr_final", $qtr_final);
-			$statement->execute();
-			$abstentions = $statement->fetchAll(PDO::FETCH_COLUMN);
-
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-
-		return $abstentions;
+		return self::fetchAllQuery(
+			"SELECT nu_email FROM slivkans WHERE qtr_final>=:qtr AND qtr_final<=:qtr_final",
+			PDO::FETCH_COLUMN,
+			array(":qtr_final" => $qtr_final)
+		);
 	}
 
-	public function getCommittee ($committee)
-	{
+	public function getCommittee($committee) {
 		$slivkans = array();
 
 		try {
@@ -946,8 +705,7 @@ class PointsCenter
 		return $slivkans;
 	}
 
-	public function updateCommittee ($slivkans, $committee, $points)
-	{
+	public function updateCommittee($slivkans, $committee, $points) {
 		try {
 			$statement = self::$dbConn->prepare(
 				"DELETE FROM committees WHERE qtr=:qtr AND committee=:committee AND
@@ -972,8 +730,7 @@ class PointsCenter
 		return true;
 	}
 
-	public function getSuite ($suite)
-	{
+	public function getSuite($suite) {
 		$slivkans = array();
 
 		try {
@@ -994,8 +751,7 @@ class PointsCenter
 		return $slivkans;
 	}
 
-	public function updateSuite ($slivkans, $suite)
-	{
+	public function updateSuite($slivkans, $suite) {
 		try {
 			$statement = self::$dbConn->prepare(
 				"DELETE FROM suites WHERE qtr=:qtr AND suite=:suite AND
@@ -1019,8 +775,7 @@ class PointsCenter
 		return true;
 	}
 
-	public function submitCommitteePoint ($nu_email, $event_name, $points, $contributions, $comments)
-	{
+	public function submitCommitteePoint($nu_email, $event_name, $points, $contributions, $comments) {
 		if(($points == '0' || $points == '0.0') && $contributions == '' && $comments == ''){
 			try {
 				$statement = self::$dbConn->prepare(
@@ -1068,8 +823,7 @@ class PointsCenter
 		return true;
 	}
 
-	public function submitHelperPoint ($nu_email, $event_name)
-	{
+	public function submitHelperPoint($nu_email, $event_name) {
 		try {
 			$statement = self::$dbConn->prepare(
 				"INSERT INTO helperpoints (nu_email,event_name,qtr) VALUES (?,?,?)");
@@ -1083,8 +837,7 @@ class PointsCenter
 		return true;
 	}
 
-	public function submitPointsForm ($form_data)
-	{
+	public function submitPointsForm($form_data) {
 		$real_event_name = $form_data['event_name'] . " " . $form_data['date'];
 
 		if($form_data['committee_members'] === NULL){ $form_data['committee_members'] = array(""); }
@@ -1222,8 +975,7 @@ class PointsCenter
 		return self::$dbConn->commit();
 	}
 
-	public function submitPointsCorrectionForm($form_data, $key)
-	{
+	public function submitPointsCorrectionForm($form_data, $key) {
 		try {
 			$statement = self::$dbConn->prepare(
 				"SELECT *
@@ -1297,8 +1049,7 @@ class PointsCenter
 		return self::sendEmail($filled_by,"Points Correction for " . $form_data['event_name'] . " (Automated)", $html);
 	}
 
-	public function pointsCorrectionReply($get)
-	{
+	public function pointsCorrectionReply($get) {
 		if($get['reply']==md5('1')){ $code = 1; }
 		elseif($get['reply']==md5('2')){ $code = 2;}
 		elseif($get['reply']==md5('3')){ $code = 3;}
@@ -1373,8 +1124,7 @@ class PointsCenter
 		return self::sendEmail($result['nu_email'],"Points Correction Response Posted (Automated)",$html);
 	}
 
-	private function sendEmail($to_email,$subject,$body)
-	{
+	private function sendEmail($to_email,$subject,$body) {
 		$from = array($GLOBALS['MAILBOT_EMAIL'] => "Slivka Points Center");
 
 		if($to_email){
@@ -1405,8 +1155,7 @@ class PointsCenter
 		}
 	}
 
-	public function getCoursesInDept ($department)
-	{
+	public function getCoursesInDept($department) {
 		$courses = array();
 		try {
 			$statement = self::$dbConn->prepare(
@@ -1439,30 +1188,19 @@ class PointsCenter
 		return $return;
 	}
 
-	public function getCourseListing ($department,$number)
-	{
-		$courses = array();
-		try {
-			$statement = self::$dbConn->prepare(
-				"SELECT CONCAT(first_name, ' ', last_name) AS full_name,
+	public function getCourseListing($department, $number) {
+		return self::fetchAllQuery(
+			"SELECT CONCAT(first_name, ' ', last_name) AS full_name,
 					nu_email,qtr
 				FROM courses
 				INNER JOIN slivkans USING (nu_email)
-				WHERE courses LIKE :course AND qtr_joined<=:qtr AND (qtr_final IS NULL OR qtr_final>=:qtr)");
-			$statement->bindValue(":course", "%".$department." ".$number."%");
-			$statement->bindValue(":qtr", self::$qtr);
-			$statement->execute();
-			$courses = $statement->fetchAll(PDO::FETCH_ASSOC);
-		} catch (PDOException $e) {
-			echo "Error: " . $e->getMessage();
-			die();
-		}
-
-		return $courses;
+				WHERE courses LIKE :course AND qtr_joined<=:qtr AND (qtr_final IS NULL OR qtr_final>=:qtr)",
+			PDO::FETCH_ASSOC,
+			array(":course" => "%".$department." ".$number."%")
+		);
 	}
 
-	public function submitCourseDatabaseEntryForm ($nu_email,$courses,$qtr)
-	{
+	public function submitCourseDatabaseEntryForm($nu_email, $courses, $qtr) {
 		try {
 			$statement = self::$dbConn->prepare(
 				"INSERT INTO courses
