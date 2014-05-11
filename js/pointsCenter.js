@@ -661,7 +661,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			}
 		},
 		toggleType: function(event) {
-			type = $(event.target).find('input').val();
+			type = $(event.target).closest('label').find('input').val();
 
 			//store value
 			localStorage.spc_sub_type = type;
