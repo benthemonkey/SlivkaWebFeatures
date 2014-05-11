@@ -1320,23 +1320,18 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 				underCutoff.sort(function(a, b) { return b[2] - a[2]; });
 
-				for(i=0; i<4; i++){
-					if(underCutoff[i][0]=='m'){
-						mj++;
-						underCutoff[i][1].addClass('green').find('.num').text(mj);
-					}else{
-						fj++;
-						underCutoff[i][1].addClass('green').find('.num').text(fj);
+				if(underCutoff.length > 0){
+					for(i=0; i<Math.min(4, underCutoff.length); i++){
+						if(underCutoff[i][0]=='m'){
+							mj++;
+							underCutoff[i][1].addClass('green').find('.num').text(mj);
+						}else{
+							fj++;
+							underCutoff[i][1].addClass('green').find('.num').text(fj);
+						}
 					}
 				}
 			});
-
-			// $('#update').on('click', function() {
-			// 	$('#update').button('loading');
-			// 	$.getJSON('./ajax/updateTotals.php', function() {
-			// 		window.location.reload();
-			// 	});
-			// });
 		},
 
 		qtrToQuarter: function(qtr) {
