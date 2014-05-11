@@ -73,8 +73,9 @@ function getFullName($slivkans, $nu_email){
 							</tr>
 						</table>
 					</div>
-					<div class="col-md-2">
-						<a href="#helper-point-modal" class="btn btn-warning btn-lg" data-toggle="modal">Give Helper Point</a>
+					<div class="col-md-4">
+						<a href="#helper-point-modal" class="btn btn-warning" data-toggle="modal">Give Helper Point</a>
+						<a href="#no-show-modal" class="btn btn-danger" data-toggle="modal">Submit No-Show</a>
 					</div>
 				</div>
 			</div>
@@ -172,47 +173,74 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 					<h3>Give Helper Point</h3>
 				</div>
 				<div class="modal-body">
-					<div class="row">
-						<div class="col-lg-12">
-							<form id="helper-point-form" class="form-horizontal" role="form" onsubmit="return false;">
-								<div class="form-group">
-									<label for="helper-event" class="col-sm-2 control-label">Event</label>
-									<div class="col-sm-10">
-										<select id="helper-event" class="form-control">
-											<option value="">Select One</option>
-											<?php
-												foreach(array_reverse($points_table['events']) as $e){
-													echo "<option>" . $e . "</option>\n";
-												}
-											?>
-										</select>
-									</div>
-								</div>
-								<div class="form-group">
-									<label for="helper-slivkan" class="col-sm-2 control-label">Slivkan</label>
-									<div class="col-sm-10">
-										<select id="helper-slivkan" class="form-control">
-											<option value="">Select One</option>
-											<?php
-												foreach($slivkans as $s){
-													echo '<option value="' . $s['nu_email'] . '" ';
-													if($s['committee'] == $committee || $s['committee'] == 'Facilities'){
-														echo 'disabled';
-													}
-													echo '>' . $s['full_name'] . "</option>\n";
-												}
-											?>
-										</select>
-									</div>
-								</div>
-								<button type="submit" class="btn btn-primary btn-block">Submit</button>
-							</form>
+					<form id="helper-point-form" role="form" onsubmit="return false;">
+						<div class="form-group">
+							<label for="helper-event" class="control-label">Event</label>
+							<select id="helper-event" class="form-control">
+								<option value="">Select One</option>
+								<?php
+									foreach(array_reverse($points_table['events']) as $e){
+										echo "<option>" . $e . "</option>\n";
+									}
+								?>
+							</select>
 						</div>
-					</div>
+						<div class="form-group">
+							<label for="helper-slivkan" class="control-label">Slivkan</label>
+							<select id="helper-slivkan" class="form-control">
+								<option value="">Select One</option>
+								<?php
+									foreach($slivkans as $s){
+										echo '<option value="' . $s['nu_email'] . '" ';
+										if($s['committee'] == $committee || $s['committee'] == 'Facilities'){
+											echo 'disabled';
+										}
+										echo '>' . $s['full_name'] . "</option>\n";
+									}
+								?>
+							</select>
+						</div>
+						<button type="submit" class="btn btn-primary btn-block">Submit</button>
+					</form>
 				</div>
 			</div>
 		</div>
 	</div>
+	<div id="no-show-modal" class="modal fade" role="dialog" >
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+					<h3>Submit No-Show</h3>
+				</div>
+				<div class="modal-body">
+					<form id="no-show-form" role="form" onsubmit="return false;">
+						<div class="form-group">
+							<label for="no-show-slivkan" class="control-label">Slivkan</label>
+							<select id="no-show-slivkan" class="form-control">
+								<option value="">Select One</option>
+								<?php
+									foreach($slivkans as $s){
+										echo '<option value="' . $s['nu_email'] . '">' . $s['full_name'] . "</option>\n";
+									}
+								?>
+							</select>
+						</div>
+						<div class="form-group">
+							<label for="no-show-date" class="control-label">Date</label>
+							<select id="no-show-date" class="form-control"></select>
+						</div>
+						<div class="form-group">
+							<label for="no-show-comments" class="control-label">Comments</label>
+							<textarea id="no-show-comments" maxlength="200" rows="5" class="form-control"></textarea>
+						</div>
+						<button type="submit" class="btn btn-primary btn-block">Submit</button>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<script id="pts-input-template" type="text/template">
 		<div class="row">
 			<div class="form-group has-success col-sm-4">
@@ -235,7 +263,7 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 
 			<div class="form-group col-sm-12">
 				<label for="comments" class="control-label">Comments:</label>
-				<textarea id="comments" class="form-control" maxlength="200" rows="5">{{comments}}</textarea>
+				<textarea id="comments" maxlength="200" rows="5" class="form-control">{{comments}}</textarea>
 			</div>
 
 			<div class="col-sm-6">

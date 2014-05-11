@@ -536,11 +536,14 @@ class PointsCenter {
 	public function getMultipliers() {
 		$slivkans = self::fetchAllQuery(
 			"SELECT CONCAT(first_name,' ',last_name) AS full_name,
-					nu_email,gender,qtr_joined,qtrs_away,qtr_final
+					slivkans.nu_email,gender,qtr_joined,qtrs_away,qtr_final,year,suite
 				FROM slivkans
+				LEFT JOIN suites ON slivkans.nu_email=suites.nu_email AND suites.qtr=:qtr
 				WHERE qtr_final IS NULL OR qtr_final>=:qtr
 				ORDER BY first_name, last_name"
 		);
+
+		$noShows = self::fetchAllQuery("SELECT nu_email, COUNT(nu_email) AS count FROM noshows", PDO::FETCH_KEY_PAIR);
 
 		$count = count($slivkans);
 		$is_housing = $GLOBALS['IS_HOUSING'] == true;
@@ -562,7 +565,25 @@ class PointsCenter {
 				$q_total += 1;
 			}
 
+			# figure out if they are a non res freshman
+			if ($slivkans[$s]['suite'] == 'NonRes') {
+				$y_grad = (int) $y_this / 100 + 3; # four years later, but three if its Fall
+				if ($q_this == 3) {
+					$y_grad += 1;
+				}
+
+				if ($y_grad == $slivkans[$s]['year'] - 2000) {
+					$q_total += 1;
+				}
+			}
+
 			$mult = 1 + 0.1 * $q_total;
+
+			if (array_key_exists($slivkans[$s]['nu_email'], $noShows)) {
+				$noShowCount = (int) $noShows[$slivkans[$s]['nu_email']];
+
+				$mult -= 0.05 * $noShowCount;
+			}
 
 			$slivkans[$s]['mult'] = $mult;
 		}
@@ -829,6 +850,20 @@ class PointsCenter {
 				"INSERT INTO helperpoints (nu_email,event_name,qtr) VALUES (?,?,?)");
 
 			$statement->execute(array($nu_email, $event_name, self::$qtr));
+		} catch (PDOException $e) {
+			echo "Error: " . $e->getMessage();
+			die();
+		}
+
+		return true;
+	}
+
+	public function submitNoShow($nu_email, $date, $comments) {
+		try {
+			$statement = self::$dbConn->prepare(
+				"INSERT INTO noshows (nu_email,date,comments) VALUES (?,?,?)");
+
+			$statement->execute(array($nu_email, $date, $comments));
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();

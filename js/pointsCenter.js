@@ -407,11 +407,11 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			$.getJSON('./ajax/getRecentEvents.php', function(events) {
 				for(var i=events.length-1; i>=0; i--){
-					if(events[i].type == 'p2p'){
-						$('<option disabled="disabled"></option>').text(events[i].event_name).appendTo('#event-name');
-					}else{
-						$('<option></option>').text(events[i].event_name).appendTo('#event-name');
-					}
+					// if(events[i].type == 'p2p'){
+					// 	$('<option disabled="disabled"></option>').text(events[i].event_name).appendTo('#event-name');
+					// }else{
+					$('<option></option>').text(events[i].event_name).appendTo('#event-name');
+					//}
 				}
 			});
 
@@ -1606,7 +1606,14 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				self.validatePoints($(e.target));
 			});
 
+			//dates for no-show form
+			for(var i=0; i<5; i++){
+				var date = moment().subtract('days', i).format('YYYY-MM-DD');
+				$('<option />').text(moment(date).format('ddd, M/D')).attr('value', date).appendTo('#no-show-date');
+			}
+
 			$('#helper-point-form').on('submit', this.submitHelperPoint);
+			$('#no-show-form').on('submit', this.submitNoShow);
 		},
 		updateTotal: function(row){
 			var total = row.find('td.pts').map(function(i, el){
@@ -1687,6 +1694,29 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					$('#helper-point-modal').modal('hide');
 					$('#helper-slivkan').val('');
 					$('#helper-event').val('');
+				});
+			}
+		},
+		submitNoShow: function(){
+			var nu_email = $('#no-show-slivkan').val(),
+				date = $('#no-show-date').val(),
+				comments = $('#no-show-comments').val();
+
+			if(nu_email.length > 0){
+				$.post('./ajax/submitNoShow.php', {
+					nu_email: nu_email,
+					date: date,
+					comments: comments
+				}, function(status) {
+					if(status == '1'){
+						window.alert('Success!');
+					}else{
+						window.alert('Something went wrong. Ask the VP.');
+					}
+
+					$('#no-show-modal').modal('hide');
+					$('#no-show-slivkan').val('');
+					$('#no-show-comments').val('');
 				});
 			}
 		}
