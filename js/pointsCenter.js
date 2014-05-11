@@ -1564,8 +1564,8 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 						var pts_input = $('.pts-input').last(),
 							newVal = parseFloat(pts_input.val()) + (checked ? 1 : -1) * parseFloat(e.data('pts'));
 
-						if(newVal < 0){
-							pts_input.val(0);
+						if(newVal < -3){
+							pts_input.val(-3);
 						}else if(newVal > 3){
 							pts_input.val(3);
 						}else{
@@ -1629,7 +1629,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				button = control.find('button'),
 				valid = true;
 
-			if(/^(\.[1-9]|[0-2](\.\d)?|3(\.0)?)$/.test(target.val())){
+			if(/^-?(\.[1-9]|[0-2](\.\d)?|3(\.0)?)$/.test(target.val())){
 				button.removeAttr('disabled');
 			}else{
 				valid = false;

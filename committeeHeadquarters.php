@@ -246,7 +246,7 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 			<div class="form-group has-success col-sm-4">
 				<label class="control-label" for="pts-input">Points:</label>
 				<input type="number" id="pts-input" value="{{value}}" data-original-value="{{value}}"
-					min="0.0" max="3.0" step="0.1" class="form-control pts-input">
+					min="-3.0" max="3.0" step="0.1" class="form-control pts-input">
 			</div>
 			{{#contributions}}
 			<div class="form-group col-sm-8">
