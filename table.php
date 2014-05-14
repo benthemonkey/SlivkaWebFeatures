@@ -48,8 +48,8 @@ $points_table = $points_center->getPointsTable($showall);
 				</div>
 				<div class="col-md-8 filter-row" style="display: none;">
 					<div style="float:right;height:0;">
-						<a href="./table.php" id="noFilter" class="btn btn-link btn-sm pull-right">Disable Sorting and Filtering</a>
-						<a href="./table.php" id="enableFilter" class="btn btn-link btn-sm pull-right" style="display: none;">Enable Sorting and Filtering</a>
+						<a href="./table.php" id="noFilter" class="btn btn-link btn-sm pull-right" style="position:relative;top:-8px;">Disable Sorting and Filtering</a>
+						<a href="./table.php" id="enableFilter" class="btn btn-link btn-sm pull-right" style="position:relative;top:-8px;display: none;">Enable Sorting and Filtering</a>
 					</div>
 					<div class="col-xs-12 visible-xs">&nbsp;</div>
 					<div class="filter">

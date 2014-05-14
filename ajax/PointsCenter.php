@@ -28,7 +28,7 @@ class PointsCenter {
 		}
 	}
 
-	private static function fetchAllQuery($query, $fetch=PDO::FETCH_ASSOC, $params) {
+	private static function fetchAllQuery($query, $fetch=PDO::FETCH_ASSOC, $params=array()) {
 		$out = array();
 
 		try {
@@ -844,30 +844,34 @@ class PointsCenter {
 		return true;
 	}
 
-	public function submitHelperPoint($nu_email, $event_name) {
+	public function submitHelperPoint($full_name, $nu_email, $event_name, $comments) {
 		try {
 			$statement = self::$dbConn->prepare(
-				"INSERT INTO helperpoints (nu_email,event_name,qtr) VALUES (?,?,?)");
+				"INSERT INTO helperpoints (nu_email,event_name,comments,qtr) VALUES (?,?,?,?)");
 
-			$statement->execute(array($nu_email, $event_name, self::$qtr));
+			$statement->execute(array($nu_email, $event_name, $comments, self::$qtr));
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();
 		}
+
+		self::sendEmail(false, "Helper Point given to " . $full_name . " for " . $event_name, "Reason: " . $comments);
 
 		return true;
 	}
 
-	public function submitNoShow($nu_email, $date, $comments) {
+	public function submitNoShow($full_name, $nu_email, $date, $comments) {
 		try {
 			$statement = self::$dbConn->prepare(
-				"INSERT INTO noshows (nu_email,date,comments) VALUES (?,?,?)");
+				"INSERT INTO noshows (nu_email,date,comments,qtr) VALUES (?,?,?,?)");
 
-			$statement->execute(array($nu_email, $date, $comments));
+			$statement->execute(array($nu_email, $date, $comments, self::$qtr));
 		} catch (PDOException $e) {
 			echo "Error: " . $e->getMessage();
 			die();
 		}
+
+		self::sendEmail(false, "No-show submitted for " . $full_name . " for " . $event_name, "Reason: " . $comments);
 
 		return true;
 	}

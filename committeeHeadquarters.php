@@ -74,7 +74,7 @@ function getFullName($slivkans, $nu_email){
 						</table>
 					</div>
 					<div class="col-md-4">
-						<a href="#helper-point-modal" class="btn btn-warning" data-toggle="modal">Give Helper Point</a>
+						<a href="#helper-modal" class="btn btn-warning" data-toggle="modal">Give Helper Point</a>
 						<a href="#no-show-modal" class="btn btn-danger" data-toggle="modal">Submit No-Show</a>
 					</div>
 				</div>
@@ -165,7 +165,7 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 		<?php include('credits.html'); ?>
 		</div><!--content-->
 	</div>
-	<div id="helper-point-modal" class="modal fade" role="dialog" >
+	<div id="helper-modal" class="modal fade" role="dialog" >
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
@@ -173,21 +173,10 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 					<h3>Give Helper Point</h3>
 				</div>
 				<div class="modal-body">
-					<form id="helper-point-form" role="form" onsubmit="return false;">
-						<div class="form-group">
-							<label for="helper-event" class="control-label">Event</label>
-							<select id="helper-event" class="form-control">
-								<option value="">Select One</option>
-								<?php
-									foreach(array_reverse($points_table['events']) as $e){
-										echo "<option>" . $e . "</option>\n";
-									}
-								?>
-							</select>
-						</div>
+					<form id="helper-form" role="form" onsubmit="return false;">
 						<div class="form-group">
 							<label for="helper-slivkan" class="control-label">Slivkan</label>
-							<select id="helper-slivkan" class="form-control">
+							<select id="helper-slivkan" class="form-control" required>
 								<option value="">Select One</option>
 								<?php
 									foreach($slivkans as $s){
@@ -200,7 +189,25 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 								?>
 							</select>
 						</div>
-						<button type="submit" class="btn btn-primary btn-block">Submit</button>
+						<div class="form-group">
+							<label for="helper-event" class="control-label">Event</label>
+							<select id="helper-event" class="form-control" required>
+								<option value="">Select One</option>
+								<?php
+									foreach(array_reverse($points_table['events']) as $e){
+										echo "<option>" . $e . "</option>\n";
+									}
+								?>
+							</select>
+							<a href="mailto:<?=$GLOBALS['VP_EMAIL']?>?Subject=Request%20for%20not-event-related%20helper%20point
+								&Body=Dear%20<?=urlencode($GLOBALS['VP_NAME'])?>,%20I%20would%20like%20to%20give%20a%20helper%20point%20to%20____%20for%20____.%0A%0AMwah%21%20<3"
+								class="btn btn-link btn-block" target="_blank">Submit non-event-related helper point</a>
+						</div>
+						<div class="form-group">
+							<label for="helper-comments" class="control-label">Reason</label>
+							<input id="helper-comments" type="text" class="form-control" required>
+						</div>
+						<button type="submit" class="btn btn-primary btn-block" data-loading-text="Sending...">Submit</button>
 					</form>
 				</div>
 			</div>
@@ -217,7 +224,7 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 					<form id="no-show-form" role="form" onsubmit="return false;">
 						<div class="form-group">
 							<label for="no-show-slivkan" class="control-label">Slivkan</label>
-							<select id="no-show-slivkan" class="form-control">
+							<select id="no-show-slivkan" class="form-control" required>
 								<option value="">Select One</option>
 								<?php
 									foreach($slivkans as $s){
@@ -228,13 +235,13 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 						</div>
 						<div class="form-group">
 							<label for="no-show-date" class="control-label">Date</label>
-							<select id="no-show-date" class="form-control"></select>
+							<select id="no-show-date" class="form-control" required></select>
 						</div>
 						<div class="form-group">
 							<label for="no-show-comments" class="control-label">Comments</label>
-							<textarea id="no-show-comments" maxlength="200" rows="5" class="form-control"></textarea>
+							<textarea id="no-show-comments" maxlength="200" rows="5" class="form-control" required></textarea>
 						</div>
-						<button type="submit" class="btn btn-primary btn-block">Submit</button>
+						<button type="submit" class="btn btn-primary btn-block" data-loading-text="Sending...">Submit</button>
 					</form>
 				</div>
 			</div>

@@ -1612,8 +1612,12 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('<option />').text(moment(date).format('ddd, M/D')).attr('value', date).appendTo('#no-show-date');
 			}
 
-			$('#helper-point-form').on('submit', this.submitHelperPoint);
-			$('#no-show-form').on('submit', this.submitNoShow);
+			$('#helper-form').on('submit', function() {
+				committeeHeadquarters.submitModalForm('submitHelperPoint', 'helper', 'event');
+			});
+			$('#no-show-form').on('submit', function() {
+				committeeHeadquarters.submitModalForm('submitNoShow', 'no-show', 'date');
+			});
 		},
 		updateTotal: function(row){
 			var total = row.find('td.pts').map(function(i, el){
@@ -1676,49 +1680,29 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				}
 			});
 		},
-		submitHelperPoint: function(){
-			var nu_email = $('#helper-slivkan').val(),
-				event_name = $('#helper-event').val();
+		submitModalForm: function(form, id, extra){
+			var data = {
+				full_name:	$('#' + id + '-slivkan option:selected').text(),
+				nu_email:	$('#' + id + '-slivkan').val(),
+				comments:	$('#' + id + '-comments').val()
+			};
 
-			if(nu_email.length > 0 && event_name.length > 0){
-				$.post('./ajax/submitHelperPoint.php', {
-					nu_email: nu_email,
-					event_name: event_name
-				}, function(status) {
-					if(status == '1'){
-						window.alert('Success!');
-					}else{
-						window.alert('Something went wrong. Ask the VP.');
-					}
+			data[extra] = $('#' + id + '-' + extra).val();
 
-					$('#helper-point-modal').modal('hide');
-					$('#helper-slivkan').val('');
-					$('#helper-event').val('');
-				});
-			}
-		},
-		submitNoShow: function(){
-			var nu_email = $('#no-show-slivkan').val(),
-				date = $('#no-show-date').val(),
-				comments = $('#no-show-comments').val();
+			$('#' + id + '-form').find('button[type=submit]').button('loading');
+			$.post('./ajax/' + form + '.php', data, function(status) {
+				$('#' + id + '-form').find('button[type=submit]').button('reset');
+				if(status == '1'){
+					window.alert('Success!');
+				}else{
+					window.alert('Something went wrong. Ask the VP.');
+				}
 
-			if(nu_email.length > 0){
-				$.post('./ajax/submitNoShow.php', {
-					nu_email: nu_email,
-					date: date,
-					comments: comments
-				}, function(status) {
-					if(status == '1'){
-						window.alert('Success!');
-					}else{
-						window.alert('Something went wrong. Ask the VP.');
-					}
-
-					$('#no-show-modal').modal('hide');
-					$('#no-show-slivkan').val('');
-					$('#no-show-comments').val('');
-				});
-			}
+				$('#' + id + '-modal').modal('hide');
+				$('#' + id + '-slivkan').val('');
+				$('#' + id + '-comments').val('');
+				$('#' + id + '-' + extra).val('');
+			});
 		}
 	};
 
