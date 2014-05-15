@@ -2,7 +2,44 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 	'use strict';
 	var slivkans, nicknames, fellows, events, qtrs, //quarter_start, quarter_end,
 		type = 'Other',
-		valid_event_name = false;
+		valid_event_name = false,
+		slivkanNameExists = function(name) {
+			if(name.length === 0){
+				return null;
+			}else{
+				return slivkans.indexOfKey(name.indexOf(' ') != -1 ? 'full_name' : 'nu_email', name) != -1;
+			}
+		},
+		updateValidity = function(element, valid) {
+			if(valid === null){
+				element.removeClass('has-success has-warning has-error');
+			}else if(valid){
+				element.addClass('has-success').removeClass('has-error has-warning');
+			}else{
+				element.removeClass('has-success has-warning').addClass('has-error');
+			}
+
+			return valid;
+		},
+		typeaheadOpts = function(name, slivkans) {
+			return {
+				name: name,
+				valueKey: 'full_name',
+				local: slivkans,
+				template: ['<div class="slivkan-suggestion{{#dupe}} slivkan-dupe{{/dupe}}">{{full_name}}',
+							'{{#photo}}<img src="img/slivkans/{{photo}}.jpg" />{{/photo}}</div>'].join(''),
+				engine: Hogan
+			};
+		},
+		destroyTypeahead = function(event) {
+			var target = $(this);
+			if(target.hasClass('tt-query')){
+				//needs a delay because typeahead.js seems to not like destroying on focusout
+				setTimeout(function(target) {
+					event.data.callback(target.typeahead('destroy').closest('.form-group'));
+				}, 1, target);
+			}
+		};
 
 	//add indexOfKey (useful: http://jsperf.com/js-for-loop-vs-array-indexof)
 	Array.prototype.indexOfKey = function(key, value) {
@@ -15,59 +52,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 		return -1;
 	};
 
-	//functions used by multiple pages
-	var common = {
-		slivkanNameExists: function(name) {
-			if(name.length === 0){
-				return null;
-			}else{
-				return slivkans.indexOfKey(name.indexOf(' ') != -1 ? 'full_name' : 'nu_email', name) != -1;
-			}
-		},
-		updateValidity: function(element, valid) {
-			if(valid === null){
-				element.removeClass('has-success has-warning has-error');
-			}else if(valid){
-				element.addClass('has-success').removeClass('has-error has-warning');
-			}else{
-				element.removeClass('has-success has-warning').addClass('has-error');
-			}
-
-			return valid;
-		},
-		checkForNickname: function(slivkan_entry) {
-			var name = slivkan_entry.val(),
-				nickname_ind = nicknames.indexOfKey('nickname', name);
-
-			if(nickname_ind != -1){
-				name = slivkans[slivkans.indexOfKey('nu_email', nicknames[nickname_ind].nu_email)].full_name;
-				slivkan_entry.val(name);
-			}
-
-			return name;
-		},
-		typeaheadOpts: function(name, slivkans) {
-			return {
-				name: name,
-				valueKey: 'full_name',
-				local: slivkans,
-				template: ['<div class="slivkan-suggestion{{#dupe}} slivkan-dupe{{/dupe}}">{{full_name}}',
-							'{{#photo}}<img src="img/slivkans/{{photo}}.jpg" />{{/photo}}</div>'].join(''),
-				engine: Hogan
-			};
-		},
-		destroyTypeahead: function(event) {
-			var target = $(this);
-			if(target.hasClass('tt-query')){
-				//needs a delay because typeahead.js seems to not like destroying on focusout
-				setTimeout(function(target) {
-					event.data.callback(target.typeahead('destroy').closest('.form-group'));
-				}, 1, target);
-			}
-		}
-	},
-
-	breakdown = {
+	var breakdown = {
 		init: function() {
 			$.getJSON('./ajax/getSlivkans.php', {qtr: localStorage.spc_brk_qtr}, function(data) {
 				slivkans = data.slivkans;
@@ -403,7 +388,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					}
 				}
 
-				$('#filled-by').typeahead(common.typeaheadOpts('slivkans', slivkans));
+				$('#filled-by').typeahead(typeaheadOpts('slivkans', slivkans));
 			});
 
 			$.getJSON('./ajax/getRecentEvents.php', function(events) {
@@ -436,7 +421,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			}
 		},
 		validateFilledBy: function() {
-			return common.updateValidity($('.filled-by-control'), common.slivkanNameExists($('#filled-by').val()));
+			return updateValidity($('.filled-by-control'), slivkanNameExists($('#filled-by').val()));
 		},
 		resetForm: function() {
 			$('#filled-by').val('');
@@ -539,17 +524,17 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				}
 
 				//autocomplete and events for slivkan/fellow inputs
-				$('#filled-by').typeahead(common.typeaheadOpts('slivkans', slivkans));
+				$('#filled-by').typeahead(typeaheadOpts('slivkans', slivkans));
 
 				$('#slivkan-entry-tab')	.on('focus', '.slivkan-entry', submission.handlers.slivkanTypeahead)
 										.on('typeahead:closed', '.slivkan-entry.tt-query',
 											{callback: submission.validateSlivkanName},
-											common.destroyTypeahead);
+											destroyTypeahead);
 
 				$('#fellow-entry-tab')	.on('focus', '.fellow-entry', submission.handlers.fellowTypeahead)
 										.on('typeahead:closed', '.fellow-entry.tt-query',
 											{callback: submission.validateFellowName},
-											common.destroyTypeahead);
+											destroyTypeahead);
 			});
 
 			/*$('#date').datepicker({
@@ -628,7 +613,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					}
 				}
 				if(!target.hasClass('tt-query')){
-					target.typeahead(common.typeaheadOpts('slivkans'+Math.random(), slivkans_tmp)).focus();
+					target.typeahead(typeaheadOpts('slivkans'+Math.random(), slivkans_tmp)).focus();
 				}
 			},
 			fellowTypeahead: function() {
@@ -638,7 +623,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					if(num_inputs < 20){ submission.appendFellowInputs(1); }
 				}
 				if(!target.hasClass('tt-query')){
-					target.typeahead(common.typeaheadOpts('fellows', fellows)).focus();
+					target.typeahead(typeaheadOpts('fellows', fellows)).focus();
 				}
 			}
 		},
@@ -729,7 +714,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			errors = [];
 
 			if(!submission.validateFilledBy()){ valid = false; errors.push('Filled By'); }
-			if(!valid_event_name){ valid = false; common.updateValidity($('.event-control'), valid); errors.push('Name'); }
+			if(!valid_event_name){ valid = false; updateValidity($('.event-control'), valid); errors.push('Name'); }
 			if(!submission.validateCommittee()){ valid = false; errors.push('Committee'); }
 			if(!submission.validateDescription()){ valid = false; errors.push('Description'); }
 
@@ -774,7 +759,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			valid_event_name = false;
 
 			if(event_name.length === 0){
-				common.updateValidity($('.event-control'), null);
+				updateValidity($('.event-control'), null);
 			}else if((event_name.length <= 32 && event_name.length >= 8) || (type == 'P2P' && event_name == 'P2P')){
 				event_name += ' ' + $('#date').val();
 
@@ -794,12 +779,12 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					}
 
 					$('#event-name-length-error').fadeOut();
-					common.updateValidity($('.event-control'), valid_event_name);
+					updateValidity($('.event-control'), valid_event_name);
 				});
 			}else{
 				$('#event-name-length-error-count').html('Currently ' + event_name.length + ' characters');
 				$('#event-name-length-error').fadeIn();
-				common.updateValidity($('.event-control'), valid_event_name);
+				updateValidity($('.event-control'), valid_event_name);
 			}
 
 			return valid;
@@ -816,7 +801,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			var committee = $('#committee').val(),
 				valid = committee != 'Select One';
 
-			common.updateValidity($('.committee-control'), valid);
+			updateValidity($('.committee-control'), valid);
 
 			if(valid){
 				localStorage.spc_sub_committee = committee;
@@ -841,7 +826,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('#description-length-error').fadeOut();
 			}
 
-			common.updateValidity($('.description-control'), valid);
+			updateValidity($('.description-control'), valid);
 
 			return valid;
 		},
@@ -865,14 +850,20 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			localStorage.spc_sub_filledby = name;
 
 			valid = slivkans.indexOfKey('full_name', name) != -1;
-			common.updateValidity($('.filled-by-control'), valid);
+			updateValidity($('.filled-by-control'), valid);
 
 			return valid;
 		},
 		validateSlivkanName: function(entry, inBulk) {
 			var valid = true,
 				slivkan_entry = entry.find('.slivkan-entry'),
-				name = common.checkForNickname(slivkan_entry);
+				name = slivkan_entry.val(),
+				nickname_ind = nicknames.indexOfKey('nickname', name);
+
+			if(nickname_ind != -1){
+				name = slivkans[slivkans.indexOfKey('nu_email', nicknames[nickname_ind].nu_email)].full_name;
+				slivkan_entry.val(name);
+			}
 
 			//only process individually
 			if(!inBulk){
@@ -913,9 +904,9 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					valid &= committee == slivkans[ind].committee;
 				}
 
-				common.updateValidity(entry, valid);
+				updateValidity(entry, valid);
 			}else{
-				common.updateValidity(entry, null);
+				updateValidity(entry, null);
 			}
 
 			return valid;
@@ -946,7 +937,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			if(name.length > 0){
 				valid = fellows.indexOfKey('full_name', name) != -1;
-				common.updateValidity(entry, valid);
+				updateValidity(entry, valid);
 			}else{
 				entry.removeClass('has-success has-error');
 			}
@@ -1369,7 +1360,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('#slivkan-entry-tab')	.on('focus', '.slivkan-entry', updateSlivkans.slivkanTypeahead)
 										.on('typeahead:closed', '.slivkan-entry.tt-query',
 											{callback: updateSlivkans.validateSlivkanName},
-											common.destroyTypeahead);
+											destroyTypeahead);
 			});
 
 			$('#committee').on('change', function(event){
@@ -1447,7 +1438,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				}
 			}
 			if(!target.hasClass('tt-query')){
-				target.typeahead(common.typeaheadOpts('slivkans', slivkans)).focus();
+				target.typeahead(typeaheadOpts('slivkans', slivkans)).focus();
 			}
 		},
 		validateSlivkanName: function(entry) {
@@ -1487,7 +1478,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			if(name.length > 0){
 				if(slivkans.indexOfKey('full_name', name) == -1){ valid=false; }
-				common.updateValidity(entry, valid);
+				updateValidity(entry, valid);
 			}else{
 				entry.removeClass('has-success has-error');
 			}
@@ -1591,9 +1582,9 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 						self.validatePoints(pts_input);
 					}
 				});
-			}).on('click', function(e){
+			}).on('click', function(){
 				var modified,
-					target = $(e.target),
+					target = $(this),
 					clickedOutsidePopover = target.closest('.popover').length === 0;
 
 				if(!self.openPopover && target.hasClass('pts')){
@@ -1618,8 +1609,8 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 						}
 					}
 				}
-			}).on('input', '.pts-input', function(e){
-				self.validatePoints($(e.target));
+			}).on('input', '.pts-input', function(){
+				self.validatePoints($(this));
 			});
 
 			//dates for no-show form
@@ -1656,7 +1647,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				button.attr('disabled', 'disabled');
 			}
 
-			common.updateValidity(control, valid);
+			updateValidity(control, valid);
 		},
 		isModified: function(){
 			var isBonus = this.openPopover.data('event') == 'bonus',
