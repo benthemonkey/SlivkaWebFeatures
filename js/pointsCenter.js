@@ -376,7 +376,8 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			}
 
 			for(var i=0; i<events.length; i++){
-				if(committees.indexOf(events[i].committee) !== -1 && (ims !== '1' || events[i].type !== 'im') || (ims === '2' && events[i].type === 'im')){
+				if(committees.indexOf(events[i].committee) !== -1 &&
+					(ims !== '1' || events[i].type !== 'im') || (ims === '2' && events[i].type === 'im')){
 					table.oTable.fnSetColumnVis(i + 2, true, false);
 					n++;
 				}else{
@@ -1411,13 +1412,28 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				}
 
 				if(committee.length > 0){
-					$.post('./ajax/submitCommitteeOrSuite.php', {committee: committee, slivkans: nuEmailArray, points: committeePointsArray}, function(data){
-						window.alert(data);
-					});
+					$.post(
+						'./ajax/submitCommitteeOrSuite.php',
+						{
+							committee: committee,
+							slivkans: nuEmailArray,
+							points: committeePointsArray
+						},
+						function(data){
+							window.alert(data);
+						}
+					);
 				}else if(suite.length > 0){
-					$.post('./ajax/submitCommitteeOrSuite.php', {suite: suite, slivkans: nuEmailArray}, function(data){
-						window.alert(data);
-					});
+					$.post(
+						'./ajax/submitCommitteeOrSuite.php',
+						{
+							suite: suite,
+							slivkans: nuEmailArray
+						},
+						function(data){
+							window.alert(data);
+						}
+					);
 				}
 			});
 		},

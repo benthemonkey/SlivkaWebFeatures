@@ -56,29 +56,28 @@ function getFullName($slivkans, $nu_email){
 			</div>
 			<legend><?php echo $committee ?> Committee Headquarters</legend>
 <?php if ($committee) { ?>
-			<div class="row">
-				<div class="col-lg-12">
-					<div class="col-lg-2 col-md-3 col-sm-6">
-						<div class="alert alert-info">
-							<p>Click to edit values.</p>
-						</div>
-					</div>
-					<div class="col-md-3 col-sm-6">
-						<div>Colors:</div>
-						<table id="legend" class="legend text-center" style="width: 100%;">
-							<tr class="odd">
-								<td class="green">Attendee</td>
-								<td class="blue">Point Taker</td>
-								<td>None</td>
-							</tr>
-						</table>
-					</div>
-					<div class="col-md-4">
-						<a href="#helper-modal" class="btn btn-warning" data-toggle="modal">Give Helper Point</a>
-						<a href="#no-show-modal" class="btn btn-danger" data-toggle="modal">Submit No-Show</a>
-					</div>
+			<div class="col-lg-2 col-md-3 col-sm-6">
+				<div class="alert alert-info">
+					<p>Click to edit values.</p>
 				</div>
 			</div>
+			<div class="col-md-3 col-sm-6">
+				<div>Colors:</div>
+				<table id="legend" class="legend text-center" style="width: 100%;">
+					<tr class="odd">
+						<td class="green">Attendee</td>
+						<td class="blue">Point Taker</td>
+						<td>None</td>
+					</tr>
+				</table>
+			</div>
+			<div class="col-md-2 col-xs-6" style="margin-top: 18px;">
+				<a href="#helper-modal" class="btn btn-default btn-block" data-toggle="modal">Give Helper Point</a>
+			</div>
+			<div class="col-md-2 col-xs-6" style="margin-top: 18px;">
+				<a href="#no-show-modal" class="btn btn-default btn-block" data-toggle="modal">Submit No-Show</a>
+			</div>
+			<div class="clearfix"></div>
 			<div class="table-wrapper">
 				<table id="table" class="points-table committee-points-table">
 					<thead>

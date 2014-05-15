@@ -75,6 +75,7 @@ td.name{
 /*overriding default style*/
 .alert{
   margin-bottom: 0;
+  padding: 15.5px 15px;
 }
 
 th{

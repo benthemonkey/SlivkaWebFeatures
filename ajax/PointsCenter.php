@@ -418,13 +418,30 @@ class PointsCenter {
 		for($s=0; $s < count($slivkans); $s++){
 			$nu_email = $slivkans[$s]['nu_email'];
 
-			$committee_total = 0;
-			if(array_key_exists($nu_email, $committee_totals)){
-				$committee_total = (int) $committee_totals[$nu_email];
+			$slivkan_events = 0;
+			$slivkan_committee = 0;
+			$slivkan_helper = 0;
+			$slivkan_im = 0;
+			$slivkan_other = 0;
+
+			if(array_key_exists($nu_email, $event_totals)){
+				$slivkan_events = (int) $event_totals[$nu_email];
 			}
 
-			$subtotal = $event_totals[$nu_email] + $bonus_points[$nu_email]['helper'] + $im_points[$nu_email];
-			$total = $subtotal + $committee_total + $bonus_points[$nu_email]['other'];
+			if(array_key_exists($nu_email, $committee_totals)){
+				$slivkan_committee = (int) $committee_totals[$nu_email];
+			}
+
+			if(array_key_exists($nu_email, $bonus_points)){
+				$slivkan_helper = (int) $bonus_points[$nu_email]['helper'];
+				$slivkan_other = (int) $bonus_points[$nu_email]['other'];
+			}
+			if(array_key_exists($nu_email, $im_points)){
+				$slivkan_im = (int) $im_points[$nu_email];
+			}
+
+			$subtotal = $slivkan_events + $slivkan_committee + $slivkan_helper + $slivkan_im;
+			$total = $subtotal + $slivkan_other;
 
 			$totals_by_year[$slivkans[$s]['year']][] = $subtotal;
 			$totals_by_suite[$slivkans[$s]['suite']][] = $subtotal;
@@ -432,9 +449,8 @@ class PointsCenter {
 			$points_table[$nu_email] = array_merge(
 				array($slivkans[$s]['full_name'], $slivkans[$s]['gender']),
 				array_fill(0, $events_count, 0),
-				array((int) $event_totals[$nu_email], (int) $bonus_points[$nu_email]['helper'],
-					(int) $im_points[$nu_email], $committee_total,
-					(int) $bonus_points[$nu_email]['other'], $total));
+				array($slivkan_events, $slivkan_helper, $slivkan_im, $slivkan_committee, $slivkan_other, $total)
+			);
 		}
 
 		for($e=0; $e < $events_count; $e++){

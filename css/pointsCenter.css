@@ -20,6 +20,10 @@ legend{
   z-index: 99;
 }
 
+.navbar-brand{
+  padding: 5px;
+}
+
 .col{
   padding: 10px 20px;
 }

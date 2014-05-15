@@ -2,7 +2,8 @@
 include_once "./ajax/PointsCenter.php";
 $points_center = new PointsCenter();
 
-$showall = $_GET['all'] == '1';
+$showall = isset($_GET['all']) ? $_GET['all'] == '1' : false;
+
 $qtr = $points_center->getQuarter();
 $quarters = $points_center->getQuarters();
 $points_table = $points_center->getPointsTable($showall);
@@ -12,7 +13,7 @@ $points_table = $points_center->getPointsTable($showall);
 <html lang="en">
 <head>
 	<?php include('header.html'); ?>
-	<!--meta name="viewport" content="user-scalable=yes"-->
+	<meta name="viewport" content="user-scalable=yes">
 	<title>Table - Slivka Points Center</title>
 	<link rel="stylesheet" href="css/pointsTable.css" />
 </head>
