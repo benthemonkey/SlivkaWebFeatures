@@ -1,16 +1,23 @@
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
-  <?php include('header.html'); ?>
-  <title>Breakdown - Slivka Points Center</title>
-  <style type="text/css">
-  .breakdown{
-  	font-size: 12px;
-  }
+	<?php include('header.html'); ?>
+	<title>Breakdown - Slivka Points Center</title>
+	<style type="text/css">
+	.breakdown{
+  		font-size: 12px;
+	}
 
-  .chart{
-	height: 250px;
-  }
+	.chart{
+		height: 250px;
+	}
+
+	td{
+			transition-duration: 0.5s;
+	-webkit-transition-duration: 0.5s;
+	   -moz-transition-duration: 0.5s;
+		 -o-transition-duration: 0.5s;
+}
   </style>
 </head>
 <body>

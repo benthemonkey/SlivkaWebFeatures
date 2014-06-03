@@ -20,10 +20,6 @@ legend{
   z-index: 99;
 }
 
-.navbar-brand{
-  padding: 5px;
-}
-
 .col{
   padding: 10px 20px;
 }
@@ -68,6 +64,18 @@ legend{
 .tt-dropdown-menu{
   min-width: 260px;
 }
+
+/* committee colors
+.Exec         td { background-color: #2f7ed8!important; }
+.Academic     td { background-color: #0d233a!important; color: white; }
+.Facilities   td { background-color: #8bbc21!important; }
+.Faculty      td { background-color: #910000!important; color: white; }
+.IT           td { background-color: #1aadce!important; }
+.Philanthropy td { background-color: #492970!important; color: white; }
+.Publications td { background-color: #f28f43!important; }
+.Social       td { background-color: #77a1e5!important; }
+.CA           td { background-color: #c42525!important; color: white; }
+.Other        td { background-color: #a6c96a!important; }*/
 
 @media (max-width: 768px){
   .container{

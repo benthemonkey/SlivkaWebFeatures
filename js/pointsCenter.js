@@ -110,7 +110,9 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 							for(i=data.events.attended.length-1; i>=0; i--){
 								attendedEventsEl
 									.append($('<tr/>')
-										.append($('<td/>').text(data.events.attended[i].event_name)));
+										.append($('<td/>')
+											.addClass(data.events.attended[i].committee)
+											.text(data.events.attended[i].event_name)));
 							}
 						}else{
 							attendedEventsEl
@@ -122,7 +124,9 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 							for(i=data.events.unattended.length-1; i>=0; i--){
 								unattendedEventsEl
 									.append($('<tr/>')
-										.append($('<td/>').text(data.events.unattended[i].event_name)));
+										.append($('<td/>')
+											.addClass(data.events.unattended[i].committee)
+											.text(data.events.unattended[i].event_name)));
 							}
 						}else{
 							unattendedEventsEl
@@ -200,10 +204,66 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			}
 		},
 		drawChart: function(tableData, title_in, id) {
+			var selected, colors = [],
+				committeeColors = {
+					Exec: '#2f7ed8',
+					Academic: '#0d233a',
+					Facilities: '#8bbc21',
+					Faculty: '#910000',
+					IT: '#1aadce',
+					Philanthropy: '#492970',
+					Publications: '#f28f43',
+					Social: '#77a1e5',
+					CA: '#c42525',
+					Other: '#a6c96a'
+				},
+				imTeamColors = {
+					Basketball: '#DDDF0D',
+					Floor: '#55BF3B',
+					Football: '#DF5353',
+					Soccer: '#7798BF',
+					Softball: '#aaeeee',
+					Ultimate: '#ff0066'
+				},
+				eventsEls = $('#attendedEvents').add('#unattendedEvents');
+
+			if(id == 'eventsChart'){
+				for(var i=0; i<tableData.length; i++){
+					colors.push(committeeColors[tableData[i][0]]);
+				}
+			}else{
+				for(var i=0; i<tableData.length; i++){
+					colors.push(imTeamColors[tableData[i][0]]);
+				}
+			}
+
 			setTimeout(function() {
 				$('#'+id).highcharts({
+					colors: colors,
 					credits: {
 						enabled: false
+					},
+					plotOptions: id != 'eventsChart' ? {} : {
+						pie: {
+							allowPointSelect: true,
+							cursor: 'pointer',
+							dataLabels: {
+								enabled: true
+							},
+							point: {
+								events: {
+									select: function() {
+										$('.'+this.name).css({
+											'background-color': this.color,
+											'color': 'white'
+										});
+									},
+									unselect: function() {
+										$('.'+this.name).removeAttr('style');
+									}
+								}
+							}
+						}
 					},
 					title: {
 						text: title_in,
@@ -1545,13 +1605,14 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 						value: el.text(),
 						contributions: true,
 						contributions_list: [
-							{ pts: 0.5, title: 'Attended', disabled: 'disabled', selected: el.hasClass('green') || el.hasClass('blue') },
-							{ pts: 0.5, title: 'Took Points', disabled: 'disabled', selected: el.hasClass('blue') },
-							{ pts: 2.0, title: 'Ran event',	value: 'ran', selected: check('ran') },
-							{ pts: 1.0, title: 'Poster',	value: 'poster', selected: check('poster') },
-							{ pts: 0.5, title: 'Set up',	value: 'setup', selected: check('setup') },
-							{ pts: 0.5, title: 'Clean up',	value: 'clean', selected: check('clean') },
-							{			title: 'Other',		value: 'other', selected: check('other') }
+							{ pts: 0.5, title: 'Attended',		disabled: 'disabled', selected: el.hasClass('green') || el.hasClass('blue') },
+							{ pts: 0.5, title: 'Took Points',	disabled: 'disabled', selected: el.hasClass('blue') },
+							{ pts: 0.5, title: 'Planned event',	value: 'plan', selected: check('plan') },
+							{ pts: 2.0, title: 'Ran event',		value: 'ran', selected: check('ran') },
+							{ pts: 1.0, title: 'Poster',		value: 'poster', selected: check('poster') },
+							{ pts: 0.5, title: 'Set up',		value: 'setup', selected: check('setup') },
+							{ pts: 0.5, title: 'Clean up',		value: 'clean', selected: check('clean') },
+							{			title: 'Other',			value: 'other', selected: check('other') }
 						],
 						comments: el.data('comments')
 					});
