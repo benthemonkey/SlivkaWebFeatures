@@ -1643,9 +1643,9 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 						self.validatePoints(pts_input);
 					}
 				});
-			}).on('click', function(){
+			}).on('click', function(e){
 				var modified,
-					target = $(this),
+					target = $(e.target),
 					clickedOutsidePopover = target.closest('.popover').length === 0;
 
 				if(!self.openPopover && target.hasClass('pts')){
@@ -1663,7 +1663,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					}else if((!modified && clickedOutsidePopover) || target.hasClass('pts-input-cancel')){
 						self.openPopover.popover('hide');
 
-						if(target.hasClass('pts')){
+						if(target.hasClass('pts') && !self.openPopover.is(target)){
 							self.openPopover = target.popover('show');
 						}else{
 							self.openPopover = null;
