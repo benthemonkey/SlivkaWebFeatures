@@ -1607,7 +1607,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 						contributions_list: [
 							{ pts: 0.5, title: 'Attended',		disabled: 'disabled', selected: el.hasClass('green') || el.hasClass('blue') },
 							{ pts: 0.5, title: 'Took Points',	disabled: 'disabled', selected: el.hasClass('blue') },
-							{ pts: 0.5, title: 'Planned event',	value: 'plan', selected: check('plan') },
+							{ pts: 1.5, title: 'Planned event',	value: 'plan', selected: check('plan') },
 							{ pts: 2.0, title: 'Ran event',		value: 'ran', selected: check('ran') },
 							{ pts: 1.0, title: 'Poster',		value: 'poster', selected: check('poster') },
 							{ pts: 0.5, title: 'Set up',		value: 'setup', selected: check('setup') },
