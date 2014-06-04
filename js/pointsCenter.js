@@ -204,7 +204,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			}
 		},
 		drawChart: function(tableData, title_in, id) {
-			var selected, colors = [],
+			var i, colors = [],
 				committeeColors = {
 					Exec: '#2f7ed8',
 					Academic: '#0d233a',
@@ -224,15 +224,14 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					Soccer: '#7798BF',
 					Softball: '#aaeeee',
 					Ultimate: '#ff0066'
-				},
-				eventsEls = $('#attendedEvents').add('#unattendedEvents');
+				};
 
 			if(id == 'eventsChart'){
-				for(var i=0; i<tableData.length; i++){
+				for(i=0; i<tableData.length; i++){
 					colors.push(committeeColors[tableData[i][0]]);
 				}
 			}else{
-				for(var i=0; i<tableData.length; i++){
+				for(i=0; i<tableData.length; i++){
 					colors.push(imTeamColors[tableData[i][0]]);
 				}
 			}
