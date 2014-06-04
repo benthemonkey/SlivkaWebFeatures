@@ -204,41 +204,8 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			}
 		},
 		drawChart: function(tableData, title_in, id) {
-			var i, colors = [],
-				committeeColors = {
-					Exec: '#2f7ed8',
-					Academic: '#0d233a',
-					Facilities: '#8bbc21',
-					Faculty: '#910000',
-					IT: '#1aadce',
-					Philanthropy: '#492970',
-					Publications: '#f28f43',
-					Social: '#77a1e5',
-					CA: '#c42525',
-					Other: '#a6c96a'
-				},
-				imTeamColors = {
-					Basketball: '#DDDF0D',
-					Floor: '#55BF3B',
-					Football: '#DF5353',
-					Soccer: '#7798BF',
-					Softball: '#aaeeee',
-					Ultimate: '#ff0066'
-				};
-
-			if(id == 'eventsChart'){
-				for(i=0; i<tableData.length; i++){
-					colors.push(committeeColors[tableData[i][0]]);
-				}
-			}else{
-				for(i=0; i<tableData.length; i++){
-					colors.push(imTeamColors[tableData[i][0]]);
-				}
-			}
-
 			setTimeout(function() {
 				$('#'+id).highcharts({
-					colors: colors,
 					credits: {
 						enabled: false
 					},
