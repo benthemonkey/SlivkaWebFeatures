@@ -19,7 +19,7 @@ module.exports = function(grunt) {
 						toplevel: true,
 						ascii_only: true,
 						beautify: false,
-						max_line_length: 1000
+						max_line_length: 10000
 					},
 					inlineText: true,
 					useStrict: false,
@@ -29,7 +29,7 @@ module.exports = function(grunt) {
 					findNestedDependencies: false,
 					removeCombined: false,
 					fileExclusionRegExp: /^\./,
-					preserveLicenseComments: true,
+					preserveLicenseComments: false,
 					logLevel: 0
 				}
 			}
