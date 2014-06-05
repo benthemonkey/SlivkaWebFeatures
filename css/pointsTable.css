@@ -199,6 +199,12 @@ tr.odd  td.blue.sorting_1 { background-color: #409FFF; }
 
 .gold { background-color: #FFCC66!important; }
 
+tr.even td.yellow { background-color: #FFFA00; }
+tr.odd  td.yellow { background-color: #FFE500; }
+
+tr.even td.yellow.sorting_1 { background-color: #FFEA00; }
+tr.odd  td.yellow.sorting_1 { background-color: #FFD500; }
+
 .sorting .sort-icon, .nameHeader.sorting span {
   background: url('data:image/gif;base64,R0lGODlhBwAJAIAAACMtMP///yH5BAEAAAEALAAAAAAHAAkAAAINjGEJq8sOk4Qu0IZmKgA7') no-repeat;
   background-position: center;

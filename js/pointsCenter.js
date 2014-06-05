@@ -1702,11 +1702,21 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				},
 				success: function(status){
 					if(status == '1'){
-						this.openPopover.text(parseFloat(this.points).toFixed(1));
+						var pointValue = parseFloat(this.points).toFixed(1);
+						this.openPopover.text(pointValue);
 						this.openPopover.data({
 							contributions: this.contributions,
 							comments: this.comments
 						});
+
+						if(!this.openPopover.hasClass('green') && !this.openPopover.hasClass('blue')){
+							if(pointValue > 0){
+								this.openPopover.addClass('yellow');
+							}else{
+								this.openPopover.removeClass('yellow');
+							}
+						}
+
 						committeeHeadquarters.updateTotal(this.openPopover.closest('tr'));
 						this.openPopover.popover('hide');
 						this.openPopover = null;

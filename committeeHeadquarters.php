@@ -61,12 +61,13 @@ function getFullName($slivkans, $nu_email){
 					<p>Click to edit values.</p>
 				</div>
 			</div>
-			<div class="col-md-3 col-sm-6">
+			<div class="col-lg-4 col-md-5 col-sm-6">
 				<div>Colors:</div>
 				<table id="legend" class="legend text-center" style="width: 100%;">
 					<tr class="odd">
 						<td class="green">Attendee</td>
 						<td class="blue">Point Taker</td>
+						<td class="yellow">Other Points</td>
 						<td>None</td>
 					</tr>
 				</table>
@@ -143,6 +144,8 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 					echo ' blue';
 				}else if($td['attended']){
 					echo ' green';
+				}else if($td['points'] > 0){
+					echo ' yellow';
 				}
 
 				echo '">';
