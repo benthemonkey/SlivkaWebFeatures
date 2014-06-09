@@ -2,6 +2,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 	'use strict';
 	var slivkans, nicknames, fellows, events, qtrs, //quarter_start, quarter_end,
 		type = 'Other',
+		root = '/points',
 		valid_event_name = false,
 		slivkanNameExists = function(name) {
 			if(name.length === 0){
@@ -54,7 +55,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 	var breakdown = {
 		init: function() {
-			$.getJSON('./ajax/getSlivkans.php', {qtr: localStorage.spc_brk_qtr}, function(data) {
+			$.getJSON(root + '/ajax/getSlivkans.php', {qtr: localStorage.spc_brk_qtr}, function(data) {
 				slivkans = data.slivkans;
 				qtrs = data.qtrs;
 				// quarter_start = data.quarter_info.start_date;
@@ -98,7 +99,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					unattendedEventsEl.empty();
 					$('#otherPointsTableBody').empty();
 
-					$.getJSON('./ajax/getPointsBreakdown.php', {nu_email: nu_email, qtr: qtr}, function(data) {
+					$.getJSON(root + '/ajax/getPointsBreakdown.php', {nu_email: nu_email, qtr: qtr}, function(data) {
 						var i, eventData = [],
 							imData = [],
 							event_total = 0,
@@ -402,7 +403,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 	correction = {
 		init: function() {
-			$.getJSON('./ajax/getSlivkans.php', function(data) {
+			$.getJSON(root + '/ajax/getSlivkans.php', function(data) {
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 
@@ -417,7 +418,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('#filled-by').typeahead(typeaheadOpts('slivkans', slivkans));
 			});
 
-			$.getJSON('./ajax/getRecentEvents.php', function(events) {
+			$.getJSON(root + '/ajax/getRecentEvents.php', function(events) {
 				for(var i=events.length-1; i>=0; i--){
 					// if(events[i].type == 'p2p'){
 					// 	$('<option disabled="disabled"></option>').text(events[i].event_name).appendTo('#event-name');
@@ -465,7 +466,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			};
 			$('#response').fadeOut();
 
-			$.post('./ajax/sendPointsCorrection.php', data, function(response) {
+			$.post(root + '/ajax/sendPointsCorrection.php', data, function(response) {
 				$('#response').text('Response: '+response.message);
 				$('#form-actions').html('<a class="btn btn-primary" href="table.php">View Points</a>' +
 					'<a class="btn btn-default" href="correction.php">Submit Another</a>');
@@ -484,7 +485,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				}
 			});
 
-			$.getJSON('./ajax/getSlivkans.php', function(data) {
+			$.getJSON(root + '/ajax/getSlivkans.php', function(data) {
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 				fellows = data.fellows;
@@ -789,7 +790,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			}else if((event_name.length <= 32 && event_name.length >= 8) || (type == 'P2P' && event_name == 'P2P')){
 				event_name += ' ' + $('#date').val();
 
-				$.getJSON('./ajax/getRecentEvents.php', function(events) {
+				$.getJSON(root + '/ajax/getRecentEvents.php', function(events) {
 					if(events.length > 0 && events.indexOfKey('event_name', event_name) != -1){
 						if(type == 'IM'){
 							var last = parseInt(eventEl.val().slice(-1), 10);
@@ -817,7 +818,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 		},
 		validateIMTeam: function() {
 			var im_team = $('#im-team').val();
-			$.getJSON('./ajax/getIMs.php', {team: im_team}, function(events) {
+			$.getJSON(root + '/ajax/getIMs.php', {team: im_team}, function(events) {
 				$('#event').val(im_team + ' ' + (events.length + 1));
 				$('#description').val(im_team.split(' ')[1]);
 				submission.validateEventName();
@@ -1182,7 +1183,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			real_submit.on('click', function() {
 				real_submit.button('loading');
 
-				$.post('./ajax/submitPointsForm.php', data, function(data_in) {
+				$.post(root + '/ajax/submitPointsForm.php', data, function(data_in) {
 					real_submit.button('reset');
 					$('#results-status').parent().removeClass('has-warning');
 					if(data_in.error){
@@ -1214,7 +1215,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 	inboundPoints = {
 		init: function() {
 			$.ajax({
-				url: './ajax/getCalendar.php',
+				url: root + '/ajax/getCalendar.php',
 				type: 'xml',
 				async: true,
 				success: function(xml) {
@@ -1245,7 +1246,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 	rankings = {
 		init: function() {
-			$.getJSON('./ajax/getRankings.php', function(data) {
+			$.getJSON(root + '/ajax/getRankings.php', function(data) {
 				var males = [], females = [], tmp, row, i, j, mtable, ftable,
 					numQtrs = data.qtrs.length,
 					cutoffNum = 39,
@@ -1369,7 +1370,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 	updateSlivkans = {
 		init: function() {
-			$.getJSON('./ajax/getSlivkans.php', function(data) {
+			$.getJSON(root + '/ajax/getSlivkans.php', function(data) {
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 
@@ -1394,7 +1395,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('.committee-points').val(0).show();
 
 				if(event.target.value.length > 0){
-					$.getJSON('./ajax/getCommitteeOrSuite.php', {committee: event.target.value}, updateSlivkans.addSlivkans);
+					$.getJSON(root + '/ajax/getCommitteeOrSuite.php', {committee: event.target.value}, updateSlivkans.addSlivkans);
 				}
 			});
 
@@ -1403,7 +1404,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('.committee-points').hide();
 
 				if(event.target.value.length > 0){
-					$.getJSON('./ajax/getCommitteeOrSuite.php', {suite: event.target.value}, updateSlivkans.addSlivkans);
+					$.getJSON(root + '/ajax/getCommitteeOrSuite.php', {suite: event.target.value}, updateSlivkans.addSlivkans);
 				}
 			});
 
@@ -1430,7 +1431,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 				if(committee.length > 0){
 					$.post(
-						'./ajax/submitCommitteeOrSuite.php',
+						root + '/ajax/submitCommitteeOrSuite.php',
 						{
 							committee: committee,
 							slivkans: nuEmailArray,
@@ -1442,7 +1443,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					);
 				}else if(suite.length > 0){
 					$.post(
-						'./ajax/submitCommitteeOrSuite.php',
+						root + '/ajax/submitCommitteeOrSuite.php',
 						{
 							suite: suite,
 							slivkans: nuEmailArray
@@ -1691,7 +1692,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			$.ajax({
 				type: 'POST',
-				url: './ajax/submitCommitteePoint.php',
+				url: root + '/ajax/submitCommitteePoint.php',
 				context: this,
 				data: {
 					nu_email: this.openPopover.parent().data('slivkan'),
@@ -1734,7 +1735,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			data[extra] = $('#' + id + '-' + extra).val();
 
 			$('#' + id + '-form').find('button[type=submit]').button('loading');
-			$.post('./ajax/' + form + '.php', data, function(status) {
+			$.post(root + '/ajax/' + form + '.php', data, function(status) {
 				$('#' + id + '-form').find('button[type=submit]').button('reset');
 				if(status == '1'){
 					window.alert('Success!');

@@ -38,9 +38,9 @@
 		<div class="form-group">
 			<label for="qtr">Quarter:</label>
 			<select name="qtr" class="form-control">
+				<option value="1402">Spring 2014</option>
 				<option value="1401">Winter 2014</option>
 				<option value="1303">Fall 2013</option>
-				<option value="1302">Spring 2013</option>
 				<option value="0">Previous Quarter</option>
 			</select>
 		</div>
