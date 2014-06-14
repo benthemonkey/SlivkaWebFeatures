@@ -35,4 +35,4 @@
 	</div>
 </div>
 <?php include('credits.html'); ?>
-<?php include($_SERVER['DOCUMENT_ROOT'] . '/points/footer.html'); ?>
+<?php include('footer.html'); ?>

@@ -45,7 +45,7 @@ require.config({
 });
 
 require([
-	//'jquery',
+	'jquery',
 	'js/pointsCenter',
 	'nprogress',
 	//'bootstrap',
@@ -55,12 +55,12 @@ require([
 	'add2home',
 	'stayInWebApp',
 	'typeahead'
-], function(spc, NProgress) {
+], function($, spc, NProgress) {
 	'use strict';
 	var page = window.location.pathname.split('/');
 
 	if (page) {
-		page = page[2];
+		page = page[3];
 	} else {
 		page = 'breakdown';
 	}

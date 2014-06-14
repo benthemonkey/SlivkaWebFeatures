@@ -126,5 +126,5 @@
 		</div>
 	</div><!-- row -->
 </div><!--col-->
-<?php include($_SERVER['DOCUMENT_ROOT'] . '/points/credits.html'); ?>
-<?php include($_SERVER['DOCUMENT_ROOT'] . '/points/footer.html'); ?>
+<?php include('credits.html'); ?>
+<?php include('footer.html'); ?>

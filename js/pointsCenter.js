@@ -28,7 +28,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				valueKey: 'full_name',
 				local: slivkans,
 				template: ['<div class="slivkan-suggestion{{#dupe}} slivkan-dupe{{/dupe}}">{{full_name}}',
-							'{{#photo}}<img src="../img/slivkans/{{photo}}.jpg" />{{/photo}}</div>'].join(''),
+							'{{#photo}}<img src="/points/img/slivkans/{{photo}}.jpg" />{{/photo}}</div>'].join(''),
 				engine: Hogan
 			};
 		},
