@@ -35,4 +35,3 @@
 	</div>
 </div>
 <?php include('credits.html'); ?>
-<?php include('footer.html'); ?>

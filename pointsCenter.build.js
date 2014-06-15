@@ -48,7 +48,7 @@ require([
 	'jquery',
 	'js/pointsCenter',
 	'nprogress',
-	//'bootstrap',
+	'bootstrap',
 	'bootstrap-multiselect',
 	'datatables',
 	'highcharts',
@@ -76,6 +76,19 @@ require([
 
 	//mobile app support
 	$.stayInWebApp();
+
+	//fix wordpress menus
+	$('.menu-item').each(function(i, el){
+		if ($(el).find('.dropdown-menu').length > 0) {
+			var link = $(el).addClass('dropdown').children('a').attr(
+			{
+				href: '#',
+				'data-toggle': 'dropdown'
+			});
+
+			$('<b class="caret"></b>').appendTo(link);
+		}
+	});
 
 	spc[page].init();
 });
