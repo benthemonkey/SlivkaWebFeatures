@@ -23,7 +23,7 @@
 	}
 
 	.well{
-		margin-bottom: 0;
+		margin-bottom: -15px;
 	}
 </style>
 <form autocomplete="off" onsubmit="return false;" role="form">
