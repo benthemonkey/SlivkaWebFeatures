@@ -10,8 +10,7 @@ require.config({
 		nprogress: 'bower_components/nprogress/nprogress',
 		add2home: 'bower_components/add-to-homescreen/src/add2home',
 		stayInWebApp: 'bower_components/stayInWebApp/jquery.stayInWebApp',
-		typeahead: 'bower_components/typeahead.js/dist/typeahead',
-		qunit: 'bower_components/qunit/qunit/qunit'
+		typeahead: 'bower_components/typeahead.js/dist/typeahead'
 	},
 	shim: {
 		bootstrap: [

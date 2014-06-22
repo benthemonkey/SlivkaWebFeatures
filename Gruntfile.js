@@ -4,7 +4,10 @@ module.exports = function(grunt) {
 		pkg: grunt.file.readJSON('package.json'),
 		bower: {
 			target: {
-				rjsConfig: 'pointsCenter.build.js'
+				rjsConfig: 'pointsCenter.build.js',
+				options: {
+					exclude: ['qunit', 'almond']
+				}
 			}
 		},
 		requirejs: {
@@ -13,6 +16,7 @@ module.exports = function(grunt) {
 					baseUrl: './',
 					mainConfigFile: 'pointsCenter.build.js',
 					include: 'pointsCenter.build.js',
+					name: 'bower_components/almond/almond',
 					out: 'pointsCenter.built.js',
 					optimize: 'uglify',
 					uglify: {
