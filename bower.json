@@ -18,7 +18,8 @@
     "font-awesome": "4.x"
   },
   "devDependencies": {
-    "qunit": "*"
+    "qunit": "*",
+    "almond": "~0.2.9"
   },
   "homepage": "http://slivka.northwestern.edu/points",
   "private": true,
