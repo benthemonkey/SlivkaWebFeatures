@@ -5,5 +5,3 @@ $points_center = new PointsCenter();
 $events = $points_center->getRecentEvents();
 
 echo json_encode($events);
-
-?>

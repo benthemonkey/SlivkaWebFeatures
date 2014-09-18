@@ -11,16 +11,13 @@ $other = $points_center->getSlivkanBonusPoints($_GET['nu_email']);
 $attended = array();
 $unattended = array();
 
-foreach($events as $e){
-	if(in_array($e['event_name'],$points)){
-		$attended[] = $e;
-	}else{
-		$unattended[] = $e;
-	}
+foreach ($events as $e) {
+    if (in_array($e['event_name'], $points)) {
+        $attended[] = $e;
+    } else {
+        $unattended[] = $e;
+    }
 }
 
 echo json_encode(array('events'=>array('counts'=>$counts, 'attended'=>$attended, 'unattended'=>$unattended),
-	'ims'=>$ims, 'helper'=>$other['helper'], 'committee'=>$other['committee'], 'other'=>$other['other'], 'other_breakdown'=>$other['other_breakdown']));
-
-
-?>
+    'ims'=>$ims, 'helper'=>$other['helper'], 'committee'=>$other['committee'], 'other'=>$other['other'], 'other_breakdown'=>$other['other_breakdown']));

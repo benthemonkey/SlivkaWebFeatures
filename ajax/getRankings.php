@@ -6,4 +6,3 @@ $points_center->updateTotals();
 $rankings = $points_center->getRankings();
 
 echo json_encode($rankings);
-?>

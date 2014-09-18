@@ -5,4 +5,3 @@ $points_center = new PointsCenter();
 $courses = $points_center->getCoursesInDept($_GET['department']);
 
 echo json_encode($courses);
-?>
