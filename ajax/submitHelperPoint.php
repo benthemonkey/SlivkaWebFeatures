@@ -6,4 +6,3 @@ $points_center = new PointsCenter();
 $status = $points_center->submitHelperPoint($_POST['full_name'], $_POST['nu_email'], $_POST['event'], $_POST['comments']);
 
 echo $status;
-?>

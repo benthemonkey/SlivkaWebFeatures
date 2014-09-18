@@ -5,4 +5,3 @@ $points_center = new PointsCenter();
 $points_table = $points_center->getPointsTable();
 
 echo json_encode($points_table);
-?>

@@ -6,4 +6,3 @@ $points_center = new PointsCenter();
 $status = $points_center->submitNoShow($_POST['full_name'], $_POST['nu_email'], $_POST['date'], $_POST['comments']);
 
 echo $status;
-?>

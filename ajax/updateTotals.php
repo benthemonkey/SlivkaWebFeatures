@@ -5,4 +5,3 @@ $points_center = new PointsCenter();
 $totals = $points_center->updateTotals();
 
 echo json_encode($totals);
-?>

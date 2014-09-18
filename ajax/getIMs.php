@@ -5,5 +5,3 @@ $points_center = new PointsCenter();
 $IMs = $points_center->getIMs($_GET['team']);
 
 echo json_encode($IMs);
-
-?>
