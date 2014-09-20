@@ -1,6 +1,6 @@
 <?php
 include_once "./ajax/PointsCenter.php";
-$points_center = new PointsCenter();
+$points_center = new \Slivka\PointsCenter();
 
 $showall = isset($_GET['all']) ? $_GET['all'] == '1' : false;
 

@@ -1,7 +1,7 @@
 <?php
 header('Content-type: text/html; charset=utf-8');
 require_once "./PointsCenter.php";
-$points_center = new PointsCenter();
+$points_center = new \Slivka\PointsCenter();
 $quarter_info = $points_center->getQuarterInfo();
 
 $listing = $points_center->getCourseListing($_GET['department'], $_GET['course']);
