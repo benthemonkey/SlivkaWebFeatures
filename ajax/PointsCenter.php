@@ -62,8 +62,13 @@ class PointsCenter
     // Loads the configuration settings from the database
     private static function loadConfig()
     {
-        self::$config = self::fetchAllQuery("SELECT name,value FROM config WHERE 1", \PDO::FETCH_KEY_PAIR);
-        self::$qtr = (int) self::$config["qtr"];
+        try {
+            self::$config = self::fetchAllQuery("SELECT name,value FROM config WHERE 1", \PDO::FETCH_KEY_PAIR);
+            self::$qtr = (int) self::$config["qtr"];
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            die();
+        }
     }
 
     public function getConfig()
@@ -622,7 +627,7 @@ class PointsCenter
         $noShows = self::fetchAllQuery("SELECT nu_email, COUNT(nu_email) AS count FROM noshows", \PDO::FETCH_KEY_PAIR);
 
         $count = count($slivkans);
-        $is_housing = $GLOBALS['IS_HOUSING'] == true;
+        $is_housing = self::$config['is_housing'] == 'true';
 
         for ($s=0; $s<$count; $s++) {
             $y_join = round($slivkans[$s]['qtr_joined'], -2);
@@ -669,7 +674,7 @@ class PointsCenter
 
     public function getRankings()
     {
-        $is_housing = $GLOBALS['IS_HOUSING'] == true;
+        $is_housing = self::$config['is_housing'] == 'true';
         // figure out how many qtrs to consider
         // if its spring, you're trying to get final housing rankings.
         $y_this = round(self::$qtr, -2);
@@ -1100,7 +1105,7 @@ class PointsCenter
         }
 
         #email VP a notification?
-        if ($GLOBALS['VP_EMAIL_POINT_SUBMISSION_NOTIFICATIONS']) {
+        if (self::$config['vp_email_notifications'] == 'true') {
             $html = "<table border=\"1\">";
 
             foreach ($form_data as $key => $value) {
@@ -1198,7 +1203,7 @@ class PointsCenter
             <li><a href=\"$url?key=$key&reply=$enc3\">Not sure</a></li>
         </ul>
 
-        <p style=\"padding: 10; width: 70%\">If you received this email in error, please contact " . $GLOBALS['VP_EMAIL'] . "</p>";
+        <p style=\"padding: 10; width: 70%\">If you received this email in error, please contact " . self::$config['vp_email'] . "</p>";
 
         return self::sendEmail($filled_by, "Points Correction for " . $form_data['event_name'] . " (Automated)", $html);
     }
@@ -1282,40 +1287,45 @@ class PointsCenter
 
             <p style=\"padding: 10; width: 70%\"><a href=\"http://slivka.northwestern.edu/points/table.php\" target=\"_blank\">View Points</a></p>
 
-            <p style=\"padding: 10; width: 70%\">If you received this email in error, please contact " . $GLOBALS['VP_EMAIL'] . "</p>";
+            <p style=\"padding: 10; width: 70%\">If you received this email in error, please contact " . self::$config['vp_email'] . "</p>";
 
         return self::sendEmail($result['nu_email'], "Points Correction Response Posted (Automated)", $html);
     }
 
     private function sendEmail($to_email, $subject, $body)
     {
-        $from = array($GLOBALS['MAILBOT_EMAIL'] => "Slivka Points Center");
+        $from = array(self::$config['mailbot_email'] => "Slivka Points Center");
 
         if ($to_email) {
             $to = array(
                 $to_email . "@u.northwestern.edu" => $to_email,
-                $GLOBALS['VP_EMAIL_COPIES'] => $GLOBALS['VP_NAME'] . "'s Copy"
+                self::$config['vp_email_copies'] => self::$config['vp_name'] . "'s Copy"
             );
         } else {
-            $to = array($GLOBALS['VP_EMAIL'] => $GLOBALS['VP_NAME']);
+            $to = array(self::$config['vp_email'] => self::$config['vp_name']);
         }
 
-        $transport = Swift_SmtpTransport::newInstance('smtp.gmail.com', 465, 'ssl')
-            ->setUsername($GLOBALS['MAILBOT_EMAIL'])
-            ->setPassword($GLOBALS['MAILBOT_PASS']);
+        try {
+            $transport = \Swift_SmtpTransport::newInstance('smtp.gmail.com', 465, 'ssl')
+                ->setUsername(self::$config['mailbot_email'])
+                ->setPassword(self::$config['mailbot_password']);
 
-        $mailer = Swift_Mailer::newInstance($transport);
+            $mailer = \Swift_Mailer::newInstance($transport);
 
-        $message = new Swift_Message($subject);
-        $message->setFrom($from);
-        $message->setBody($body, 'text/html');
-        $message->setTo($to);
-        $message->addPart($subject, 'text/plain');
+            $message = new \Swift_Message($subject);
+            $message->setFrom($from);
+            $message->setBody($body, 'text/html');
+            $message->setTo($to);
+            $message->addPart($subject, 'text/plain');
 
-        if ($recipients = $mailer->send($message, $failures)) {
-            return "Message successfully sent!";
-        } else {
-            return "There was an error: " . print_r($failures);
+            if ($recipients = $mailer->send($message, $failures)) {
+                return "Message successfully sent!";
+            } else {
+                return "There was an error: " . print_r($failures);
+            }
+        } catch (Exception $e) {
+            echo "Error: " . $e->getMessage();
+            die();
         }
     }
 
