@@ -1,9 +1,6 @@
 <?php
 namespace Slivka;
 
-require_once __DIR__ . "/datastoreVars.php";
-include_once __DIR__ . "/swift/swift_required.php";
-
 class PointsCenter
 {
     private static $qtr = 0;
@@ -13,7 +10,7 @@ class PointsCenter
     public function __construct()
     {
         error_reporting(E_ALL & ~E_NOTICE);
-        ini_set('display_errors', '1');
+        //ini_set('display_errors', '1');
         self::initializeConnection();
         if (isset($_GET['qtr'])) {
             self::$qtr = $_GET['qtr'];
@@ -22,6 +19,7 @@ class PointsCenter
 
     private static function initializeConnection()
     {
+        require_once __DIR__ . "/datastoreVars.php";
         if (is_null(self::$dbConn)) {
             $dsn = $GLOBALS['DB_TYPE'] . ":host=" . $GLOBALS['DB_HOST'] . ";dbname=" . $GLOBALS['DB_NAME'];
             try {
@@ -76,6 +74,67 @@ class PointsCenter
         return self::$config;
     }
 
+    public function updateConfig($name, $value)
+    {
+        try {
+            $statement = self::$dbConn->prepare(
+                "INSERT INTO config (name, value)
+                VALUES (?, ?)
+                ON DUPLICATE KEY UPDATE value=VALUES(value)"
+            );
+            $statement->execute(array($name, $value));
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            die();
+        }
+
+        // If we're changing the quarter make sure a row exists in the `quarters` table
+        if ($name == 'qtr') {
+            $qtr = (int) $value;
+            $quarter_info = self::getQuarterInfo($qtr);
+            if (!$quarter_info) {
+                $y = round($qtr, -2);
+                $q = $qtr - $y;
+
+                $year = 2000 + $y / 100;
+
+                $season = '';
+                switch ($q) {
+                    case 1:
+                        $season = 'Winter';
+                        break;
+                    case 2:
+                        $season = 'Spring';
+                        break;
+                    default:
+                        $season = 'Fall';
+                }
+
+                // get im teams from last year, same season
+                $last_year_quarter_info = self::getQuarterInfo($qtr - 100);
+
+                if ($last_year_quarter_info) {
+                    $im_teams = json_encode($last_year_quarter_info['im_teams']);
+                } else {
+                    $im_teams = '';
+                }
+
+                try {
+                    $statement = self::$dbConn->prepare(
+                        "INSERT INTO quarters (qtr, quarter, im_teams)
+                        VALUES (?, ?, ?)"
+                    );
+                    $statement->execute(array($value, $season . ' ' . $year, $im_teams));
+                } catch (PDOException $e) {
+                    echo "Error: " . $e->getMessage();
+                    die();
+                }
+            }
+        }
+
+        return true;
+    }
+
     public function getQuarter()
     {
         return self::$qtr;
@@ -86,8 +145,12 @@ class PointsCenter
         return self::fetchAllQuery("SELECT qtr,quarter FROM quarters WHERE 1301 < qtr ORDER BY qtr DESC");
     }
 
-    public function getQuarterInfo()
+    public function getQuarterInfo($qtr = false)
     {
+        if (!$qtr) {
+            $qtr = self::$qtr;
+        }
+
         $quarter_info;
         try {
             $statement = self::$dbConn->prepare(
@@ -95,7 +158,7 @@ class PointsCenter
                 FROM quarters
                 WHERE qtr=:qtr"
             );
-            $statement->bindValue(":qtr", self::$qtr);
+            $statement->bindValue(":qtr", $qtr);
             $statement->execute();
             $quarter_info = $statement->fetch(\PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -103,9 +166,30 @@ class PointsCenter
             die();
         }
 
-        $quarter_info['im_teams'] = json_decode($quarter_info['im_teams']);
+        if ($quarter_info) {
+            $quarter_info['im_teams'] = json_decode($quarter_info['im_teams']);
+        }
 
         return $quarter_info;
+    }
+
+    public function updateQuarterInfo($name, $value)
+    {
+        try {
+            $statement = self::$dbConn->prepare(
+                "UPDATE quarters
+                SET ".$name."=:value
+                WHERE qtr=:qtr"
+            );
+            $statement->bindValue(":value", $value);
+            $statement->bindValue(":qtr", self::$qtr);
+            $statement->execute();
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            die();
+        }
+
+        return true;
     }
 
     public function getDirectory()
@@ -153,6 +237,25 @@ class PointsCenter
             FROM fellows
             WHERE qtr_final IS NULL"
         );
+    }
+
+    public function updateFellowPhoto($fellow, $photo)
+    {
+        try {
+            $statement = self::$dbConn->prepare(
+                "UPDATE fellows
+                SET photo=:photo
+                WHERE full_name=:full_name"
+            );
+            $statement->bindValue(":full_name", $fellow);
+            $statement->bindValue(":photo", $photo);
+            $statement->execute();
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            die();
+        }
+
+        return true;
     }
 
     public function getEvents($count = 20, $offset = 0)
@@ -407,9 +510,15 @@ class PointsCenter
         $other_breakdown = array(
             array($bonus['other1_name'] | '', $bonus['other1'] | 0),
             array($bonus['other2_name'] | '', $bonus['other2'] | 0),
-            array($bonus['other3_name'] | '', $bonus['other3'] | 0));
+            array($bonus['other3_name'] | '', $bonus['other3'] | 0)
+        );
 
-        return array("helper" => $helper_points, "committee" => $committee_points | 0, "other" => $other_points, "other_breakdown" => $other_breakdown);
+        return array(
+            "helper" => $helper_points,
+            "committee" => $committee_points | 0,
+            "other" => $other_points,
+            "other_breakdown" => $other_breakdown
+        );
     }
 
     public function getBonusPoints()
@@ -548,7 +657,12 @@ class PointsCenter
             $by_suite[] = array($s, round(array_sum($totals)/count($totals), 2));
         }
 
-        return array('points_table' => array_values($points_table), 'events' => $events, 'by_year' => $by_year, 'by_suite' => $by_suite);
+        return array(
+            'points_table' => array_values($points_table),
+            'events' => $events,
+            'by_year' => $by_year,
+            'by_suite' => $by_suite
+        );
     }
 
     public function getCommitteePointsTable($committee)
@@ -564,13 +678,19 @@ class PointsCenter
 
         $events_count = count($events);
         $total_ind = $events_count + 1;
-        for ($s=0; $s<count($slivkans); $s++) {
+        for ($s = 0; $s < count($slivkans); $s++) {
             $nu_email = $slivkans[$s]['nu_email'];
 
             $committee_points_table[$nu_email] = array_fill(
                 0,
-                $events_count+2,
-                array('points' => 0.0, 'filled_by' => false, 'attended' => false, 'contributions' => '', 'comments' => '')
+                $events_count + 2,
+                array(
+                    'points' => 0.0,
+                    'filled_by' => false,
+                    'attended' => false,
+                    'contributions' => '',
+                    'comments' => ''
+                )
             );
         }
 
@@ -579,7 +699,8 @@ class PointsCenter
 
             $committee_points_table[$nu_email][$events_count]['points'] = (float) $committee_bonus_points[$i]['bonus'];
             $committee_points_table[$nu_email][$events_count]['comments'] = $committee_bonus_points[$i]['comments'];
-            $committee_points_table[$nu_email][$total_ind]['points'] = (float) $committee_bonus_points[$i]['bonus']; # total column
+            # total column
+            $committee_points_table[$nu_email][$total_ind]['points'] = (float) $committee_bonus_points[$i]['bonus'];
         }
 
         for ($e=0; $e<$events_count; $e++) {
@@ -642,11 +763,13 @@ class PointsCenter
             $q_total = $q_acc + 3 * $y_acc - $slivkans[$s]['qtrs_away'];
 
             // give multiplier for current qtr if it isnt housing
-            if (!$is_housing) {
-                $q_total += 1;
-            }
+            // (commented because it makes more sense that multiplier increases at end of qtr)
+            // if (!$is_housing) {
+            //     $q_total += 1;
+            // }
 
             // figure out if they are a non res freshman
+            // NOTE: If not completing a 4-year program, this code mistakes the person for being a sophomore
             if ($slivkans[$s]['suite'] == 'NonRes') {
                 $y_grad = (int) $y_this / 100 + 3; // four years later, but three if its Fall
                 if ($q_this == 3) {
@@ -730,7 +853,8 @@ class PointsCenter
 
             $rankings[$i]['total'] = $sum;
             $rankings[$i]['total_w_mult'] = $sum * $rankings[$i]['mult'];
-            $rankings[$i]['abstains'] = in_array($rankings[$i]['nu_email'], $abstentions) || $rankings[$i]['total'] < $house_meetings;
+            $rankings[$i]['abstains'] = in_array($rankings[$i]['nu_email'], $abstentions) ||
+                                            $rankings[$i]['total'] < $house_meetings;
         }
 
         return array('rankings' => $rankings, 'qtrs' => $qtrs, 'is_housing' => $is_housing);
@@ -751,7 +875,7 @@ class PointsCenter
                 ON DUPLICATE KEY UPDATE total=VALUES(total)"
             );
 
-            for ($s=0; $s < count($slivkans); $s++) {
+            for ($s = 0; $s < count($slivkans); $s++) {
                 $nu_email = $slivkans[$s]['nu_email'];
                 $total = $event_totals[$nu_email] + $im_points[$nu_email];
 
@@ -789,6 +913,25 @@ class PointsCenter
             \PDO::FETCH_COLUMN,
             array(":qtr_final" => $qtr_final)
         );
+    }
+
+    public function updateSlivkanPhoto($nu_email, $photo)
+    {
+        try {
+            $statement = self::$dbConn->prepare(
+                "UPDATE slivkans
+                SET photo=:photo
+                WHERE nu_email=:nu_email"
+            );
+            $statement->bindValue(":nu_email", $nu_email);
+            $statement->bindValue(":photo", $photo);
+            $statement->execute();
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            die();
+        }
+
+        return true;
     }
 
     public function getCommittee($committee)
@@ -1294,6 +1437,8 @@ class PointsCenter
 
     private function sendEmail($to_email, $subject, $body)
     {
+        include_once __DIR__ . "/swift/swift_required.php";
+
         $from = array(self::$config['mailbot_email'] => "Slivka Points Center");
 
         if ($to_email) {
