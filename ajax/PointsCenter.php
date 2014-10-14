@@ -21,9 +21,9 @@ class PointsCenter
     {
         require_once __DIR__ . "/datastoreVars.php";
         if (is_null(self::$dbConn)) {
-            $dsn = $GLOBALS['DB_TYPE'] . ":host=" . $GLOBALS['DB_HOST'] . ";dbname=" . $GLOBALS['DB_NAME'];
+            $dsn = $DB_TYPE . ":host=" . $DB_HOST . ";dbname=" . $DB_NAME;
             try {
-                self::$dbConn = new \PDO($dsn, $GLOBALS['DB_USER'], $GLOBALS['DB_PASS']);
+                self::$dbConn = new \PDO($dsn, $DB_USER, $DB_PASS);
             } catch (PDOException $e) {
                 echo "Error: " . $e->getMessage();
                 die();
