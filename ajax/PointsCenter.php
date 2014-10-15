@@ -1118,7 +1118,7 @@ class PointsCenter
             die();
         }
 
-        self::sendEmail(false, "No-show submitted for " . $full_name . " for " . $event_name, "Reason: " . $comments);
+        self::sendEmail(false, "No-show submitted for " . $full_name . " on " . $date, "Reason: " . $comments);
 
         return true;
     }
