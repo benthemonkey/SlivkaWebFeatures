@@ -36,7 +36,7 @@ $end_date = $date->format('m/d/Y');
 		padding: 6px 8px;
 		width: 35px;
 	}
-</style>counter-increment:
+</style>
 </head>
 <body>
 	<div class="container">
@@ -130,7 +130,7 @@ $end_date = $date->format('m/d/Y');
 							<div class="panel-heading">
 								<h4 class="panel-title">Configuration</h4>
 							</div>
-							<table class="table">
+							<table class="table" data-config="true">
 								<tbody>
 									<tr>
 										<td>Housing Selection</td>

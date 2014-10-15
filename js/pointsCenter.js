@@ -1669,12 +1669,17 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				inputEl.val(thisEl.data('value') || original);
 
 				el.find('[data-save]').on('click', function() {
-					var val = inputEl.val();
+					var val = inputEl.val(),
+						isConfig = el.closest('table').data('config');
 
 					if (val == original) {
 						el.find('[data-cancel]').click();
 					} else {
-						admin.submitConfigOrQuarterInfo(field, val, 'Set ' + field + ' = "' + val + '" for ' + quarter + '?');
+						admin.submitConfigOrQuarterInfo(
+							field,
+							val,
+							'Set ' + field + ' = "' + val + '"' + (isConfig ? '' : ' for ' + quarter) + '?'
+						);
 					}
 
 					return false;
