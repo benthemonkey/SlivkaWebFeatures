@@ -146,8 +146,8 @@ function getSlivkanName($slivkans, $nu_email)
 							<table class="table" data-config="true">
 								<tbody>
 									<tr>
-										<td>Housing Selection</td>
-										<td><?= $config['is_housing'] == 'true' ? 'Enabled' : 'Disabled' ?></td>
+										<td><abbr title="At the beginning of Spring Quarter, set to True until after Housing Selection">Housing Selection</abbr></td>
+										<td><?= $config['is_housing'] == 'true' ? 'True' : 'False' ?></td>
 										<td><a href="#" data-edit-toggle="is_housing" data-value="<?= $config['is_housing'] ?>">Toggle</a></td>
 									</tr>
 									<tr>
@@ -166,7 +166,7 @@ function getSlivkanName($slivkans, $nu_email)
 										<td><a href="#" data-edit="vp_email_copies" data-type="email">Edit</a></td>
 									</tr>
 									<tr>
-										<td>Point Submission<br>Notifications</td>
+										<td>Point Submission<br>Email Notifications</td>
 										<td><?= $config['vp_email_notifications'] == 'true' ? 'Enabled' : 'Disabled' ?></td>
 										<td><a href="#" data-edit-toggle="vp_email_notifications" data-value="<?= $config['vp_email_notifications'] ?>">Toggle</a></td>
 									</tr>
@@ -262,7 +262,7 @@ function getSlivkanName($slivkans, $nu_email)
 						</form>
 						<div class="panel panel-default">
 							<div class="panel-heading">
-								<h4 class="panel-title">Committee</h4>
+								<h4 class="panel-title">Committee / Committee Points</h4>
 							</div>
 							<div class="panel-body">
 								<div class="row">
