@@ -1351,6 +1351,11 @@ class PointsCenter
         return self::sendEmail($filled_by, "Points Correction for " . $form_data['event_name'] . " (Automated)", $html);
     }
 
+    public function getOpenPointsCorrections()
+    {
+        return self::fetchAllQuery("SELECT nu_email,event_name FROM pointscorrection WHERE response=0");
+    }
+
     public function pointsCorrectionReply($get)
     {
         if ($get['reply'] == md5('1')) {

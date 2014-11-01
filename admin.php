@@ -10,12 +10,25 @@ $qtrs = $points_center->getQuarters();
 $qtr_info = $points_center->getQuarterInfo();
 $slivkans = $points_center->getSlivkans();
 $fellows = $points_center->getFellows();
+$openCorrections = $points_center->getOpenPointsCorrections();
 
 $date = \DateTime::createFromFormat('Y-m-d', $qtr_info['start_date']);
 $start_date = $date->format('m/d/Y');
 
 $date = \DateTime::createFromFormat('Y-m-d', $qtr_info['end_date']);
 $end_date = $date->format('m/d/Y');
+
+function getSlivkanName($slivkans, $nu_email)
+{
+  foreach ($slivkans as $s) {
+    if ($s['nu_email'] == $nu_email) {
+      return $s['full_name'];
+    }
+  }
+
+  return $nu_email;
+}
+
 ?>
 <!DOCTYPE HTML>
 <html lang="en">
@@ -172,6 +185,31 @@ $end_date = $date->format('m/d/Y');
 						</div>
 					</div>
 					<div class="col-sm-6">
+						<?php if (count($openCorrections) > 0) { ?>
+						<div class="panel panel-default">
+							<div class="panel-heading">
+								<h4 class="panel-title">
+									Open Points Corrections
+								</h4>
+							</div>
+							<table class="table">
+								<thead>
+									<tr>
+										<th>NU Email</th>
+										<th>Event</th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php foreach ($openCorrections as $c) { ?>
+									<tr>
+										<td><?= getSlivkanName($slivkans, $c['nu_email']) ?></td>
+										<td><?= $c['event_name'] ?></td>
+									</tr>
+									<?php } ?>
+								</tbody>
+							</table>
+						</div>
+						<?php } ?>
 						<form id="upload-photo" role="form" method="post" action="./ajax/submitPhoto.php" enctype="multipart/form-data">
 							<div class="panel panel-default">
 								<div class="panel-heading">
@@ -193,10 +231,10 @@ $end_date = $date->format('m/d/Y');
 									<div class="form-group">
 										<div class="btn-group" data-toggle="buttons">
 											<label class="btn btn-default active">
-												<input type="radio" name="type" id="slivkan-photo" checked> Slivkan
+												<input type="radio" name="type" value="slivkan-photo" id="slivkan-photo" checked> Slivkan
 											</label>
 											<label class="btn btn-default">
-												<input type="radio" name="type" id="fellow-photo"> Fellow
+												<input type="radio" name="type" value="fellow-photo" id="fellow-photo"> Fellow
 											</label>
 										</div>
 									</div>

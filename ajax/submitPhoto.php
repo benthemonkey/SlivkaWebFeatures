@@ -48,18 +48,18 @@ if ($_POST['type'] == 'slivkan-photo') {
     $name = $_POST['fellow'];
 }
 
-$now = time();
-while (file_exists($uploadFilename = __DIR__.'/../img/slivkans/'.$name.'-'.$now)) {
-    $now++;
+$i = 1;
+while (file_exists($uploadFilename = __DIR__.'/../img/slivkans/'.$name.'-'.$i)) {
+    $i++;
 }
 
 $images = $_FILES['file']['tmp_name'];
 $ext = resize(200, $uploadFilename, $_FILES['file']['tmp_name']);
 
 if ($_POST['type'] == 'slivkan-photo') {
-    $points_center->updateSlivkanPhoto($name, $name.'-'.$now.'.'.$ext);
+    var_dump($points_center->updateSlivkanPhoto($name, $name.'-'.$i.'.'.$ext));
 } else {
-    $points_center->updateFellowPhoto($name, $name.'-'.$now.'.'.$ext);
+    $points_center->updateFellowPhoto($name, $name.'-'.$i.'.'.$ext);
 }
 
 // If you got this far, everything has worked and the file has been successfully saved.
