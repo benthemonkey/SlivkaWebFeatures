@@ -1767,6 +1767,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 						function(response){
 							if (response == '1') {
 								$('#editCommitteeOrSuite').modal('hide');
+								window.alert('Success!');
 							} else {
 								window.alert(response);
 							}
