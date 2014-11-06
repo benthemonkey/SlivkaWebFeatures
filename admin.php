@@ -146,7 +146,10 @@ function getSlivkanName($slivkans, $nu_email)
 							<table class="table" data-config="true">
 								<tbody>
 									<tr>
-										<td><abbr title="At the beginning of Spring Quarter, set to True until after Housing Selection">Housing Selection</abbr></td>
+										<td>Housing Selection
+											<a href="#" tabindex="0" role="button" data-trigger="hover" data-toggle="popover"
+												data-content="At the beginning of Spring Quarter, set to True until after Housing Selection">?</a>
+										</td>
 										<td><?= $config['is_housing'] == 'true' ? 'True' : 'False' ?></td>
 										<td><a href="#" data-edit-toggle="is_housing" data-value="<?= $config['is_housing'] ?>">Toggle</a></td>
 									</tr>
@@ -185,31 +188,6 @@ function getSlivkanName($slivkans, $nu_email)
 						</div>
 					</div>
 					<div class="col-sm-6">
-						<?php if (count($openCorrections) > 0) { ?>
-						<div class="panel panel-default">
-							<div class="panel-heading">
-								<h4 class="panel-title">
-									Open Points Corrections
-								</h4>
-							</div>
-							<table class="table">
-								<thead>
-									<tr>
-										<th>NU Email</th>
-										<th>Event</th>
-									</tr>
-								</thead>
-								<tbody>
-									<?php foreach ($openCorrections as $c) { ?>
-									<tr>
-										<td><?= getSlivkanName($slivkans, $c['nu_email']) ?></td>
-										<td><?= $c['event_name'] ?></td>
-									</tr>
-									<?php } ?>
-								</tbody>
-							</table>
-						</div>
-						<?php } ?>
 						<form id="upload-photo" role="form" method="post" action="./ajax/submitPhoto.php" enctype="multipart/form-data">
 							<div class="panel panel-default">
 								<div class="panel-heading">
@@ -260,6 +238,31 @@ function getSlivkanName($slivkans, $nu_email)
 								</div>
 							</div>
 						</form>
+						<?php if (count($openCorrections) > 0) { ?>
+						<div class="panel panel-info">
+							<div class="panel-heading">
+								<h4 class="panel-title">
+									Open Points Corrections
+								</h4>
+							</div>
+							<table class="table">
+								<thead>
+									<tr>
+										<th>NU Email</th>
+										<th>Event</th>
+									</tr>
+								</thead>
+								<tbody>
+									<?php foreach ($openCorrections as $c) { ?>
+									<tr>
+										<td><?= getSlivkanName($slivkans, $c['nu_email']) ?></td>
+										<td><?= $c['event_name'] ?></td>
+									</tr>
+									<?php } ?>
+								</tbody>
+							</table>
+						</div>
+						<?php } ?>
 						<div class="panel panel-default">
 							<div class="panel-heading">
 								<h4 class="panel-title">Committee / Committee Points</h4>

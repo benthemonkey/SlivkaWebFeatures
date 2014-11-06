@@ -1587,6 +1587,10 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				buttonClass: 'btn btn-default'
 			});
 
+			$('[data-toggle="popover"]').popover().on('click', function() {
+				return false;
+			});
+
 			$('#fellow-photo').parent().on('click', function() {
 				$('select[name="fellow"]').show().siblings().hide();
 			});
