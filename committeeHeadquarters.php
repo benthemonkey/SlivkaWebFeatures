@@ -1,30 +1,31 @@
 <?php
 #ini_set('display_errors', '1');
 include_once "./ajax/PointsCenter.php";
-$points_center = new PointsCenter();
+$points_center = new \Slivka\PointsCenter();
 
 $committee = $_GET['committee'];
 if ($committee) {
-	$points_table = $points_center->getCommitteePointsTable($committee);
+    $points_table = $points_center->getCommitteePointsTable($committee);
 
-	$slivkans = $points_center->getSlivkans();
+    $slivkans = $points_center->getSlivkans();
 }
 
-function getFullName($slivkans, $nu_email){
-	foreach($slivkans as $s){
-		if($s['nu_email'] == $nu_email){
-			return $s['full_name'];
-		}
-	}
+function getFullName($slivkans, $nu_email)
+{
+    foreach ($slivkans as $s) {
+        if ($s['nu_email'] == $nu_email) {
+            return $s['full_name'];
+        }
+    }
 
-	return '';
+    return '';
 }
 ?>
 
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
-	<?php include('header.html'); ?>
+	<?php include 'header.html'; ?>
 	<title>Committee Headquarters - Slivka Points Center</title>
 	<link rel="stylesheet" href="css/pointsTable.css" />
 	<style>
@@ -40,17 +41,17 @@ function getFullName($slivkans, $nu_email){
 <body>
 	<div class="container">
 		<div class="content">
-			<?php include('nav.html'); ?>
+			<?php include 'nav.html'; ?>
 			<div class="dropdown pull-right" style="margin-right: 10px; height: 0;">
 				<a class="btn btn-default btn-sm" data-toggle="dropdown" href="#">Select Committee <span class="caret"></span></a>
 				<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
 <?php
-	$indent = "\t\t\t\t\t";
-	$committees = array("Academic", "Facilities", "Faculty", "IT", "Philanthropy", "Publications", "Social");
+    $indent = "\t\t\t\t\t";
+    $committees = array("Academic", "Facilities", "Faculty", "IT", "Philanthropy", "Publications", "Social");
 
-	for($i=0; $i<count($committees); $i++){
-		echo $indent . '<li><a href="./committeeHeadquarters.php?committee=' . $committees[$i] . '">' . $committees[$i] . "</a></li>\n";
-	}
+    for ($i=0; $i<count($committees); $i++) {
+        echo $indent . '<li><a href="./committeeHeadquarters.php?committee=' . $committees[$i] . '">' . $committees[$i] . "</a></li>\n";
+    }
 ?>
 				</ul>
 			</div>
@@ -84,7 +85,7 @@ function getFullName($slivkans, $nu_email){
 					<thead>
 						<tr>
 							<th class="nameHeader"><div><div></div></div><span>Name</span></th>
-<?php for($i=0; $i<count($points_table['events']); $i++){ ?>
+<?php for ($i=0; $i<count($points_table['events']); $i++) { ?>
 							<th class="eventHeader">
 								<div class="slantedHeader">
 									<span><?= substr($points_table['events'][$i], 0, -10) . substr($points_table['events'][$i], -5)?></span>
@@ -95,7 +96,7 @@ function getFullName($slivkans, $nu_email){
 
 $totalsColumns = array("Bonus", "Total");//, "Total (adjusted)");
 
-for($i=0; $i<count($totalsColumns); $i++){ ?>
+for ($i=0; $i<count($totalsColumns); $i++) { ?>
 							<th class="totalsHeader">
 								<div class="slantedHeader">
 									<span><?= $totalsColumns[$i] ?></span>
@@ -111,52 +112,52 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 					</thead>
 					<tbody>
 <?php
-	$odd = true;
-	$indent = "\t\t\t\t\t\t";
+    $odd = true;
+    $indent = "\t\t\t\t\t\t";
 
-	foreach($points_table['points_table'] AS $s => $tr){
-		if($odd){
-			$odd = false;
-			echo $indent . "<tr data-slivkan=\"" . $s . "\" class=\"odd\">\n";
-		}else{
-			$odd = true;
-			echo $indent . "<tr data-slivkan=\"" . $s . "\" class=\"even\">\n";
-		}
+    foreach ($points_table['points_table'] as $s => $tr) {
+        if ($odd) {
+            $odd = false;
+            echo $indent . "<tr data-slivkan=\"" . $s . "\" class=\"odd\">\n";
+        } else {
+            $odd = true;
+            echo $indent . "<tr data-slivkan=\"" . $s . "\" class=\"even\">\n";
+        }
 
-		echo $indent . '<td class="name">' . getFullName($slivkans, $s) . "</td>\n";
+        echo $indent . '<td class="name">' . getFullName($slivkans, $s) . "</td>\n";
 
-		$rowcount = count($tr);
+        $rowcount = count($tr);
 
-		for($i=0; $i<$rowcount; $i++){
-			$td = $tr[$i];
+        for ($i=0; $i<$rowcount; $i++) {
+            $td = $tr[$i];
 
-			echo $indent . "\t";
+            echo $indent . "\t";
 
-			if($i == $rowcount - 2){
-				echo '<td data-slivkan="'.$s.'" data-event="bonus" data-comments="'.$td['comments'].'" class="pts white">';
-			}else if($i == $rowcount - 1){
-				echo '<td class="totals">';
-			}else{
-				echo '<td data-event="'.$points_table['events'][$i].'" data-contributions="'.$td['contributions'].'" ';
-				echo 'data-comments="'.$td['comments'].'" class="pts';
+            if ($i == $rowcount - 2) {
+                echo '<td data-slivkan="'.$s.'" data-event="bonus" data-comments="'.$td['comments'].'" class="pts white">';
+            } elseif ($i == $rowcount - 1) {
+                echo '<td class="totals">';
+            } else {
+                echo '<td data-event="'.$points_table['events'][$i].'" data-contributions="'.$td['contributions'].'" ';
+                echo 'data-comments="'.$td['comments'].'" class="pts';
 
-				if($td['filled_by']){
-					echo ' blue';
-				}else if($td['attended']){
-					echo ' green';
-				}else if($td['points'] > 0){
-					echo ' yellow';
-				}
+                if ($td['filled_by']) {
+                    echo ' blue';
+                } elseif ($td['attended']) {
+                    echo ' green';
+                } elseif ($td['points'] > 0) {
+                    echo ' yellow';
+                }
 
-				echo '">';
-			}
+                echo '">';
+            }
 
-			printf("%.1f", $td['points']);
-			echo "</td>\n";
-		}
-		echo $indent . "\t<td class=\"end\"></td>\n" .
-			$indent . "</tr>\n";
-	}
+            printf("%.1f", $td['points']);
+            echo "</td>\n";
+        }
+        echo $indent . "\t<td class=\"end\"></td>\n" .
+            $indent . "</tr>\n";
+    }
 ?>
 					</tbody>
 				</table>
@@ -164,7 +165,7 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 <?php } else { ?>
 			<div class="alert alert-info text-center"><h4>Select a Committee</h4></div>
 <?php } ?>
-		<?php include('credits.html'); ?>
+		<?php include 'credits.html'; ?>
 		</div><!--content-->
 	</div>
 	<div id="helper-modal" class="modal fade" role="dialog" >
@@ -181,14 +182,14 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 							<select id="helper-slivkan" class="form-control" required>
 								<option value="">Select One</option>
 								<?php
-									foreach($slivkans as $s){
-										echo '<option value="' . $s['nu_email'] . '" ';
-										if($s['committee'] == $committee || $s['committee'] == 'Facilities'){
-											echo 'disabled';
-										}
-										echo '>' . $s['full_name'] . "</option>\n";
-									}
-								?>
+                                    foreach ($slivkans as $s) {
+                                        echo '<option value="' . $s['nu_email'] . '" ';
+                                        if ($s['committee'] == $committee || $s['committee'] == 'Facilities') {
+                                            echo 'disabled';
+                                        }
+                                        echo '>' . $s['full_name'] . "</option>\n";
+                                    }
+                                ?>
 							</select>
 						</div>
 						<div class="form-group">
@@ -196,14 +197,15 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 							<select id="helper-event" class="form-control" required>
 								<option value="">Select One</option>
 								<?php
-									foreach(array_reverse($points_table['events']) as $e){
-										echo "<option>" . $e . "</option>\n";
-									}
-								?>
+                                    foreach (array_reverse($points_table['events']) as $e) {
+                                        echo "<option>" . $e . "</option>\n";
+                                    }
+                                ?>
 							</select>
 							<a href="mailto:<?=$GLOBALS['VP_EMAIL']?>?Subject=Request%20for%20not-event-related%20helper%20point
 								&Body=Dear%20<?=urlencode($GLOBALS['VP_NAME'])?>,%20I%20would%20like%20to%20give%20a%20helper%20point%20to%20____%20for%20____.%0A%0AMwah%21%20<3"
 								class="btn btn-link btn-block" target="_blank">Submit non-event-related helper point</a>
+							<p class="text-center"><small>(opens a Compose Email window in your default mail app)</small></p>
 						</div>
 						<div class="form-group">
 							<label for="helper-comments" class="control-label">Reason</label>
@@ -229,10 +231,10 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 							<select id="no-show-slivkan" class="form-control" required>
 								<option value="">Select One</option>
 								<?php
-									foreach($slivkans as $s){
-										echo '<option value="' . $s['nu_email'] . '">' . $s['full_name'] . "</option>\n";
-									}
-								?>
+                                    foreach ($slivkans as $s) {
+                                        echo '<option value="' . $s['nu_email'] . '">' . $s['full_name'] . "</option>\n";
+                                    }
+                                ?>
 							</select>
 						</div>
 						<div class="form-group">
@@ -283,6 +285,6 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 			</div>
 		</div>
 	</script>
-	<?php include('footer.html'); ?>
+	<?php include 'footer.html'; ?>
 </body>
 </html>

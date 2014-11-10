@@ -9,7 +9,7 @@ $qtr = $_POST['qtr'];
 
 $courses_filtered = array();
 
-preg_match_all("/([A-Z_]{4,9} \d{3}-\d-\d{2})/", $courses, $courses_filtered);
+preg_match_all("/([A-Z_&]{2,9} \d{3}-\d-\d{2})/", $courses, $courses_filtered);
 
 $courses_filtered = implode("; ", $courses_filtered[0]);
 
