@@ -172,7 +172,7 @@ for ($i=0; $i<count($totalsColumns); $i++) { ?>
             } elseif ($td == 1.1 || $td == 0.1) {
                 $td = floor($td);
                 echo '<td class="gold">';
-            } elseif ($td == 1.2 || $td == 0.2) {
+            } elseif ($td == 1.3 || $td == 1.2 || $td == 0.3 || $td == 0.2) { //.3 = .1 + .2 (committee and helper pt)
                 $td = floor($td);
                 echo '<td class="blue">';
             } else {
@@ -216,7 +216,7 @@ for ($i=0; $i<count($totalsColumns); $i++) { ?>
 		</div>
 	</div>
 	<script type="text/javascript">
-		window.qtr = <?php if ($qtr) {echo $qtr;} else {echo 'null';} ?>;
+		window.qtr = <?= ($qtr) ? $qtr : 'null' ?>;
 		window.points_table = '<?php echo wordwrap(addslashes(json_encode(array("events"=>$points_table['events'], "by_year"=>$points_table['by_year'], "by_suite"=>$points_table['by_suite']))),800,"'+\n'")?>'
 	</script>
 	<?php include 'footer.html'; ?>
