@@ -12,7 +12,7 @@ $points_table = $points_center->getPointsTable($showall);
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
-	<?php include('header.html'); ?>
+	<?php include 'header.html'; ?>
 	<meta name="viewport" content="user-scalable=yes">
 	<title>Table - Slivka Points Center</title>
 	<link rel="stylesheet" href="css/pointsTable.css" />
@@ -20,22 +20,22 @@ $points_table = $points_center->getPointsTable($showall);
 <body>
 	<div class="container">
 		<div class="content">
-			<?php include('nav.html'); ?>
+			<?php include 'nav.html'; ?>
 			<div class="row">
 			<div class="col-lg-12">
 				<div class="col-md-4">
 					<div class="alert alert-info">
 						<p>Hover over names for info, click arrows to sort.</p>
 						<p><?php
-							echo "Showing " . count($points_table['events']) . " events. ";
-							if(count($points_table['events']) >= 20){
-								if(!$showall){
-									echo '<a href="./table.php?all=1&qtr=' . $qtr . '"><strong>Show All</strong></a>';
-								}else{
-									echo '<a href="./table.php?qtr=' . $qtr . '"><strong>Reset</strong></a>';
-								}
-							}
-						?></p>
+                            echo "Showing " . count($points_table['events']) . " events. ";
+                            if (count($points_table['events']) >= 20) {
+                                if (!$showall) {
+                                    echo '<a href="./table.php?all=1&qtr=' . $qtr . '"><strong>Show All</strong></a>';
+                                } else {
+                                    echo '<a href="./table.php?qtr=' . $qtr . '"><strong>Reset</strong></a>';
+                                }
+                            }
+                        ?></p>
 					</div>
 					<table id="legend" class="legend">
 						<tr class="odd">
@@ -96,7 +96,7 @@ $points_table = $points_center->getPointsTable($showall);
 						<a class="btn btn-default" data-toggle="dropdown" href="#">Quarter <b class="caret"></b></a>
 						<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
 							<li><a href="./table.php"><?= $quarters[0]['quarter'] ?></a></li>
-<?php for($i=1; $i<count($quarters); $i++){ ?>
+<?php for ($i=1; $i<count($quarters); $i++) { ?>
 							<li><a href="./table.php?all=1&qtr=<?= $quarters[$i]['qtr'] ?>"><?= $quarters[$i]['quarter'] ?></a></li>
 <?php } ?>
 						</ul>
@@ -111,7 +111,7 @@ $points_table = $points_center->getPointsTable($showall);
 						<tr>
 							<th class="nameHeader"><div><div></div></div><span>Name</span></th>
 							<th style="display:none;"></th>
-<?php for($i=0; $i<count($points_table['events']); $i++){ ?>
+<?php for ($i=0; $i<count($points_table['events']); $i++) { ?>
 							<th class="eventHeader">
 								<div class="slantedHeader">
 									<span><?= substr($points_table['events'][$i]['event_name'],0,-11) ?></span>
@@ -122,7 +122,7 @@ $points_table = $points_center->getPointsTable($showall);
 
 $totalsColumns = array("Events Total", "Helper Points", "IM Sports", "Standing Committees", "Other", "Total");
 
-for($i=0; $i<count($totalsColumns); $i++){ ?>
+for ($i=0; $i<count($totalsColumns); $i++) { ?>
 							<th class="totalsHeader">
 								<div class="slantedHeader">
 									<span><?= $totalsColumns[$i] ?></span>
@@ -138,57 +138,57 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 					</thead>
 					<tbody>
 <?php
-	$odd = true;
-	$indent = "\t\t\t\t\t\t";
+    $odd = true;
+    $indent = "\t\t\t\t\t\t";
 
-	foreach($points_table['points_table'] AS $tr){
-		if(end($tr) == "0"){
-			continue;
-		}
+    foreach ($points_table['points_table'] as $tr) {
+        if (end($tr) == "0") {
+            continue;
+        }
 
-		if($odd){
-			$odd = false;
-			echo $indent . "<tr class=\"odd\">\n";
-		}else{
-			$odd = true;
-			echo $indent . "<tr class=\"even\">\n";
-		}
+        if ($odd) {
+            $odd = false;
+            echo $indent . "<tr class=\"odd\">\n";
+        } else {
+            $odd = true;
+            echo $indent . "<tr class=\"even\">\n";
+        }
 
-		$rowcount = count($tr);
+        $rowcount = count($tr);
 
-		for($i=0; $i<$rowcount; $i++){
-			$td = $tr[$i];
+        for ($i=0; $i<$rowcount; $i++) {
+            $td = $tr[$i];
 
-			echo $indent . "\t";
+            echo $indent . "\t";
 
-			if($i == 0){
-				echo '<td class="name">';
-			}else if($i == 1){
-				echo '<td class="gender">';
-			}else if($i >= $rowcount - 6){
-				echo '<td class="totals">';
-			}else if($td == 1){
-				echo '<td class="green">';
-			}else if($td == 1.1 || $td == 0.1){
-				$td = floor($td);
-				echo '<td class="gold">';
-			}else if($td == 1.2 || $td == 0.2){
-				$td = floor($td);
-				echo '<td class="blue">';
-			}else{
-				echo '<td>';
-			}
+            if ($i == 0) {
+                echo '<td class="name">';
+            } elseif ($i == 1) {
+                echo '<td class="gender">';
+            } elseif ($i >= $rowcount - 6) {
+                echo '<td class="totals">';
+            } elseif ($td == 1) {
+                echo '<td class="green">';
+            } elseif ($td == 1.1 || $td == 0.1) {
+                $td = floor($td);
+                echo '<td class="gold">';
+            } elseif ($td == 1.2 || $td == 0.2) {
+                $td = floor($td);
+                echo '<td class="blue">';
+            } else {
+                echo '<td>';
+            }
 
-			echo $td . "</td>\n";
-		}
-		echo $indent . "\t<td class=\"end\"></td>\n" .
-			$indent . "</tr>\n";
-	}
+            echo $td . "</td>\n";
+        }
+        echo $indent . "\t<td class=\"end\"></td>\n" .
+            $indent . "</tr>\n";
+    }
 ?>
 					</tbody>
 				</table>
 			</div>
-			<?php include('credits.html'); ?>
+			<?php include 'credits.html'; ?>
 		</div>
 	</div>
 	<div id="stats" class="modal fade" role="dialog" >
@@ -216,9 +216,9 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 		</div>
 	</div>
 	<script type="text/javascript">
-		window.qtr = <?php if($qtr){echo $qtr;}else{echo 'null';} ?>;
+		window.qtr = <?php if ($qtr) {echo $qtr;} else {echo 'null';} ?>;
 		window.points_table = '<?php echo wordwrap(addslashes(json_encode(array("events"=>$points_table['events'], "by_year"=>$points_table['by_year'], "by_suite"=>$points_table['by_suite']))),800,"'+\n'")?>'
 	</script>
-	<?php include('footer.html'); ?>
+	<?php include 'footer.html'; ?>
 </body>
 </html>
