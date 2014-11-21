@@ -2,12 +2,6 @@
 require_once "./PointsCenter.php";
 $points_center = new \Slivka\PointsCenter();
 
-// make a note of the current working directory, relative to root.
-$directory_self = str_replace(basename($_SERVER['PHP_SELF']), '', $_SERVER['PHP_SELF']);
-
-// make a note of the location of the upload form in case we need it
-$uploadForm = 'http://' . $_SERVER['HTTP_HOST'] . $directory_self . 'upload.form.php';
-
 // make a note of the location of the success page
 $uploadSuccess = '/points/admin.php?success=true';
 
@@ -20,13 +14,13 @@ $errors = array(1 => 'php.ini max file size exceeded',
                 4 => 'no file was attached');
 
 //check file size
-if ($_FILES['file']['size'] > 20000) {
-    error('file is too large');
+if ($_FILES['file']['size'] > 1000000) {
+    error('file is too large (' . $_FILES['file']['size'] . ' bytes)');
 }
 
 // check the upload form was actually submitted else print the form
 isset($_POST['nu_email']) or isset($_POST['fellow'])
-    or error('the upload form is neaded');
+    or error('the upload form is needed');
 
 // check for PHP's built-in uploading errors
 ($_FILES['file']['error'] == 0)
@@ -114,7 +108,7 @@ function resize($newWidth, $targetFile, $originalFile)
 // to output an HTML error page if the file upload fails
 function error($error)
 {
-    header("Refresh: 5; URL=".$uploadForm."");
+    header('Refresh: 5; URL="../admin.php"');
     echo '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"'."\n".
     '"http://www.w3.org/TR/html4/strict.dtd">'."\n".
     '<html lang="en">'."\n".
@@ -127,7 +121,7 @@ function error($error)
     '        <h1>Upload failure</h1>'."\n".
     '        <p>An error has occurred: '."\n".
     '        <span class="red">' . $error . '...</span>'."\n".
-    '         The upload form is reloading</p>'."\n".
+    '         Returning to Admin page</p>'."\n".
     '     </div>'."\n".
     '</html>';
     exit;
