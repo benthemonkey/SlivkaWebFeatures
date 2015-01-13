@@ -1,4 +1,4 @@
-$(function() {
+jQuery(function($) {
     'use strict';
     $.getJSON('http://slivka.northwestern.edu/points/ajax/getDirectory.php',function(data){
         var path = 'http://slivka.northwestern.edu/points/img/slivkans/';
