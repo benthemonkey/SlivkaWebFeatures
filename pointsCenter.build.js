@@ -59,7 +59,7 @@ require([
 	var page = window.location.pathname.split('/');
 
 	if (page) {
-		page = page[3];
+		page = page[2];
 	} else {
 		page = 'breakdown';
 	}

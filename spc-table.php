@@ -1,6 +1,7 @@
 <?php
-include_once $_SERVER["DOCUMENT_ROOT"] . "/points/ajax/PointsCenter.php";
-$points_center = new PointsCenter();
+ini_set('display_errors', '1');
+include_once __dir__ . "/ajax/PointsCenter.php";
+$points_center = new \Slivka\PointsCenter();
 
 $showall = isset($_GET['all']) ? $_GET['all'] == '1' : false;
 
@@ -9,6 +10,7 @@ $quarters = $points_center->getQuarters();
 $points_table = $points_center->getPointsTable($showall);
 
 ?>
+<link rel="stylesheet" type="text/css" href="/points/css/pointsTable.css">
 <div class="row">
 <div class="col-lg-12">
 	<div class="col-md-4">
@@ -18,9 +20,9 @@ $points_table = $points_center->getPointsTable($showall);
 				echo "Showing " . count($points_table['events']) . " events. ";
 				if(count($points_table['events']) >= 20){
 					if(!$showall){
-						echo '<a href="./table.php?all=1&qtr=' . $qtr . '"><strong>Show All</strong></a>';
+						echo '<a href="./?all=1&qtr=' . $qtr . '"><strong>Show All</strong></a>';
 					}else{
-						echo '<a href="./table.php?qtr=' . $qtr . '"><strong>Reset</strong></a>';
+						echo '<a href="./?qtr=' . $qtr . '"><strong>Reset</strong></a>';
 					}
 				}
 			?></p>
@@ -83,9 +85,9 @@ $points_table = $points_center->getPointsTable($showall);
 		<div class="filter dropdown fix-top">
 			<a class="btn btn-default" data-toggle="dropdown" href="#">Quarter <b class="caret"></b></a>
 			<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-				<li><a href="./table.php"><?= $quarters[0]['quarter'] ?></a></li>
+				<li><a href="./"><?= $quarters[0]['quarter'] ?></a></li>
 <?php for($i=1; $i<count($quarters); $i++){ ?>
-				<li><a href="./table.php?all=1&qtr=<?= $quarters[$i]['qtr'] ?>"><?= $quarters[$i]['quarter'] ?></a></li>
+				<li><a href="./?all=1&qtr=<?= $quarters[$i]['qtr'] ?>"><?= $quarters[$i]['quarter'] ?></a></li>
 <?php } ?>
 			</ul>
 		</div>
