@@ -1749,6 +1749,295 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('#' + id + '-' + extra).val('');
 			});
 		}
+	},
+
+	admin = {
+		init: function() {
+			var quarter = $('[data-current-quarter]').text();
+
+			$('.multiselect').multiselect({
+				buttonClass: 'btn btn-default'
+			});
+
+			$('[data-toggle="popover"]').popover().on('click', function() {
+				return false;
+			});
+
+			$('#fellow-photo').parent().on('click', function() {
+				$('select[name="fellow"]').show().siblings().hide();
+			});
+
+			$('#slivkan-photo').parent().on('click', function() {
+				$('select[name="nu_email"]').show().siblings().hide();
+			});
+
+			$('[data-edit-qtr]').on('click', function() {
+				var el = $(this).closest('tr'),
+					val = el.find('.view:eq(0)').text().split(' ');
+
+				el.find('.view').hide().siblings().show();
+
+				$('#qtr-season').val((val[0] == 'Fall' ? '03' : (val[0] == 'Winter' ? '01' : '02')));
+				$('#qtr-year').val(val[1]);
+
+				el.find('[data-save]').on('click', function() {
+					var qtr = $('#qtr-year').val().substr(2) + $('#qtr-season').val();
+
+					admin.submitConfigOrQuarterInfo('qtr', qtr, 'Update current quarter?');
+
+					return false;
+				});
+
+				el.find('[data-cancel]').on('click', function() {
+					el.find('.view').show().siblings().hide();
+
+					return false;
+				});
+
+				return false;
+			});
+
+			$('[data-edit-ims]').on('click', function() {
+				var el = $(this).closest('tr');
+
+				el.find('.view').hide().siblings().show();
+
+				el.find('[data-save]').on('click', function() {
+					admin.submitConfigOrQuarterInfo('im_teams', JSON.stringify($('#im-select').val()), 'Update IM Teams for ' + quarter + '?');
+
+					return false;
+				});
+
+				el.find('[data-cancel]').on('click', function() {
+					el.find('.view').show().siblings().hide();
+
+					return false;
+				});
+
+				return false;
+			});
+
+			$('body').on('click', '[data-edit-toggle]', function() {
+				var name = $(this).data('edit-toggle'),
+					value = !$(this).data('value'); //flip value
+
+				admin.submitConfigOrQuarterInfo(name, value, 'Toggle value?');
+
+				return false;
+			});
+
+			$('body').on('click', '[data-edit]', function() {
+				var inputEl,
+					thisEl = $(this),
+					el = thisEl.closest('tr'),
+					original = el.find('td:eq(1)').text(),
+					type = thisEl.data('type') || 'text',
+					field = thisEl.data('edit');
+
+				thisEl.hide();
+				$(['<span class="edit">',
+						'<a href="#" data-save>Save</a><br>',
+						'<a href="#" data-cancel>Cancel</a>',
+					'</span>'].join('')).appendTo(el.find('td:eq(2)'));
+
+				el.find('td:eq(1)').html('<input type="' + type + '" class="form-control">');
+				inputEl = el.find('input');
+				inputEl.val(thisEl.data('value') || original);
+
+				el.find('[data-save]').on('click', function() {
+					var val = inputEl.val(),
+						isConfig = el.closest('table').data('config');
+
+					if (val == original) {
+						el.find('[data-cancel]').click();
+					} else {
+						admin.submitConfigOrQuarterInfo(
+							field,
+							val,
+							'Set ' + field + ' = "' + val + '"' + (isConfig ? '' : ' for ' + quarter) + '?'
+						);
+					}
+
+					return false;
+				});
+
+				el.find('[data-cancel]').on('click', function() {
+					el.find('.edit').remove();
+					el.find('td:eq(1)').html(original);
+					thisEl.show();
+
+					return false;
+				});
+
+				return false;
+			});
+
+			$.getJSON('./ajax/getSlivkans.php', function(data) {
+				slivkans = data.slivkans;
+				nicknames = data.nicknames;
+
+				//tack on nicknames to slivkans
+				for(var i=0; i<nicknames.length; i++){
+					var ind = slivkans.indexOfKey('nu_email', nicknames[i].nu_email);
+					if(ind !== -1){
+						slivkans[ind].tokens.push(nicknames[i].nickname);
+					}
+				}
+
+				submission.appendSlivkanInputs(9);
+
+				$('#slivkan-entry-tab')	.on('focus', '.slivkan-entry', admin.slivkanTypeahead)
+										.on('typeahead:closed', '.slivkan-entry.tt-query',
+											{callback: admin.validateSlivkanName},
+											destroyTypeahead);
+
+				$('[data-edit-committee]').on('click', function() {
+					$('.committee-points').val(0).show();
+					$('#editCommitteeOrSuite').data('is-committee', true);
+					$.getJSON('./ajax/getCommitteeOrSuite.php', {committee: $('#edit-committee').val()}, admin.addSlivkans);
+				});
+
+				$('[data-edit-suite]').on('click', function() {
+					$('.committee-points').hide();
+					$('#editCommitteeOrSuite').data('is-committee', false);
+					$.getJSON('./ajax/getCommitteeOrSuite.php', {suite: $('#edit-suite').val()}, admin.addSlivkans);
+				});
+
+				$('#editCommitteeOrSuite form').on('submit', function() {
+					var name, pts, formData,
+						entries = $('.slivkan-entry', '#slivkan-entry-tab'),
+						committeePoints = $('.committee-points'),
+						committee = $('#edit-committee').val(),
+						suite = $('#edit-suite').val(),
+						isCommittee = $('#editCommitteeOrSuite').data('is-committee'),
+						nuEmailArray = [],
+						committeePointsArray = [];
+
+					for(var i=0; i<entries.length; i++){
+						name = entries.eq(i).val();
+						if(name.length > 0){
+							nuEmailArray.push(slivkans[slivkans.indexOfKey('full_name', name)].nu_email);
+						}
+
+						if(isCommittee){
+							pts = committeePoints.eq(i).val();
+							committeePointsArray.push(pts);
+						}
+					}
+
+					if(isCommittee){
+						formData = {
+							committee: committee,
+							slivkans: nuEmailArray,
+							points: committeePointsArray
+						};
+					} else {
+						formData = {
+							suite: suite,
+							slivkans: nuEmailArray
+						};
+					}
+					$.post(
+						'./ajax/submitCommitteeOrSuite.php',
+						formData,
+						function(response){
+							if (response == '1') {
+								$('#editCommitteeOrSuite').modal('hide');
+								window.alert('Success!');
+							} else {
+								window.alert(response);
+							}
+						}
+					);
+
+					return false;
+				});
+			});
+		},
+		submitConfigOrQuarterInfo: function(name, value, confirmMessage) {
+			if (window.confirm(confirmMessage)) {
+				$.post('./ajax/submitConfigOrQuarterInfo.php', { name: name, value: value }, function(status) {
+					if (status == '1') {
+						window.location.reload();
+					} else {
+						window.alert(status);
+					}
+				});
+			}
+		},
+		slivkanTypeahead: function() {
+			var target = $(this);
+
+			if(target.closest('.slivkan-entry-control').addClass('has-warning').is(':last-child')){
+				var num_inputs = $('#slivkan-entry-tab').find('.slivkan-entry').length;
+				if(num_inputs < 20){
+					submission.appendSlivkanInputs(1);
+				}
+			}
+			if(!target.hasClass('tt-query')){
+				target.typeahead(typeaheadOpts('slivkans', slivkans)).focus();
+			}
+
+			return false;
+		},
+		validateSlivkanName: function(entry) {
+			var valid = true,
+			slivkan_entry = entry.find('.slivkan-entry'),
+			name = slivkan_entry.val();
+
+			var nameArray = [];
+
+			//clear duplicates
+			$('#slivkan-entry-tab').find('.slivkan-entry').each(function() {
+				var self = $(this);
+				if(self.val().length > 0){
+					if(nameArray.indexOf(self.val()) == -1){
+						nameArray.push(self.val());
+					}else{
+						self.val('');
+						$('#duplicate-alert').show();
+						submission.validateSlivkanName(self.parent(), true);
+					}
+				}
+			});
+
+			//no names = invalid
+			if(nameArray.length === 0){ valid = false; }
+
+			if(name.length > 0){
+				if(slivkans.indexOfKey('full_name', name) == -1){ valid=false; }
+				updateValidity(entry, valid);
+			}else{
+				updateValidity(entry, null);
+			}
+
+			return valid;
+		},
+		addSlivkans: function(data) {
+			var entries = $('.slivkan-entry-control', '#slivkan-entry-tab'),
+				len = data.length;
+
+			entries.find('.slivkan-entry').val('');
+
+			if(entries.length <= len){
+				submission.appendSlivkanInputs(len - entries.length + 1);
+				entries = $('.slivkan-entry-control', '#slivkan-entry-tab');
+			}
+
+			for(var i=0; i<len; i++){
+				var entry = entries.eq(i),
+					name = slivkans[slivkans.indexOfKey('nu_email', data[i].nu_email)].full_name;
+				entry.find('.slivkan-entry').val(name);
+				if(data[i].committee){
+					entry.find('.committee-points').val(data[i].committee);
+				}
+				admin.validateSlivkanName(entry);
+			}
+
+			for(i; i<entries.length; i++){
+				admin.validateSlivkanName(entries.eq(i));
+			}
+		}
 	};
 
 	return {
@@ -1759,7 +2048,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 		faq: faq,
 		inboundPoints: inboundPoints,
 		rankings: rankings,
-		updateSlivkans: updateSlivkans,
-		committeeHeadquarters: committeeHeadquarters
+		committeeHeadquarters: committeeHeadquarters,
+		admin: admin
 	};
 });

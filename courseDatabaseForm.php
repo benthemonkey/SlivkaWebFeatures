@@ -1,11 +1,22 @@
+<?php
+include_once "./ajax/PointsCenter.php";
+$points_center = new \Slivka\PointsCenter();
+
+$showall = isset($_GET['all']) ? $_GET['all'] == '1' : false;
+
+$quarters = $points_center->getQuarters();
+
+// Only show most recent 3 quarters for selection
+$quarters = array_slice($quarters, 0, 3);
+?>
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
-	<?php include('header.html'); ?>
+	<?php include 'header.html'; ?>
 	<title>Course Database Form</title>
 </head>
 <body style="background: none;">
-	<img class="pull-right" title="This Week's Schedule" src="http://slivka.northwestern.edu/wp-content/uploads/2013/03/Screen-Shot-2013-03-04-at-1.23.09-PM1.png" width="290" height="285" />
+	<img class="pull-right" title="This Week's Schedule" src="/wordpress/wp-content/uploads/2013/03/Screen-Shot-2013-03-04-at-1.23.09-PM1.png" width="290" height="285" />
 	<ol>
 		<li>Sign into Caesar: <a title="http://www.northwestern.edu/caesar" href="http://www.northwestern.edu/caesar" target="_blank">http://www.northwestern.edu/caesar/</a></li>
 		<li>Click "Enrollment" and select the upcoming quarter.</li>
@@ -38,9 +49,11 @@
 		<div class="form-group">
 			<label for="qtr">Quarter:</label>
 			<select name="qtr" class="form-control">
-				<option value="1402">Spring 2014</option>
-				<option value="1401">Winter 2014</option>
-				<option value="1303">Fall 2013</option>
+				<?php
+                foreach ($quarters as $q) {
+                    echo '<option value="' . $q['qtr'] . '">' . $q['quarter'] . '</option>';
+                }
+                ?>
 				<option value="0">Previous Quarter</option>
 			</select>
 		</div>
@@ -56,8 +69,8 @@
 	<script type="text/javascript">
 	//add indexOfKey (useful: http://jsperf.com/js-for-loop-vs-array-indexof)
 	Array.prototype.indexOfKey = function (key, value) {
-		for(var i=0; i < this.length; i++){
-			if(this[i][key] === value){
+		for (var i=0; i < this.length; i++) {
+			if (this[i][key] === value) {
 				return i;
 			}
 		}
@@ -67,8 +80,8 @@
 
 	window.slivkans = [];
 
-	$(document).ready(function(){
-	    $.getJSON("ajax/getSlivkans.php",function(data){
+	$(document).ready(function () {
+	    $.getJSON("ajax/getSlivkans.php",function (data) {
 	        slivkans = data.slivkans;
 
 	        $("#name").typeahead({
@@ -79,43 +92,46 @@
 	    });
 	});
 
-	function courseDatabaseFormValidate(){
+	function courseDatabaseFormValidate()
+	{
 	    var isvalid = true;
 
-	    if (!validateName()){ isvalid = false; }
+	    if (!validateName()) { isvalid = false; }
 	    if (!validateCourses()) { isvalid = false; }
 	    return isvalid;
 	}
 
-	function validateName(){
+	function validateName()
+	{
 	    var valid = false,
 	    name = $("#name").val(),
 	    ind = slivkans.indexOfKey("full_name",name);
 
 	    valid = ind != -1;
 
-	    if (valid){
+	    if (valid) {
 	    	$("#nu_email").val(slivkans[ind].nu_email);
 	        $("#name-error").fadeOut();
-	    }else{
+	    } else {
 	        $("#name-error").fadeIn();
 	    }
 
 	    return valid;
 	}
 
-	function validateCourses(){
+	function validateCourses()
+	{
 	    var valid = false,
-	    patt = /([A-Z_]{4,9} \d{3}-\d-\d{2})/gm,
+	    patt = /([A-Z_&]{2,9} \d{3}-\d-\d{2})/gm,
 
 	    matched = $("#courses").val().match(patt);
 
-	    if (matched){
+	    if (matched) {
 	        valid = true;
 	        $("#courses").val(matched.join("; "));
 	        $("#matched").html(matched.length);
 	        $("#courses-error").fadeOut();
-	    }else{
+	    } else {
 	        $("#courses-error").fadeIn();
 	    }
 
