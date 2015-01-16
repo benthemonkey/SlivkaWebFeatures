@@ -201,7 +201,7 @@
 				</div>
 				<div id="confirmed" style="display: none;">
 					<span>If an error occurs, email the receipt to the VP.</span>
-					<a href="table.php" class="btn btn-primary">View Points</a>
+					<a href="../table/" class="btn btn-primary">View Points</a>
 				</div>
 			</div>
 		</div>

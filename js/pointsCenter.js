@@ -81,7 +81,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('#slivkan').on('change', breakdown.getSlivkanPoints);
 				$('#qtr').on('change', function() {
 					localStorage.spc_brk_qtr = $(this).val();
-					window.location.href = 'breakdown.php';
+					window.location.reload();
 				});
 			});
 		},
@@ -468,8 +468,8 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			$.post(root + '/ajax/sendPointsCorrection.php', data, function(response) {
 				$('#response').text('Response: '+response.message);
-				$('#form-actions').html('<a class="btn btn-primary" href="table.php">View Points</a>' +
-					'<a class="btn btn-default" href="correction.php">Submit Another</a>');
+				$('#form-actions').html('<a class="btn btn-primary" href="../table/">View Points</a>' +
+					'<a class="btn btn-default" href="../correction/">Submit Another</a>');
 				$('#response').fadeIn();
 			}, 'json');
 		}
