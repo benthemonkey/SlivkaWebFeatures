@@ -2,6 +2,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 	'use strict';
 	var slivkans, nicknames, fellows, events, qtrs, //quarter_start, quarter_end,
 		type = 'Other',
+		root = '/points',
 		valid_event_name = false,
 		slivkanNameExists = function(name) {
 			if(name.length === 0){
@@ -27,7 +28,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				valueKey: 'full_name',
 				local: slivkans,
 				template: ['<div class="slivkan-suggestion{{#dupe}} slivkan-dupe{{/dupe}}">{{full_name}}',
-							'{{#photo}}<img src="img/slivkans/{{photo}}" />{{/photo}}</div>'].join(''),
+							'{{#photo}}<img src="/points/img/slivkans/{{photo}}" />{{/photo}}</div>'].join(''),
 				engine: Hogan
 			};
 		},
@@ -54,7 +55,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 	var breakdown = {
 		init: function() {
-			$.getJSON('./ajax/getSlivkans.php', {qtr: localStorage.spc_brk_qtr}, function(data) {
+			$.getJSON(root + '/ajax/getSlivkans.php', {qtr: localStorage.spc_brk_qtr}, function(data) {
 				slivkans = data.slivkans;
 				qtrs = data.qtrs;
 				// quarter_start = data.quarter_info.start_date;
@@ -80,7 +81,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('#slivkan').on('change', breakdown.getSlivkanPoints);
 				$('#qtr').on('change', function() {
 					localStorage.spc_brk_qtr = $(this).val();
-					window.location.href = 'breakdown.php';
+					window.location.reload();
 				});
 			});
 		},
@@ -98,7 +99,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					unattendedEventsEl.empty();
 					$('#otherPointsTableBody').empty();
 
-					$.getJSON('./ajax/getPointsBreakdown.php', {nu_email: nu_email, qtr: qtr}, function(data) {
+					$.getJSON(root + '/ajax/getPointsBreakdown.php', {nu_email: nu_email, qtr: qtr}, function(data) {
 						var i, eventData = [],
 							imData = [],
 							event_total = 0,
@@ -402,7 +403,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 	correction = {
 		init: function() {
-			$.getJSON('./ajax/getSlivkans.php', function(data) {
+			$.getJSON(root + '/ajax/getSlivkans.php', function(data) {
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 
@@ -417,7 +418,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('#filled-by').typeahead(typeaheadOpts('slivkans', slivkans));
 			});
 
-			$.getJSON('./ajax/getRecentEvents.php', function(events) {
+			$.getJSON(root + '/ajax/getRecentEvents.php', function(events) {
 				for(var i=events.length-1; i>=0; i--){
 					// if(events[i].type == 'p2p'){
 					// 	$('<option disabled="disabled"></option>').text(events[i].event_name).appendTo('#event-name');
@@ -465,10 +466,10 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			};
 			$('#response').fadeOut();
 
-			$.post('./ajax/sendPointsCorrection.php', data, function(response) {
+			$.post(root + '/ajax/sendPointsCorrection.php', data, function(response) {
 				$('#response').text('Response: '+response.message);
-				$('#form-actions').html('<a class="btn btn-primary" href="table.php">View Points</a>' +
-					'<a class="btn btn-default" href="correction.php">Submit Another</a>');
+				$('#form-actions').html('<a class="btn btn-primary" href="../table/">View Points</a>' +
+					'<a class="btn btn-default" href="../correction/">Submit Another</a>');
 				$('#response').fadeIn();
 			}, 'json');
 		}
@@ -484,7 +485,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				}
 			});
 
-			$.getJSON('./ajax/getSlivkans.php', function(data) {
+			$.getJSON(root + '/ajax/getSlivkans.php', function(data) {
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 				fellows = data.fellows;
@@ -789,7 +790,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			}else if((event_name.length <= 32 && event_name.length >= 8) || (type == 'P2P' && event_name == 'P2P')){
 				event_name += ' ' + $('#date').val();
 
-				$.getJSON('./ajax/getRecentEvents.php', function(events) {
+				$.getJSON(root + '/ajax/getRecentEvents.php', function(events) {
 					if(events.length > 0 && events.indexOfKey('event_name', event_name) != -1){
 						if(type == 'IM'){
 							var last = parseInt(eventEl.val().slice(-1), 10);
@@ -817,7 +818,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 		},
 		validateIMTeam: function() {
 			var im_team = $('#im-team').val();
-			$.getJSON('./ajax/getIMs.php', {team: im_team}, function(events) {
+			$.getJSON(root + '/ajax/getIMs.php', {team: im_team}, function(events) {
 				$('#event').val(im_team + ' ' + (events.length + 1));
 				$('#description').val(im_team.split(' ')[1]);
 				submission.validateEventName();
@@ -1182,7 +1183,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			real_submit.on('click', function() {
 				real_submit.button('loading');
 
-				$.post('./ajax/submitPointsForm.php', data, function(data_in) {
+				$.post(root + '/ajax/submitPointsForm.php', data, function(data_in) {
 					real_submit.button('reset');
 					$('#results-status').parent().removeClass('has-warning');
 					if(data_in.error){
@@ -1214,7 +1215,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 	inboundPoints = {
 		init: function() {
 			$.ajax({
-				url: './ajax/getCalendar.php',
+				url: root + '/ajax/getCalendar.php',
 				type: 'xml',
 				async: true,
 				success: function(xml) {
@@ -1245,7 +1246,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 	rankings = {
 		init: function() {
-			$.getJSON('./ajax/getRankings.php', function(data) {
+			$.getJSON(root + '/ajax/getRankings.php', function(data) {
 				var males = [], females = [], tmp, row, i, j, mtable, ftable,
 					numQtrs = data.qtrs.length,
 					cutoffNum = 39,
@@ -1363,6 +1364,177 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 					return 'Spring 20' + yr;
 				case 3:
 					return 'Fall 20' + yr;
+			}
+		}
+	},
+
+	updateSlivkans = {
+		init: function() {
+			$.getJSON(root + '/ajax/getSlivkans.php', function(data) {
+				slivkans = data.slivkans;
+				nicknames = data.nicknames;
+
+				//tack on nicknames to slivkans
+				for(var i=0; i<nicknames.length; i++){
+					var ind = slivkans.indexOfKey('nu_email', nicknames[i].nu_email);
+					if(ind !== -1){
+						slivkans[ind].tokens.push(nicknames[i].nickname);
+					}
+				}
+
+				submission.appendSlivkanInputs(9);
+
+				$('#slivkan-entry-tab')	.on('focus', '.slivkan-entry', updateSlivkans.slivkanTypeahead)
+										.on('typeahead:closed', '.slivkan-entry.tt-query',
+											{callback: updateSlivkans.validateSlivkanName},
+											destroyTypeahead);
+			});
+
+			$('#committee').on('change', function(event){
+				$('#suite').val('');
+				$('.committee-points').val(0).show();
+
+				if(event.target.value.length > 0){
+					$.getJSON(root + '/ajax/getCommitteeOrSuite.php', {committee: event.target.value}, updateSlivkans.addSlivkans);
+				}
+			});
+
+			$('#suite').on('change', function(event){
+				$('#committee').val('');
+				$('.committee-points').hide();
+
+				if(event.target.value.length > 0){
+					$.getJSON(root + '/ajax/getCommitteeOrSuite.php', {suite: event.target.value}, updateSlivkans.addSlivkans);
+				}
+			});
+
+			$('#submit').on('click', function(){
+				var name, pts,
+					entries = $('#slivkan-entry-tab').find('.slivkan-entry'),
+					committeePoints = $('.committee-points'),
+					committee = $('#committee').val(),
+					suite = $('#suite').val(),
+					nuEmailArray = [],
+					committeePointsArray = [];
+
+				for(var i=0; i<entries.length; i++){
+					name = entries.eq(i).val();
+					if(name.length > 0){
+						nuEmailArray.push(slivkans[slivkans.indexOfKey('full_name', name)].nu_email);
+					}
+
+					if(committee.length > 0){
+						pts = committeePoints.eq(i).val();
+						committeePointsArray.push(pts);
+					}
+				}
+
+				if(committee.length > 0){
+					$.post(
+						root + '/ajax/submitCommitteeOrSuite.php',
+						{
+							committee: committee,
+							slivkans: nuEmailArray,
+							points: committeePointsArray
+						},
+						function(data){
+							window.alert(data);
+						}
+					);
+				}else if(suite.length > 0){
+					$.post(
+						root + '/ajax/submitCommitteeOrSuite.php',
+						{
+							suite: suite,
+							slivkans: nuEmailArray
+						},
+						function(data){
+							window.alert(data);
+						}
+					);
+				}
+			});
+		},
+		slivkanTypeahead: function() {
+			var target = $(this);
+
+			if(target.closest('.slivkan-entry-control').addClass('has-warning').is(':last-child')){
+				var num_inputs = $('#slivkan-entry-tab').find('.slivkan-entry').length;
+				if(num_inputs < 20){
+					submission.appendSlivkanInputs(1);
+				}
+			}
+			if(!target.hasClass('tt-query')){
+				target.typeahead(typeaheadOpts('slivkans', slivkans)).focus();
+			}
+		},
+		validateSlivkanName: function(entry) {
+			var valid = true,
+			slivkan_entry = entry.find('.slivkan-entry'),
+			name = slivkan_entry.val(),
+			nickname_ind = nicknames.indexOfKey('nickname', name);
+
+			if(nickname_ind != -1){
+				name = slivkans[slivkans.indexOfKey('nu_email', nicknames[nickname_ind].nu_email)].full_name;
+				slivkan_entry.val(name);
+			}
+
+			var nameArray = [];
+
+			//clear duplicates
+			$('#slivkan-entry-tab').find('.slivkan-entry').each(function() {
+				var self = $(this);
+				if(self.val().length > 0){
+					if(nameArray.indexOf(self.val()) == -1){
+						nameArray.push(self.val());
+					}else{
+						self.val('');
+						$('#duplicate-alert').show();
+						submission.validateSlivkanName(self.parent(), true);
+					}
+				}
+			});
+
+			//no names = invalid
+			if(nameArray.length === 0){ valid = false; }
+
+			//update name in case it changed
+			name = slivkan_entry.val();
+
+			entry.removeClass('has-warning');
+
+			if(name.length > 0){
+				if(slivkans.indexOfKey('full_name', name) == -1){ valid=false; }
+				updateValidity(entry, valid);
+			}else{
+				entry.removeClass('has-success has-error');
+			}
+
+			return valid;
+		},
+		addSlivkans: function(data) {
+			var entries = $('#slivkan-entry-tab').find('.slivkan-entry-control'),
+				len = data.length;
+
+			entries.find('.slivkan-entry').val('');
+
+			if(entries.length <= len){
+				submission.appendSlivkanInputs(len - entries.length + 1);
+				entries = $('#slivkan-entry-tab').find('.slivkan-entry-control');
+			}
+
+			for(var i=0; i<len; i++){
+				var entry = entries.eq(i),
+					name = slivkans[slivkans.indexOfKey('nu_email', data[i].nu_email)].full_name;
+				entry.find('.slivkan-entry').val(name);
+				if(data[i].committee){
+					entry.find('.committee-points').val(data[i].committee);
+				}
+				updateSlivkans.validateSlivkanName(entry);
+			}
+
+			for(i; i<entries.length; i++){
+				updateSlivkans.validateSlivkanName(entries.eq(i));
 			}
 		}
 	},
@@ -1520,7 +1692,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 
 			$.ajax({
 				type: 'POST',
-				url: './ajax/submitCommitteePoint.php',
+				url: root + '/ajax/submitCommitteePoint.php',
 				context: this,
 				data: {
 					nu_email: this.openPopover.parent().data('slivkan'),
@@ -1563,7 +1735,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			data[extra] = $('#' + id + '-' + extra).val();
 
 			$('#' + id + '-form').find('button[type=submit]').button('loading');
-			$.post('./ajax/' + form + '.php', data, function(status) {
+			$.post(root + '/ajax/' + form + '.php', data, function(status) {
 				$('#' + id + '-form').find('button[type=submit]').button('reset');
 				if(status == '1'){
 					window.alert('Success!');

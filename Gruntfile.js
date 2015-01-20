@@ -75,6 +75,8 @@ module.exports = function(grunt) {
 					'css/<%= pkg.name %>.built.css': [
 						'css/bootstrap.css',
 						'css/bootstrap-theme.css',
+						'css/font-awesome.css',
+						'css/font-awesome-social.css',
 						'css/typeahead.js-bootstrap.css',
 						'css/nprogress.css',
 						'css/bootstrap-multiselect.css',

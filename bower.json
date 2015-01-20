@@ -14,7 +14,8 @@
     "nprogress": "0.1.2",
     "moment": "*",
     "bootstrap-multiselect": "*",
-    "add-to-homescreen": "2.0.11"
+    "add-to-homescreen": "2.0.11",
+    "font-awesome": "4.x"
   },
   "devDependencies": {
     "qunit": "*",

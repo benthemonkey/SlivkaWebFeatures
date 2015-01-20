@@ -56,10 +56,10 @@ require([
 	'typeahead'
 ], function($, spc, NProgress) {
 	'use strict';
-	var page = new RegExp('\\/([a-z]+)(\\.php)?$', 'i').exec(window.location.pathname);
+	var page = window.location.pathname.split('/');
 
 	if (page) {
-		page = page[1];
+		page = page[2];
 	} else {
 		page = 'breakdown';
 	}
