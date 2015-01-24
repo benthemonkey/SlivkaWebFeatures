@@ -1,5 +1,4 @@
 <?php
-ini_set('display_errors', '1');
 include_once __dir__ . "/ajax/PointsCenter.php";
 $points_center = new \Slivka\PointsCenter();
 

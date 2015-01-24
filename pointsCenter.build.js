@@ -56,10 +56,10 @@ require([
 	'typeahead'
 ], function($, spc, NProgress) {
 	'use strict';
-	var page = window.location.pathname.split('/');
+	var page = (/(\w+)(\.php|\/)$/).exec(window.location.pathname);
 
 	if (page) {
-		page = page[2];
+		page = page[1];
 	} else {
 		page = 'breakdown';
 	}
