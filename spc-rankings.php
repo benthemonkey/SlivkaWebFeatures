@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="./bower_components/datatables/media/css/jquery.dataTables.css" />
 <style>
 	body {
 		min-width: 600px;
