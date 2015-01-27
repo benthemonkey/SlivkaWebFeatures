@@ -821,13 +821,17 @@ class PointsCenter
         $abstentions = self::getAbstentions();
         $rankings = self::getMultipliers();
 
-        $totals = self::fetchAllQuery(
-            "SELECT nu_email,total
-                FROM totals
-                WHERE qtr IN (".implode(",", $qtrs).")
-                ORDER BY qtr",
-            PDO::FETCH_GROUP| PDO::FETCH_COLUMN
-        );
+        $totals = array();
+
+        foreach ($qtrs as $qtr) {
+            $totals[$qtr] = self::fetchAllQuery(
+                "SELECT nu_email,total
+                    FROM totals
+                    WHERE qtr=".$qtr."
+                    ORDER BY qtr",
+                PDO::FETCH_KEY_PAIR
+            );
+        }
 
         $house_meetings;
 
@@ -846,10 +850,16 @@ class PointsCenter
 
         $mult_count = count($rankings);
         $qtrs_count = count($qtrs);
+
         for ($i=0; $i<$mult_count; $i++) {
             $sum = 0;
             for ($j=0; $j<$qtrs_count; $j++) {
-                $t = (int) $totals[$rankings[$i]['nu_email']][$j] or 0;
+                if (array_key_exists($rankings[$i]['nu_email'], $totals[$qtrs[$j]])) {
+                    $t = (int) $totals[$qtrs[$j]][$rankings[$i]['nu_email']];
+                } else {
+                    $t = 0;
+                }
+
                 $rankings[$i][$qtrs[$j]] = $t;
                 $sum += $t;
             }
