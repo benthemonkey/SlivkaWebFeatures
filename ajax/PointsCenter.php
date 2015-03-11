@@ -883,7 +883,7 @@ class PointsCenter
 
             $rankings[$i]['total'] = $sum;
             $rankings[$i]['total_w_mult'] = $sum * $rankings[$i]['mult'];
-            $rankings[$i]['abstains'] = in_array($rankings[$i]['nu_email'], $abstentions);# ||
+            $rankings[$i]['abstains'] = in_array($rankings[$i]['nu_email'], $abstentions) ||
                                             $rankings[$i]['total'] < $minimum;
         }
 
