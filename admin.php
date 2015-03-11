@@ -148,7 +148,7 @@ function getSlivkanName($slivkans, $nu_email)
 									<tr>
 										<td>Housing Selection
 											<a href="#" tabindex="0" role="button" data-trigger="hover" data-toggle="popover"
-												data-content="At the beginning of Spring Quarter, set to True until after Housing Selection">?</a>
+												data-content="At the beginning of Spring Quarter, set to True until after Housing Selection. This will show the previous housing year's rankings.">?</a>
 										</td>
 										<td><?= $config['is_housing'] == 'true' ? 'True' : 'False' ?></td>
 										<td><a href="#" data-edit-toggle="is_housing" data-value="<?= $config['is_housing'] ?>">Toggle</a></td>

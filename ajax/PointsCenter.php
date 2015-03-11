@@ -766,10 +766,9 @@ class PointsCenter
             $q_total = $q_acc + 3 * $y_acc - $slivkans[$s]['qtrs_away'];
 
             // give multiplier for current qtr if it isnt housing
-            // (commented because it makes more sense that multiplier increases at end of qtr)
-            // if (!$is_housing) {
-            //     $q_total += 1;
-            // }
+            if (!$is_housing) {
+                $q_total += 1;
+            }
 
             // figure out if they are a non res freshman
             // NOTE: If not completing a 4-year program, this code mistakes the person for being a sophomore
@@ -833,26 +832,20 @@ class PointsCenter
             );
         }
 
-        $house_meetings;
-
-        try {
-            $statement = self::$dbConn->prepare(
-                "SELECT count(type)
-                FROM events
-                WHERE qtr IN (".implode(",", $qtrs).") AND type='house_meeting'"
-            );
-            $statement->execute();
-            $house_meetings = $statement->fetch(PDO::FETCH_COLUMN);
-        } catch (PDOException $e) {
-            echo "Error: " . $e->getMessage();
-            die();
-        }
+        $house_meetings = self::fetchAllQuery(
+            "SELECT qtr,count(*) AS 'count'
+            FROM events
+            WHERE qtr IN (".implode(",", $qtrs).") AND type='house_meeting'
+            GROUP BY qtr",
+            PDO::FETCH_KEY_PAIR
+        );
 
         $mult_count = count($rankings);
         $qtrs_count = count($qtrs);
 
         for ($i=0; $i<$mult_count; $i++) {
             $sum = 0;
+            $minimum = 0;
             for ($j=0; $j<$qtrs_count; $j++) {
                 if (array_key_exists($rankings[$i]['nu_email'], $totals[$qtrs[$j]])) {
                     $t = (int) $totals[$qtrs[$j]][$rankings[$i]['nu_email']];
@@ -864,10 +857,34 @@ class PointsCenter
                 $sum += $t;
             }
 
+            switch ($qtrs_count) {
+                case 1:
+                    $minimum = (int)$house_meetings[$qtrs[0]];
+                    break;
+                case 2:
+                    if ($rankings[$i]['qtr_joined'] != $qtrs[1]) {
+                        $minimum = (int)$house_meetings[$qtrs[0]];
+                    }
+
+                    $minimum += (int)$house_meetings[$qtrs[1]];
+                    break;
+                case 3:
+                    if ($rankings[$i]['qtr_joined'] != $qtrs[1] && $rankings[$i]['qtr_joined'] != $qtrs[2]) {
+                        $minimum = (int)$house_meetings[$qtrs[0]];
+                    }
+
+                    if ($rankings[$i]['qtr_joined'] != $qtrs[2]) {
+                        $minimum += (int)$house_meetings[$qtrs[1]];
+                    }
+
+                    $minimum += (int)$house_meetings[$qtrs[2]];
+                    break;
+            }
+
             $rankings[$i]['total'] = $sum;
             $rankings[$i]['total_w_mult'] = $sum * $rankings[$i]['mult'];
-            $rankings[$i]['abstains'] = in_array($rankings[$i]['nu_email'], $abstentions) ||
-                                            $rankings[$i]['total'] < $house_meetings;
+            $rankings[$i]['abstains'] = in_array($rankings[$i]['nu_email'], $abstentions);# ||
+                                            $rankings[$i]['total'] < $minimum;
         }
 
         return array('rankings' => $rankings, 'qtrs' => $qtrs, 'is_housing' => $is_housing);
@@ -916,15 +933,15 @@ class PointsCenter
 
         #round up to closest "YY02"
         if ($q == 3) {
-            $qtr_final = round(self::$qtr, -2) + 100 + 2;
+            $last_qtr_in_academic_year = round(self::$qtr, -2) + 100 + 2;
         } else {
-            $qtr_final = round(self::$qtr, -2) + 2;
+            $last_qtr_in_academic_year = round(self::$qtr, -2) + 2;
         }
 
         return self::fetchAllQuery(
-            "SELECT nu_email FROM slivkans WHERE qtr_final>=:qtr AND qtr_final<=:qtr_final",
+            "SELECT nu_email FROM slivkans WHERE qtr_final>=:qtr AND qtr_final<=:last_qtr_in_academic_year",
             PDO::FETCH_COLUMN,
-            array(":qtr_final" => $qtr_final)
+            array(":last_qtr_in_academic_year" => $last_qtr_in_academic_year)
         );
     }
 
