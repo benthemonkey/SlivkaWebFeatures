@@ -1572,8 +1572,8 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 						value: el.text(),
 						contributions: true,
 						contributions_list: [
-							{ pts: 0.5, title: 'Attended',		disabled: 'disabled', selected: el.hasClass('green') || el.hasClass('blue') },
-							{ pts: 0.5, title: 'Took Points',	disabled: 'disabled', selected: el.hasClass('blue') },
+							/*{ pts: 0.0, title: 'Attended',		disabled: 'disabled', selected: el.hasClass('green') || el.hasClass('blue') },
+							{ pts: 0.5, title: 'Took Points',	disabled: 'disabled', selected: el.hasClass('blue') },*/
 							{ pts: 1.5, title: 'Planned event',	value: 'plan', selected: check('plan') },
 							{ pts: 2.0, title: 'Ran event',		value: 'ran', selected: check('ran') },
 							{ pts: 1.0, title: 'Poster',		value: 'poster', selected: check('poster') },
@@ -1872,7 +1872,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				return false;
 			});
 
-			$.getJSON('./ajax/getSlivkans.php', function(data) {
+			$.getJSON(root + '/ajax/getSlivkans.php', function(data) {
 				slivkans = data.slivkans;
 				nicknames = data.nicknames;
 
@@ -1894,13 +1894,13 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 				$('[data-edit-committee]').on('click', function() {
 					$('.committee-points').val(0).show();
 					$('#editCommitteeOrSuite').data('is-committee', true);
-					$.getJSON('./ajax/getCommitteeOrSuite.php', {committee: $('#edit-committee').val()}, admin.addSlivkans);
+					$.getJSON(root + '/ajax/getCommitteeOrSuite.php', {committee: $('#edit-committee').val()}, admin.addSlivkans);
 				});
 
 				$('[data-edit-suite]').on('click', function() {
 					$('.committee-points').hide();
 					$('#editCommitteeOrSuite').data('is-committee', false);
-					$.getJSON('./ajax/getCommitteeOrSuite.php', {suite: $('#edit-suite').val()}, admin.addSlivkans);
+					$.getJSON(root + '/ajax/getCommitteeOrSuite.php', {suite: $('#edit-suite').val()}, admin.addSlivkans);
 				});
 
 				$('#editCommitteeOrSuite form').on('submit', function() {
@@ -1938,7 +1938,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 						};
 					}
 					$.post(
-						'./ajax/submitCommitteeOrSuite.php',
+						root + '/ajax/submitCommitteeOrSuite.php',
 						formData,
 						function(response){
 							if (response == '1') {
@@ -1956,7 +1956,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 		},
 		submitConfigOrQuarterInfo: function(name, value, confirmMessage) {
 			if (window.confirm(confirmMessage)) {
-				$.post('./ajax/submitConfigOrQuarterInfo.php', { name: name, value: value }, function(status) {
+				$.post(root + '/ajax/submitConfigOrQuarterInfo.php', { name: name, value: value }, function(status) {
 					if (status == '1') {
 						window.location.reload();
 					} else {

@@ -1243,7 +1243,7 @@ class PointsCenter
             }
         }*/
 
-        if ($form_data['committee_members'][0] != "") {
+        /*if ($form_data['committee_members'][0] != "") {
             try {
                 $statement = self::$dbConn->prepare(
                     "INSERT INTO committeepoints (nu_email, event_name, points, qtr)
@@ -1258,7 +1258,7 @@ class PointsCenter
                 self::$dbConn->rollBack();
                 die();
             }
-        }
+        }*/
 
         if ($form_data['fellows'][0] != "") {
             try {
