@@ -40,7 +40,7 @@ function getFullName($slivkans, $nu_email)
 		$committees = array("Academic", "Facilities", "Faculty", "IT", "Philanthropy", "Publications", "Social");
 
 		for ($i=0; $i<count($committees); $i++) {
-			echo $indent . '<li><a href="./committeeHeadquarters.php?committee=' . $committees[$i] . '">' . $committees[$i] . "</a></li>\n";
+			echo $indent . '<li><a href="/points/committee-headquarters/?committee=' . $committees[$i] . '">' . $committees[$i] . "</a></li>\n";
 		}
 		?>
 	</ul>
