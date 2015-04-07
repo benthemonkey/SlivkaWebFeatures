@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="./bower_components/datatables/media/css/jquery.dataTables.css" />
+<link rel="stylesheet" href="../bower_components/datatables/media/css/jquery.dataTables.css" />
 <style>
 	body {
 		min-width: 600px;
@@ -31,18 +31,14 @@
 <div class="col-lg-12">
 		<div class="row">
 		<div class="col-lg-12 alert alert-info">
-			<h4 style="text-align: center;">The Points Quarter is over. You have until Sunday, 3/23, to challenge the posted totals by emailing the VP.</h4>
-			<!--<h4>Disclaimers! The following information may <strong><em>increase</em></strong> between now and Housing:</h4>
+			<h4>39 Males and 39 Females will return, with 4 additional Slivkans determined based on Total w/ Multiplier.</h4>
+			<h4>Disclaimers! The following information may <strong><em>increase</em></strong> between now and Housing:</h4>
 			<ul>
-				<li>The number of Slivkan males/females allowed to return</li>
 				<li>Additional Slivkans abstaining</li>
 				<li>Committee Points</li>
-				<li>Special Position Points (e.g. Eco Rep)</li>
+				<li>Appointed Position Points (e.g. Eco Rep)</li>
 				<li>Event Points for the rest of the quarter</li>
-			</ul>-->
-			<p style="margin-top: 10px; text-align: center;">
-				39 Males and 39 Females will return, with 4 additional Slivkans determined based on Total w/ Multiplier.
-			</p>
+			</ul>
 		</div>
 	</div>
 	<div class="row" style="margin-bottom:10px">
@@ -70,4 +66,3 @@
 </div>
 <div class="clearfix"></div>
 <?php include('credits.html'); ?>
-<?php include('footer.html'); ?>
