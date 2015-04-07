@@ -606,7 +606,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 			$('#bulk-names')		.on('keyup',	submission.processBulkNames);
 			$('#add-bulk-names')	.on('click',	submission.addBulkNames);
 
-			$('#tabs a:first').tab('show');
+			$('#tabs').find('a:first').tab('show');
 		},
 		handlers: {
 			addClassWarning: function() {
@@ -2048,7 +2048,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan) {
 		faq: faq,
 		inboundPoints: inboundPoints,
 		rankings: rankings,
-		committeeHeadquarters: committeeHeadquarters,
+		'committee-headquarters': committeeHeadquarters,
 		admin: admin
 	};
 });

@@ -1,0 +1,14 @@
+DirectoryIndex index.html breakdown.php
+
+<IfModule mod_rewrite.c>
+RewriteEngine on
+RewriteBase /points/
+RewriteRule breakdown/$  /points/base.php?page=breakdown [PT]
+RewriteRule table/$  /points/base.php?page=table [PT]
+RewriteRule correction/$  /points/base.php?page=correction [PT]
+RewriteRule submission/$  /points/base.php?page=submission [PT]
+RewriteRule faq/$  /points/base.php?page=faq [PT]
+RewriteRule committee-headquarters/$  /points/base.php?page=committee-headquarters [PT]
+RewriteRule admin/$  /points/base.php?page=admin [PT]
+
+</IfModule>

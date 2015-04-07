@@ -56,7 +56,7 @@ require([
 	'typeahead'
 ], function($, spc, NProgress) {
 	'use strict';
-	var page = (/(\w+)(\.php|\/)$/).exec(window.location.pathname);
+	var page = (/([\-a-z]+)(\.php|\/)$/).exec(window.location.pathname);
 
 	if (page) {
 		page = page[1];
