@@ -498,7 +498,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan){
 			var i, date;
 
 			$(window).on('keydown',	function(event){
-				if(event.keyCode == 9){
+				if(event.keyCode == 9 && !event.shiftKey){
 					TAB_PRESSED = true;
 				}else if(event.keyCode == 13){ //prevent [Enter] from causing form submit
 					event.preventDefault();
@@ -586,12 +586,18 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan){
 				$('#slivkan-entry-tab')	.on('focus', '.slivkan-entry', submission.handlers.slivkanTypeahead)
 										.on('typeahead:closed', '.slivkan-entry.tt-query',
 											{ callback: submission.validateSlivkanName },
-											destroyTypeahead);
+											destroyTypeahead)
+										.on('typeahead:selected', '.slivkan-entry.tt-query', function(){
+												$(this).closest('.form-group').next().find('input').focus();
+											});
 
 				$('#fellow-entry-tab')	.on('focus', '.fellow-entry', submission.handlers.fellowTypeahead)
 										.on('typeahead:closed', '.fellow-entry.tt-query',
 											{ callback: submission.validateFellowName },
-											destroyTypeahead);
+											destroyTypeahead)
+										.on('typeahead:selected', '.fellow-entry.tt-query', function(){
+												$(this).closest('.form-group').next().find('input').focus();
+											});
 			});
 
 			/*$('#date').datepicker({
@@ -623,7 +629,10 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan){
 			$('#type')				.on('click',	submission.toggleType);
 			$('#event')				.on('focus',	submission.handlers.addClassWarning)
 									.on('focusout',	submission.validateEventName);
-			$('#date')				.on('change',	function(){ localStorage.spc_sub_date = $(this).val(); submission.validateEventName(); });
+			$('#date')				.on('change',	function(){
+														localStorage.spc_sub_date = $(this).val();
+														submission.validateEventName();
+													});
 			$('#im-team')			.on('change',	submission.validateIMTeam);
 			$('#committee')			.on('change',	submission.validateCommittee);
 			$('#description')		.on('focusout',	submission.validateDescription);
