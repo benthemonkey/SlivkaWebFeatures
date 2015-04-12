@@ -178,7 +178,7 @@ function getSlivkanName($slivkans, $nu_email)
 			</div>
 		</div>
 		<div class="col-sm-6">
-			<form id="upload-photo" role="form" method="post" action="./ajax/submitPhoto.php" enctype="multipart/form-data">
+			<form id="upload-photo" role="form" method="post" action="/points/ajax/submitPhoto.php" enctype="multipart/form-data">
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h4 class="panel-title">

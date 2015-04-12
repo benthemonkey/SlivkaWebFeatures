@@ -1,12 +1,16 @@
+<?php
+$page = isset($_GET['page']) ? $_GET['page'] : 'index';
+?>
+
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <link rel="stylesheet" href="../css/pointsCenter.built.min.css" />
+    <link rel="stylesheet" href="/points/css/pointsCenter.built.min.css" />
     <style type="text/css">
         body {
-            background: transparent url('../img/slivka-wallpaper-compressed.jpg') repeat;
+            background: transparent url('/points/img/slivka-wallpaper-compressed.jpg') repeat;
         }
 
         .content {
@@ -19,7 +23,7 @@
                     box-shadow: 7px 7px 7px rgba(50, 50, 50, 1);
         }
     </style>
-    <title>Development - Slivka Points Center</title>
+    <title><?= ucwords($page) ?> - Slivka Points Center</title>
 </head>
 <body>
 <div class="container">
@@ -27,7 +31,13 @@
         <?php include('nav.html'); ?>
         <div class="row">
             <div class="col-lg-12">
-                <?php include('spc-' . $_GET['page'] . '.php'); ?>
+                <?php
+                if ($page == 'index') {
+                    echo '<script type="text/javascript">window.location.href = "/points/breakdown/";</script>';
+                } else {
+                    include('spc-' . $_GET['page'] . '.php');
+                }
+                ?>
             </div>
         </div>
     </div>
