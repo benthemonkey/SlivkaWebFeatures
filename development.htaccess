@@ -1,4 +1,4 @@
-DirectoryIndex index.html breakdown.php
+DirectoryIndex index.html base.php
 
 <IfModule mod_rewrite.c>
 RewriteEngine on
