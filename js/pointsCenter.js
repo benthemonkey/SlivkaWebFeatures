@@ -429,11 +429,11 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan){
 
 			$.getJSON(root + '/ajax/getRecentEvents.php', function(events){
 				for(var i = events.length - 1; i >= 0; i--){
-					// if(events[i].type == 'p2p'){
-					// 	$('<option disabled="disabled"></option>').text(events[i].event_name).appendTo('#event-name');
-					// }else{
-					$('<option></option>').text(events[i].event_name).appendTo('#event-name');
-					//}
+					if(events[i].type == 'p2p'){
+						$('<option disabled="disabled"></option>').text(events[i].event_name).appendTo('#event-name');
+					}else{
+						$('<option></option>').text(events[i].event_name).appendTo('#event-name');
+					}
 				}
 			});
 
