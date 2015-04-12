@@ -205,5 +205,5 @@ for($i=0; $i<count($totalsColumns); $i++){ ?>
 </div>
 <script type="text/javascript">
 	window.qtr = <?php if($qtr){echo $qtr;}else{echo 'null';} ?>;
-	window.points_table = '<?php echo wordwrap(addslashes(json_encode(array("events"=>$points_table['events'], "by_year"=>$points_table['by_year'], "by_suite"=>$points_table['by_suite']))),800,"'+\n'")?>'
+	window.points_table = '<?php echo wordwrap(addslashes(json_encode(array("events"=>$points_table['events'], "by_year"=>$points_table['by_year'], "by_suite"=>$points_table['by_suite']))),800," '+\n'")?>'
 </script>
