@@ -2,7 +2,7 @@
 require_once "./ajax/PointsCenter.php";
 $points_center = new \Slivka\PointsCenter();
 
-$im_leagues = array('Co-Rec', 'White');
+$im_leagues = array('Co-Rec', 'White', 'Purple');
 $im_sports = array('Basketball', 'Dodgeball', 'Floor Hockey', 'Football', 'Soccer', 'Softball', 'Ultimate Frisbee', 'Volleyball');
 
 $config = $points_center->getConfig();
@@ -106,8 +106,8 @@ function getSlivkanName($slivkans, $nu_email)
 								<span class="edit" style="display:none;">
 									<select id="im-select" class="multiselect" multiple="multiple">
 										<?php
-										foreach ($im_sports as $sport) {
-											foreach ($im_leagues as $league) {
+										foreach ($im_leagues as $league) {
+											foreach ($im_sports as $sport) {
 												echo '<option ' .
 													(in_array($league.' '.$sport, $qtr_info['im_teams']) ? 'selected' : '') . '>' .
 													$league.' '.$sport.
