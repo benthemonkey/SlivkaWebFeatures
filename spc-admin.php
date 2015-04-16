@@ -3,7 +3,7 @@ require_once "./ajax/PointsCenter.php";
 $points_center = new \Slivka\PointsCenter();
 
 $im_leagues = array('Co-Rec', 'White');
-$im_sports = array('Basketball', 'Dodgeball', 'Floor Hockey', 'Football', 'Soccer', 'Softball', 'Volleyball');
+$im_sports = array('Basketball', 'Dodgeball', 'Floor Hockey', 'Football', 'Soccer', 'Softball', 'Ultimate Frisbee', 'Volleyball');
 
 $config = $points_center->getConfig();
 $qtrs = $points_center->getQuarters();
