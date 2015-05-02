@@ -236,7 +236,7 @@ class PointsCenter
     public function getFellows()
     {
         return self::fetchAllQuery(
-            "SELECT full_name,position,department,photo
+            "SELECT full_name,position,about,photo
             FROM fellows
             WHERE qtr_final IS NULL"
         );
