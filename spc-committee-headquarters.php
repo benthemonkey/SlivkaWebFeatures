@@ -172,7 +172,7 @@ function getFullName($slivkans, $nu_email)
 							<?php
 							foreach ($slivkans as $s) {
 								echo '<option value="' . $s['nu_email'] . '" ';
-								if ($s['committee'] == $committee || $s['committee'] == 'Facilities') {
+								if ($s['committee'] == $committee || $s['committee'] == 'Exec') {
 									echo 'disabled';
 								}
 								echo '>' . $s['full_name'] . "</option>\n";
