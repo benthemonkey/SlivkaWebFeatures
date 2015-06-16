@@ -1278,12 +1278,6 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan){
 		}
 	},
 
-	faq = {
-		init: function(){
-			//nothing to do
-		}
-	},
-
 	inboundPoints = {
 		init: function(){
 			$.ajax({
@@ -1957,7 +1951,6 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan){
 		table: table,
 		correction: correction,
 		submission: submission,
-		faq: faq,
 		inboundPoints: inboundPoints,
 		rankings: rankings,
 		'committee-headquarters': committeeHeadquarters,
