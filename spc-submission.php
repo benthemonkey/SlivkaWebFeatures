@@ -111,7 +111,7 @@
 
 			<div class="form-group col-md-12">
 				<label class="control-label" for="comments">Comments:</label>
-				<small class="help-block">No-shows, issues with form, explanation of helper points, etc.</small>
+				<small class="help-block">No-shows, issues with form, etc.</small>
 				<textarea name="comments" id="comments" class="form-control" rows="3"></textarea>
 			</div>
 		</div>
