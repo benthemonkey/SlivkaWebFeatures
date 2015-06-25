@@ -1796,9 +1796,13 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan){
 											destroyTypeahead);
 
 				$('[data-edit-committee]').on('click', function(){
-					$('.committee-points').val(0).show();
+					var committee = $('#edit-committee').val();
+
+					$('.committee-points').val(0).show()
+						.attr('max', (committee == 'Exec' ? 40 : 20));
+
 					$('#editCommitteeOrSuite').data('is-committee', true);
-					$.getJSON(root + '/ajax/getCommitteeOrSuite.php', { committee: $('#edit-committee').val() }, admin.addSlivkans);
+					$.getJSON(root + '/ajax/getCommitteeOrSuite.php', { committee: committee }, admin.addSlivkans);
 				});
 
 				$('[data-edit-suite]').on('click', function(){
@@ -1934,8 +1938,8 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan){
 				entry = entries.eq(i);
 				name = slivkans[slivkans.indexOfKey('nu_email', data[i].nu_email)].full_name;
 				entry.find('.slivkan-entry').val(name);
-				if(data[i].committee){
-					entry.find('.committee-points').val(data[i].committee);
+				if(data[i].points){
+					entry.find('.committee-points').val(data[i].points);
 				}
 				admin.validateSlivkanName(entry);
 			}
