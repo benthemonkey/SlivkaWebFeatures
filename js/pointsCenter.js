@@ -618,7 +618,7 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan){
 				.wrap('<div class="input-group-btn"></div>');
 			*/
 			//dates
-			for(i = 0; i < 5; i++){
+			for(i = 0; i < 8; i++){
 				date = moment().subtract('days', i).format('YYYY-MM-DD');
 				$('<option />').text(moment(date).format('ddd, M/D')).attr('value', date).appendTo('#date');
 			}
