@@ -209,6 +209,8 @@ class PointsCenter
 
     public function getSlivkans()
     {
+        $absentSlivkans = self::fetchAllQuery('SELECT nu_email FROM absences WHERE qtr=:qtr', PDO::FETCH_COLUMN);
+
         $slivkans = self::fetchAllQuery(
             "SELECT CONCAT(first_name, ' ', last_name) AS full_name,
                 slivkans.nu_email,gender,wildcard,committee,photo,suite,year
@@ -216,6 +218,7 @@ class PointsCenter
             LEFT JOIN committees ON slivkans.nu_email=committees.nu_email AND committees.qtr=:qtr
             LEFT JOIN suites ON slivkans.nu_email=suites.nu_email AND suites.qtr=:qtr
             WHERE qtr_joined <= :qtr AND (qtr_final IS NULL OR qtr_final >= :qtr)
+                AND slivkans.nu_email NOT IN('" . implode("','", $absentSlivkans) . "')
             ORDER BY first_name,last_name"
         );
 
@@ -741,7 +744,7 @@ class PointsCenter
     {
         $slivkans = self::fetchAllQuery(
             "SELECT CONCAT(first_name,' ',last_name) AS full_name,
-                    slivkans.nu_email,gender,qtr_joined,qtrs_away,qtr_final,year,suite
+                    slivkans.nu_email,gender,qtr_joined,qtr_final,year,suite
                 FROM slivkans
                 LEFT JOIN suites ON slivkans.nu_email=suites.nu_email AND suites.qtr=:qtr
                 WHERE qtr_final IS NULL OR qtr_final>=:qtr
@@ -749,6 +752,8 @@ class PointsCenter
         );
 
         $noShows = self::fetchAllQuery("SELECT nu_email, COUNT(nu_email) AS count FROM noshows", PDO::FETCH_KEY_PAIR);
+
+        $absences = self::fetchAllQuery("SELECT nu_email, COUNT(nu_email) AS count from absences GROUP BY nu_email", PDO::FETCH_KEY_PAIR);
 
         $count = count($slivkans);
         $is_housing = self::$config['is_housing'] == 'true';
@@ -763,7 +768,12 @@ class PointsCenter
             $y_acc = ($y_this - $y_join) / 100;
             $q_acc = $q_this - $q_join;
 
-            $q_total = $q_acc + 3 * $y_acc - $slivkans[$s]['qtrs_away'];
+            $q_total = $q_acc + 3 * $y_acc;
+
+            // Subtract from multiplier all quarters spent away
+            if (array_key_exists($slivkans[$s]['nu_email'], $absences)) {
+                $q_total -= $absences[$slivkans];
+            }
 
             // give multiplier for current qtr if it isnt housing
             if (!$is_housing) {
@@ -1057,6 +1067,33 @@ class PointsCenter
             for ($s=0; $s < count($slivkans); $s++) {
                 $statement->execute(array($slivkans[$s], $suite, self::$qtr));
             }
+        } catch (PDOException $e) {
+            echo "Error: " . $e->getMessage();
+            die();
+        }
+
+        return true;
+    }
+
+    public function copySuites()
+    {
+        // figure out previous quarter
+        $y = round(self::$qtr, -2);
+        $q = self::$qtr - $y;
+        if ($q == 1) {
+            $qtrPrevious = ($y - 100) + 3;
+        } else {
+            $qtrPrevious = $y + ($q - 1);
+        }
+
+        try {
+            $statement = self::$dbConn->prepare(
+                "INSERT INTO suites (nu_email,suite,qtr)
+                SELECT s.nu_email,s.suite,:qtr FROM suites AS s WHERE s.qtr=:qtrPrevious"
+            );
+            $statement->bindValue(':qtr', self::$qtr);
+            $statement->bindValue(':qtrPrevious', $qtrPrevious);
+            $statement->execute();
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
             die();

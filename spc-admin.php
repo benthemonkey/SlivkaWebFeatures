@@ -18,6 +18,8 @@ $start_date = $date->format('m/d/Y');
 $date = \DateTime::createFromFormat('Y-m-d', $qtr_info['end_date']);
 $end_date = $date->format('m/d/Y');
 
+$q = $qtr_info['qtr'] - round($qtr_info['qtr'], -2);
+
 function getSlivkanName($slivkans, $nu_email)
 {
   foreach ($slivkans as $s) {
@@ -312,6 +314,13 @@ function getSlivkanName($slivkans, $nu_email)
 							<a href="#editCommitteeOrSuite" class="btn btn-default btn-block" data-toggle="modal" data-edit-suite>Edit</a>
 						</div>
 					</div>
+					<?php if ($q != 3) { ?>
+					<div class="row">
+						<div class="col-xs-12" style="margin-top: 10px;">
+							<a href="#copySuites" class="btn btn-info btn-block" data-copy-suites>Copy Suites from Last Quarter</a>
+						</div>
+					</div>
+					<?php } ?>
 				</div>
 			</div>
 		</div>

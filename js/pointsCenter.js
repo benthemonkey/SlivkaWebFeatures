@@ -1811,6 +1811,20 @@ define(['jquery', 'moment', 'hogan'], function($, moment, Hogan){
 					$.getJSON(root + '/ajax/getCommitteeOrSuite.php', { suite: $('#edit-suite').val() }, admin.addSlivkans);
 				});
 
+				$('[data-copy-suites]').on('click', function(){
+					if(window.confirm('Are you sure? This can only be done once per quarter.')){
+						$.getJSON(root + '/ajax/copySuites.php', function(response){
+							if(response == '1'){
+								window.alert('Success!');
+							}else{
+								window.alert(response);
+							}
+						});
+					}
+
+					return false;
+				});
+
 				$('#editCommitteeOrSuite form').on('submit', function(){
 					var i, name, pts, formData,
 						entries = $('.slivkan-entry', '#slivkan-entry-tab'),
