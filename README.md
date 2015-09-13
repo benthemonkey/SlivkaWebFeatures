@@ -9,8 +9,8 @@ Requirements:
 * NPM Packages: Bower, Grunt-CLI
 
 1. git clone the repo and setup `ajax/datastoreVars.php`
-2. `bower install` and `npm install`
-3. modify `/bower_components/hogan/.bower.json` with the line `main: "web/builds/2.0.0/hogan-2.0.0.amd.js"`
+2. `npm i -g bower grunt-cli`
+3. `bower install` and `npm install`
 4. `grunt`
 
 ## datastoreVars.php

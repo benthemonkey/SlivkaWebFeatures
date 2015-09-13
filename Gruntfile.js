@@ -115,6 +115,6 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('test', ['jshint', 'qunit']);
 
-	grunt.registerTask('default', ['jshint', 'bower', 'requirejs', 'cssmin']);
+	grunt.registerTask('default', ['jshint', 'requirejs', 'cssmin']);
 
 };
