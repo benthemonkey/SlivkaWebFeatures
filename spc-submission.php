@@ -74,12 +74,8 @@
 			</div>
 
 			<div class="form-group col-md-4 col-sm-6">
-				<label id="date-label" for="date">Date:</label>
+				<label for="date">Date:</label>
 				<select id="date" class="form-control"></select>
-				<!--<input type="text" id="date-val" name="actual-date" style="display: none">
-				<div class="input-group">
-					<input type="text" id="date" name="date" class="form-control text-center" style="position: relative; z-index: 10; color: #000000;" disabled></input>
-				</div>-->
 			</div>
 
 			<div class="clearfix"></div>

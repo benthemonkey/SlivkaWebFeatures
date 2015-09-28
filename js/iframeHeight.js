@@ -1,7 +1,11 @@
-jQuery(window).load(function() {
-	var setHeight = function(e){
-		e.height = e.contentWindow.document.body.scrollHeight + 35;
-	};
+/* eslint strict:0 */
 
-	jQuery('iframe.autoHeight').each(function(){ setHeight(this); });
+$(function() {
+    var setHeight = function(e) {
+        e.height = e.contentWindow.document.body.scrollHeight + 35;
+    };
+
+    $('iframe.autoHeight').each(function() {
+        setHeight(this);
+    });
 });

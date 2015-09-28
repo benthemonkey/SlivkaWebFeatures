@@ -6,10 +6,6 @@ legend{
   z-index: 99;
 }
 
-.col{
-  padding: 10px 20px;
-}
-
 .credits{
   margin: 50px 20px 15px;
 }
@@ -47,6 +43,14 @@ legend{
   padding: 6px 4px;
 }
 
+.dropdown-menu ul{
+    margin-bottom: 0;
+}
+
+.dropdown-menu input[type="checkbox"]{
+    margin-left: 5px;
+}
+
 .tt-dropdown-menu{
   min-width: 260px;
 }
@@ -67,15 +71,6 @@ legend{
   .container{
     padding-right: 10px;
     padding-left: 10px;
-  }
-
-  .col{
-    padding: 10px;
-  }
-
-  .row{
-    margin-right: -10px;
-    margin-left: -10px;
   }
 
   .form-group, .form-horizontal .form-group{

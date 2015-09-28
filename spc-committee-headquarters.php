@@ -22,7 +22,7 @@ function getFullName($slivkans, $nu_email)
 }
 ?>
 
-<link rel="stylesheet" href="/points/css/pointsTable.css" />
+<link rel="stylesheet" href="/points/css/points-table.css" />
 <style>
 	.committee-points-table td{
 		padding: 2px;
@@ -244,25 +244,25 @@ function getFullName($slivkans, $nu_email)
 	<div class="row">
 		<div class="form-group has-success col-sm-4">
 			<label class="control-label" for="pts-input">Points:</label>
-			<input type="number" id="pts-input" value="{{value}}" data-original-value="{{value}}"
+			<input type="number" id="pts-input" value="<%= value %>" data-original-value="<%= value %>"
 				   min="-3.0" max="3.0" step="0.1" class="form-control pts-input">
 		</div>
-		{{#contributions}}
+		<% if (contributions) { %>
 		<div class="form-group col-sm-8">
-			<label class="control-label" for="contributions">Contributions:</label>
-			<select id="contributions" class="multiselect" multiple="multiple" style="height: 34px;">
-				{{#contributions_list}}
-				<option value={{value}} {{#pts}}data-pts="{{pts}}"{{/pts}} {{disabled}} {{#selected}}selected{{/selected}}>
-				{{title}}{{#pts}} ({{pts}}){{/pts}}
-				</option>
-				{{/contributions_list}}
-			</select>
+			<label class="control-label">Contributions:</label>
+			<ul id="contributions" class="list-unstyled">
+				<% forEach(contributions_list, function(c) { %>
+				<li><label><input type="checkbox" value="<%= c.value %>" data-pts="<%= c.pts %>" <% if (c.selected) { print("checked") } %>>
+				<%- c.title %> (<%= c.pts %>)
+				</label></li>
+				<% }) %>
+			</ul>
 		</div>
-		{{/contributions}}
+		<% } %>
 
 		<div class="form-group col-sm-12">
 			<label for="comments" class="control-label">Comments:</label>
-			<textarea id="comments" maxlength="200" rows="5" class="form-control">{{comments}}</textarea>
+			<textarea id="comments" maxlength="200" rows="2" class="form-control"><%- comments %></textarea>
 		</div>
 
 		<div class="col-sm-6">

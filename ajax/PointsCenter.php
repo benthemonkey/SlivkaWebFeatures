@@ -211,6 +211,8 @@ class PointsCenter
     {
         $absentSlivkans = self::fetchAllQuery('SELECT nu_email FROM absences WHERE qtr=:qtr', PDO::FETCH_COLUMN);
 
+        $nicknames = self::fetchAllQuery("SELECT nu_email,nickname FROM nicknames", PDO::FETCH_GROUP | PDO::FETCH_COLUMN);
+
         $slivkans = self::fetchAllQuery(
             "SELECT CONCAT(first_name, ' ', last_name) AS full_name,
                 slivkans.nu_email,gender,wildcard,committee,photo,suite,year
@@ -226,14 +228,12 @@ class PointsCenter
         $n = count($slivkans);
         for ($i=0; $i<$n; $i++) {
             $slivkans[$i]["tokens"] = explode(" ", $slivkans[$i]["full_name"]);
+
+            if (array_key_exists($slivkans[$i]["nu_email"], $nicknames)) {
+                $slivkans[$i]["tokens"] = array_merge($slivkans[$i]["tokens"], $nicknames[$slivkans[$i]["nu_email"]]);
+            }
         }
-
         return $slivkans;
-    }
-
-    public function getNicknames()
-    {
-        return self::fetchAllQuery("SELECT nu_email,nickname FROM nicknames", PDO::FETCH_NAMED);
     }
 
     public function getFellows()

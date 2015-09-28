@@ -1,50 +1,74 @@
-.table-wrapper{
+.points-table-info {
+  margin-bottom: 0;
+  padding: 15.5px 15px;
+}
+
+.points-table-controls .legend {
+  color: black;
+  border-collapse: separate;
+  border-spacing: 3px;
+}
+
+.points-table-controls .legend td {
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.points-table-controls .form-group {
+    margin-right: 10px;
+    display: inline-block;
+}
+
+.points-table-wrapper {
   overflow-x: scroll;
-  margin: 0 15px;
   padding-bottom: 15px;
 }
 
-.points-table{
+.points-table {
   table-layout: fixed;
-  margin-left: 170px;
   margin-top: 190px;
 }
 
-.points-table td{
+.points-table td {
   padding: 0;
   text-align: center;
   border-left: 1px solid gray;
 }
 
-.tablesorter-header-inner{
-  height: 100%;
-}
-
-td.name{
+.points-table td.name {
   width: 171px;
+  position: relative;
+  margin-left: 0;
   text-align: left;
-  position: absolute;
   padding-left: 5px;
-  margin-left: -170px;
 }
 
-.gender{
+.points-table th {
+  position: relative;
+  height: 14px;
+  padding: 0;
+  font-weight: normal;
+  line-height: 0.8;
+}
+
+.points-table .gender {
   display: none;
 }
 
-.nameHeader{
+.points-table th.name {
   width: 170px;
   min-width: 170px;
   max-width: 170px;
-  height: 14px;
-  position: absolute;
-  margin-left: -170px;
+
+  position: relative;
+  margin-left: 0;
   padding: 0;
   background-color: white;
   z-index: 1;
 }
 
-.nameHeader > div{
+.points-table th.name > div {
+  display: none;
   position: absolute;
   bottom: 12px;
   width: 100%;
@@ -52,7 +76,7 @@ td.name{
   background-color: white;
 }
 
-.nameHeader > div > div{
+.points-table th.name > div > div {
   height: 100%;
   background-color: white;
   -webkit-transform:skew(-30deg,0deg) translateX(55px);
@@ -62,7 +86,7 @@ td.name{
           transform:skew(-30deg,0deg) translateX(55px);
 }
 
-.nameHeader span{
+.points-table th.name span {
   position: absolute;
   bottom: 0;
   width: 164px;
@@ -72,21 +96,7 @@ td.name{
   background-position: right!important;
 }
 
-/*overriding default style*/
-.alert{
-  margin-bottom: 0;
-  padding: 15.5px 15px;
-}
-
-th{
-  position: relative;
-  height: 14px;
-  padding: 0;
-  font-weight: normal;
-  line-height: 0.8;
-}
-
-.slantedHeader{
+.points-table th .slanted {
   position: absolute;
   bottom: 14px;
   left: 55px;
@@ -100,7 +110,7 @@ th{
           transform:skew(-30deg,0deg);
 }
 
-.slantedHeader span{
+.points-table th .slanted span {
   width: 85px;
   position: absolute;
   left: -33px;
@@ -115,7 +125,7 @@ th{
           transform:skew(30deg,0deg) rotate(-60deg);
 }
 
-.sort-icon{
+.sort-icon {
   position: absolute;
   width: 100%;
   height: 14px;
@@ -124,51 +134,30 @@ th{
   border-left: 1px solid gray;
 }
 
-.eventHeader{
+.points-table th.event {
   width: 20px;
   min-width: 20px;
   max-width: 20px;
 }
 
-.totalsHeader{
+.points-table th.total {
   width: 24px;
   min-width: 24px;
   max-width: 24px;
 }
 
-.totalsHeader span{
+.points-table th.total span {
   left: -29px;
 }
 
-.endHeader{
+.points-table th.end {
   width: 36px;
   min-width: 36px;
   max-width: 36px;
 }
 
-.endHeader .sort-icon{
+.points-table th.end .sort-icon {
   background-image: none!important;
-}
-
-.legend{
-  color: black;
-  border-collapse: separate;
-  border-spacing: 3px;
-}
-
-.legend td{
-  padding: 5px;
-  border-radius: 5px;
-}
-
-.filter{
-  display: inline-block;
-  vertical-align: top;
-  margin: 0 5px;
-}
-
-.fix-top{
-  margin: 20px 5px 0;
 }
 
 tr.even td { background-color: #FFA1A1; }
@@ -205,52 +194,48 @@ tr.odd  td.yellow { background-color: #FFE500; }
 tr.even td.yellow.sorting_1 { background-color: #FFEA00; }
 tr.odd  td.yellow.sorting_1 { background-color: #FFD500; }
 
-.sorting .sort-icon, .nameHeader.sorting span {
+.points-table .sorting .sort-icon,
+.points-table .name.sorting span {
   background: url('data:image/gif;base64,R0lGODlhBwAJAIAAACMtMP///yH5BAEAAAEALAAAAAAHAAkAAAINjGEJq8sOk4Qu0IZmKgA7') no-repeat;
   background-position: center;
 }
 
-.sorting_asc .sort-icon, .nameHeader.sorting_asc span {
+.points-table .sorting_asc .sort-icon,
+.points-table .name.sorting_asc span {
   background: url('data:image/gif;base64,R0lGODlhBwAEAIAAACMtMP///yH5BAEAAAEALAAAAAAHAAQAAAIHjGEJq8sOCwA7') no-repeat;
   background-position: center;
 }
 
-.sorting_desc .sort-icon, .nameHeader.sorting_desc span {
+.points-table .sorting_desc .sort-icon,
+.points-table .name.sorting_desc span {
   background: url('data:image/gif;base64,R0lGODlhBwAEAIAAACMtMP///yH5BAEAAAEALAAAAAAHAAQAAAIIhA+BGWoNWSgAOw==') no-repeat;
   background-position: center;
 }
 
-th:active {
+.points-table th:active {
   outline: none;
 }
-th:hover {
+
+.points-table th:hover {
   cursor: pointer;
 }
 
-@media (max-width: 768px){
-  .table-wrapper, .alert, .legend{
-    font-size: 12px;
+@media (min-width: 768px) {
+  .points-table {
+    margin-left: 170px;
   }
 
-  .points-table{
-    margin-left: 0;
+  .points-table th.name {
+    position: absolute;
+    margin-left: -170px;
   }
 
-  td.name{
-    position: relative;
-    margin-left: 0;
+  .points-table th.name > div {
+      display: block;
   }
 
-  .nameHeader{
-    position: relative;
-    margin-left: 0;
-  }
-
-  .nameHeader > div{
-    display: none;
-  }
-
-  .fix-top{
-    margin-top: 5px;
+  .points-table td.name {
+    position: absolute;
+    margin-left: -170px;
   }
 }

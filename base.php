@@ -7,7 +7,7 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'index';
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <link rel="stylesheet" href="/points/css/pointsCenter.built.min.css" />
+    <link rel="stylesheet" href="/points/build/points-center.css" />
     <style type="text/css">
         body {
             background: transparent url('/points/img/slivka-wallpaper-compressed.jpg') repeat;
@@ -29,8 +29,8 @@ $page = isset($_GET['page']) ? $_GET['page'] : 'index';
 <div class="container">
     <div class="content">
         <?php include('nav.html'); ?>
-        <div class="row">
-            <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-body">
                 <?php
                 if ($page == 'index') {
                     echo '<script type="text/javascript">window.location.href = "/points/breakdown/";</script>';
