@@ -8,6 +8,7 @@ if ($committee) {
 	$points_table = $points_center->getCommitteePointsTable($committee);
 
 	$slivkans = $points_center->getSlivkans();
+	$events = $points_center->getEvents(-1);
 }
 
 function getFullName($slivkans, $nu_email)
@@ -172,7 +173,7 @@ function getFullName($slivkans, $nu_email)
 							<?php
 							foreach ($slivkans as $s) {
 								echo '<option value="' . $s['nu_email'] . '" ';
-								if ($s['committee'] == $committee || $s['committee'] == 'Exec') {
+								if ($s['committee'] == 'Exec') {
 									echo 'disabled';
 								}
 								echo '>' . $s['full_name'] . "</option>\n";
@@ -185,8 +186,8 @@ function getFullName($slivkans, $nu_email)
 						<select id="helper-event" class="form-control" required>
 							<option value="">Select One</option>
 							<?php
-							foreach (array_reverse($points_table['events']) as $e) {
-								echo "<option>" . $e . "</option>\n";
+							foreach (array_reverse($events) as $e) {
+								echo "<option>" . $e['event_name'] . "</option>\n";
 							}
 							?>
 						</select>
