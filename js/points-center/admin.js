@@ -101,9 +101,9 @@ module.exports = {
     init: function() {
         var quarter = $('[data-current-quarter]').text();
 
-        // $('.multiselect').multiselect({
-        //     buttonClass: 'btn btn-default'
-        // });
+        $('.multiselect').multiselect({
+            buttonClass: 'btn btn-default'
+        });
 
         $('[data-toggle="popover"]').popover().on('click', function() {
             return false;

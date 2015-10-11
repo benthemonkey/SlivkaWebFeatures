@@ -71,6 +71,7 @@ var stylesheetsShare = function(opts) {
     var stream = gulp.src([
         'node_modules/bootstrap/dist/css/bootstrap.css',
         'node_modules/bootstrap/dist/css/bootstrap-theme.css',
+        'node_modules/bootstrap-multiselect/dist/css/bootstrap-multiselect.css',
         'node_modules/font-awesome/css/font-awesome.css',
         'node_modules/nprogress/nprogress.css',
         'css/typeahead.js-bootstrap.css',

@@ -5,6 +5,7 @@
   "main": "js/points-center/index.js",
   "dependencies": {
     "bootstrap": "3.3.5",
+    "bootstrap-multiselect": "0.9.13",
     "datatables": "1.10.9",
     "font-awesome": "4.4.0",
     "highcharts-browserify": "0.1.5",

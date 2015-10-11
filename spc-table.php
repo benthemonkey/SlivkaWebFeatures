@@ -56,22 +56,21 @@ $points_table = $points_center->getPointsTable($showall);
 			</select>
 		</div>
 		<div class="form-group">
-			<div class="dropdown">
-				<a class="btn btn-default" data-toggle="dropdown" href="#">Committees <b class="caret"></b></a>
-				<form class="dropdown-menu" id="committeeFilter">
-					<ul class="list-unstyled">
-						<li><label><input type="checkbox" value="Exec" checked> Exec</label></li>
-						<li><label><input type="checkbox" value="Academic" checked> Academic</label></li>
-						<li><label><input type="checkbox" value="Facilities" checked> Facilities</label></li>
-						<li><label><input type="checkbox" value="Faculty" checked> Faculty</label></li>
-						<li><label><input type="checkbox" value="IT" checked> IT</label></li>
-						<li><label><input type="checkbox" value="Philanthropy" checked> Philanthropy</label></li>
-						<li><label><input type="checkbox" value="Publications" checked> Publications</label></li>
-						<li><label><input type="checkbox" value="Social" checked> Social</label></li>
-						<li><label><input type="checkbox" value="CA" checked> CA</label></li>
-						<li><label><input type="checkbox" value="Other" checked> Other</label></li>
-					</ul>
-				</form>
+			<label for="committeeFilter">Committes:</label><br>
+			<select class="multiselect" multiple="multiple" id="committeeFilter" style="display: none;">
+				<option selected>Exec</option>
+				<option selected>Academic</option>
+				<option selected>Facilities</option>
+				<option selected>Faculty</option>
+				<option selected>IT</option>
+				<option selected>Philanthropy</option>
+				<option selected>Publications</option>
+				<option selected>Social</option>
+				<option selected>CA</option>
+				<option selected>Other</option>
+			</select>
+			<div class="btn-group placeholder">
+				<div class="btn btn-default">All selected (10) <b class="caret"></b></div>
 			</div>
 		</div>
 		<div class="form-group">

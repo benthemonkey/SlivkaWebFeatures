@@ -47,14 +47,6 @@ legend{
   padding: 6px 4px;
 }
 
-.dropdown-menu ul{
-    margin-bottom: 0;
-}
-
-.dropdown-menu input[type="checkbox"]{
-    margin-left: 5px;
-}
-
 /* committee colors
 .Exec         td { background-color: #2f7ed8!important; }
 .Academic     td { background-color: #0d233a!important; color: white; }

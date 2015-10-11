@@ -5,8 +5,8 @@ var utils = require('./utils');
 var i, table, events;
 
 var columnFilter = function() {
-    var committees = $('#committeeFilter').find('input:checked').map(function() {
-        return this.value;
+    var committees = $('#committeeFilter').find('option:selected').map(function() {
+        return this.innerHTML;
     }).get();
     var ims = $('#imFilter').val();
     var n = 0;
@@ -107,7 +107,10 @@ module.exports = {
 
         $('#imFilter').on('change', columnFilter);
 
-        $('#committeeFilter input').on('click', columnFilter);
+        $('#committeeFilter').multiselect({
+            buttonClass: 'btn btn-default',
+            onChange: columnFilter
+        }).siblings('.placeholder').hide();
 
         $('#noFilter').on('click', function() {
             localStorage.spc_tab_noFilter = 1;
