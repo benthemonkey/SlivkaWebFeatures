@@ -46,6 +46,12 @@ function getSlivkanName($slivkans, $nu_email)
 		padding: 6px 8px;
 		width: 35px;
 	}
+
+    .table td:nth-child(2) {
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        word-break: break-word;
+    }
 </style>
 <legend>Admin Dashboard</legend>
 <div class="row">

@@ -1,173 +1,154 @@
 'use strict';
 
+var _ = {
+    forEach: require('lodash/collection/forEach'),
+    template: require('lodash/string/template')
+};
 var highcharts = require('highcharts-browserify');
 var ajaxRoot = require('./utils').ajaxRoot;
 var slivkans, qtrs;
-var drawChart = function(tableData, titleIn, id) {
-    setTimeout(function() {
-        $('#' + id).highcharts({
-            credits: {
-                enabled: false
-            },
-            plotOptions: id !== 'eventsChart' ? {} : {
-                pie: {
-                    allowPointSelect: true,
-                    cursor: 'pointer',
-                    dataLabels: {
-                        enabled: true
-                    },
-                    point: {
-                        events: {
-                            select: function() {
-                                $('.' + this.name).css({
-                                    'background-color': this.color,
-                                    'color': 'white'
-                                });
-                            },
-                            unselect: function() {
-                                $('.' + this.name).removeAttr('style');
-                            }
+var eventsTemplate = _.template($('#eventsTemplate').html(), { imports: { forEach: _.forEach } });
+var otherPointsTableTemplate = _.template($('#otherPointsTableTemplate').html(), { imports: { forEach: _.forEach } });
+
+var $breakdown = $('.breakdown');
+var $attendedEvents = $('#attendedEvents');
+var $unattendedEvents = $('#unattendedEvents');
+var $otherPointsTable = $('#otherPointsTable');
+
+var $eventsChart = $('#eventsChart');
+var $imsChart = $('#imsChart');
+
+var drawChart = function($el, tableData, titleIn, width) {
+    $el.highcharts({
+        chart: {
+            width: width
+        },
+        credits: {
+            enabled: false
+        },
+        plotOptions: $el[0].id !== 'eventsChart' ? {} : {
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true
+                },
+                point: {
+                    events: {
+                        select: function() {
+                            $('.' + this.name).css({
+                                'background-color': this.color,
+                                'color': 'white'
+                            });
+                        },
+                        unselect: function() {
+                            $('.' + this.name).removeAttr('style');
                         }
                     }
                 }
-            },
-            title: {
-                text: titleIn,
-                style: {
-                    'font-size': '8pt'
-                }
-            },
-            tooltip: {
-                pointFormat: '{series.name}: {point.y}, <b>{point.percentage:.1f}%</b>'
-            },
-            series: [{
-                type: 'pie',
-                name: 'Events',
-                data: tableData
-            }]
-        });
-    }, 500);
+            }
+        },
+        title: {
+            text: titleIn,
+            style: {
+                'font-size': '8pt'
+            }
+        },
+        tooltip: {
+            pointFormat: '{series.name}: {point.y}, <b>{point.percentage:.1f}%</b>'
+        },
+        series: [{
+            type: 'pie',
+            name: 'Events',
+            data: tableData
+        }]
+    });
 };
 
 var getSlivkanPoints = function() {
     var nuEmail = $('#slivkan').val();
     var qtr = localStorage.spc_brk_qtr || qtrs[0].qtr;
-    var attendedEventsEl = $('#attendedEvents');
-    var unattendedEventsEl = $('#unattendedEvents');
+    var width = $eventsChart.width();
+
+    // fix height of breakdown so there is no flash of background
+    $breakdown.parent().css('min-height', $breakdown.parent().height());
 
     if (nuEmail.length > 0) {
         localStorage.spc_brk_slivkan = nuEmail;
 
-        $('.breakdown').fadeOut(function() {
-            attendedEventsEl.empty();
-            unattendedEventsEl.empty();
-            $('#otherPointsTableBody').empty();
+        $.when(
+            $.getJSON(ajaxRoot + '/ajax/getPointsBreakdown.php', { nu_email: nuEmail, qtr: qtr }),
+            $breakdown.fadeOut()
+        ).then(function(data) {
+            var eventData = [];
+            var imData = [];
+            var eventTotal = 0;
+            var imTotal = 0;
+            var imExtra = 0;
 
-            $.getJSON(ajaxRoot + '/ajax/getPointsBreakdown.php', { nu_email: nuEmail, qtr: qtr }, function(data) {
-                var i;
-                var eventData = [];
-                var imData = [];
-                var eventTotal = 0;
-                var imTotal = 0;
-                var imExtra = 0;
-                var hasOther = false;
+            data = data[0]; // only care about first entry
 
-                if (data.events.attended.length > 0) {
-                    for (i = data.events.attended.length - 1; i >= 0; i--) {
-                        attendedEventsEl
-                            .append($('<tr/>')
-                                .append($('<td/>')
-                                    .addClass(data.events.attended[i].committee)
-                                    .text(data.events.attended[i].event_name)));
+            $eventsChart.empty();
+            $imsChart.empty();
+
+            $attendedEvents.html(eventsTemplate({ events: data.events.attended.reverse() }));
+            $unattendedEvents.html(eventsTemplate({ events: data.events.unattended.reverse() }));
+            $otherPointsTable.html(otherPointsTableTemplate(data));
+
+            _.forEach(data.events.counts, function(count) {
+                var int = parseInt(count.count, 10);
+
+                eventData.push([count.committee, int]);
+                eventTotal += int;
+            });
+
+            $('.eventPoints').text(eventTotal);
+            drawChart($eventsChart, eventData, 'Event Points (' + eventTotal + ' Total)', width);
+
+            if (data.ims.length > 0) {
+                $imsChart.show();
+                _.forEach(data.ims, function(im) {
+                    im.count = parseInt(im.count, 10);
+
+                    imData.push([im.sport, im.count]);
+
+                    if (im.count >= 3) {
+                        imTotal += im.count;
+                    } else {
+                        imExtra += im.count;
                     }
-                } else {
-                    attendedEventsEl
-                        .append($('<tr/>')
-                            .append($('<td/>').text('None :(')));
+                });
+
+                if (imTotal > 15) {
+                    imExtra += imTotal - 15;
+                    imTotal = 15;
                 }
 
-                if (data.events.unattended.length > 0) {
-                    for (i = data.events.unattended.length - 1; i >= 0; i--) {
-                        unattendedEventsEl
-                            .append($('<tr/>')
-                                .append($('<td/>')
-                                    .addClass(data.events.unattended[i].committee)
-                                    .text(data.events.unattended[i].event_name)));
-                    }
-                } else {
-                    unattendedEventsEl
-                        .append($('<tr/>')
-                            .append($('<td/>').text('None :)')));
-                }
+                drawChart(
+                    $imsChart,
+                    imData,
+                    ['IMs (', imTotal, ' Points, ', imExtra,
+                    (imExtra === 1 ? ' Doesn\'t' : ' Don\'t'), ' Count)'].join(''),
+                    width
+                );
+            } else {
+                $imsChart.hide();
+            }
 
-                for (i = 0; i < data.other_breakdown.length; i++) {
-                    if (data.other_breakdown[i][0]) {
-                        $('#otherPointsTableBody')
-                            .append($('<tr/>')
-                                .append($('<td/>').text(data.other_breakdown[i][0]))
-                                .append($('<td/>').text(data.other_breakdown[i][1])));
+            $('.imPoints').text(imTotal);
+            $('.helperPoints').text(data.helper);
+            $('.committeePoints').text(data.committee);
+            $('.otherPoints').text(data.other);
 
-                        hasOther = true;
-                    }
-                }
+            $('.totalPoints').text(
+                [eventTotal, imTotal, data.helper, data.committee, data.other].map(function(n) {
+                    return parseInt(n, 10);
+                }).reduce(function(a, b) {
+                    return a + b;
+                }));
 
-                if (hasOther) {
-                    $('#otherPointsTable').show();
-                } else {
-                    $('#otherPointsTable').hide();
-                }
-
-                for (i = 0; i < data.events.counts.length; i++) {
-                    eventData.push([data.events.counts[i].committee, parseInt(data.events.counts[i].count, 10)]);
-
-                    eventTotal += parseInt(data.events.counts[i].count, 10);
-                }
-
-                $('.eventPoints').text(eventTotal);
-                drawChart(eventData, 'Event Points (' + eventTotal + ' Total)', 'eventsChart');
-
-                if (data.ims.length > 0) {
-                    $('#imsChart').show();
-                    for (i = 0; i < data.ims.length; i++) {
-                        data.ims[i].count = parseInt(data.ims[i].count, 10);
-
-                        imData.push([data.ims[i].sport, data.ims[i].count]);
-
-                        if (data.ims[i].count >= 3) {
-                            imTotal += data.ims[i].count;
-                        } else {
-                            imExtra += data.ims[i].count;
-                        }
-                    }
-
-                    if (imTotal > 15) {
-                        imExtra += imTotal - 15;
-                        imTotal = 15;
-                    }
-
-                    drawChart(
-                        imData,
-                        ['IMs (', imTotal, ' Points, ', imExtra,
-                        (imExtra === 1 ? ' Doesn\'t' : ' Don\'t'), ' Count)'].join(''),
-                        'imsChart'
-                    );
-                } else {
-                    $('#imsChart').hide();
-                }
-
-                $('.imPoints').text(imTotal);
-                $('.helperPoints').text(data.helper);
-                $('.committeePoints').text(data.committee);
-                $('.otherPoints').text(data.other);
-
-                $('.totalPoints').text(
-                    [eventTotal, imTotal, data.helper, data.committee, data.other].map(function(n) {
-                        return parseInt(n, 10);
-                    }).reduce(function(a, b) {
-                        return a + b;
-                    }));
-
-                $('.breakdown').fadeIn();
+            $breakdown.fadeIn(function() {
+                $breakdown.parent().css('min-height', '');
             });
         });
     }

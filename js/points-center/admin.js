@@ -1,5 +1,9 @@
 'use strict';
 
+var _ = {
+    find: require('lodash/collection/find'),
+    forEach: require('lodash/collection/forEach')
+};
 var utils = require('./utils');
 var slivkans, nicknames;
 var submitConfigOrQuarterInfo = function(name, value, confirmMessage) {
@@ -24,8 +28,8 @@ var slivkanTypeahead = function() {
             utils.appendSlivkanInputs(1);
         }
     }
-    if (!target.hasClass('tt-query')) {
-        target.typeahead(utils.typeaheadOpts('slivkans', slivkans)).focus();
+    if (!target.hasClass('tt-input')) {
+        target.typeahead(null, utils.typeaheadOpts('slivkans', slivkans)).focus();
     }
 
     return false;
@@ -39,15 +43,14 @@ var validateSlivkanName = function(entry) {
 
     // clear duplicates
     $('#slivkan-entry-tab').find('.slivkan-entry').each(function() {
-        var $self = $(this);
+        var _name = $(this).val();
 
-        if ($self.val().length > 0) {
-            if (nameArray.indexOf($self.val()) === -1) {
-                nameArray.push($self.val());
+        if (_name.length > 0) {
+            if (nameArray.indexOf(_name) === -1) {
+                nameArray.push(_name);
             } else {
-                $self.val('');
+                $(this).val('');
                 $('#duplicate-alert').show();
-                submission.validateSlivkanName(self.parent(), true);
             }
         }
     });
@@ -58,7 +61,7 @@ var validateSlivkanName = function(entry) {
     }
 
     if (name.length > 0) {
-        if (slivkans.indexOfKey('full_name', name) === -1) {
+        if (!utils.findSlivkan(slivkans, name)) {
             valid = false;
         }
         utils.updateValidity(entry, valid);
@@ -70,30 +73,28 @@ var validateSlivkanName = function(entry) {
 };
 
 var addSlivkans = function(data) {
-    var i, entry, name;
-    var entries = $('.slivkan-entry-control', '#slivkan-entry-tab');
+    var $entries = $('.slivkan-entry-control', '#slivkan-entry-tab');
     var len = data.length;
 
-    entries.find('.slivkan-entry').val('');
+    $entries.find('.slivkan-entry').val('').each(function(i, el) {
+        utils.updateValidity($(el), null);
+    });
 
-    if (entries.length <= len) {
-        utils.appendSlivkanInputs(len - entries.length + 1);
-        entries = $('.slivkan-entry-control', '#slivkan-entry-tab');
+    if ($entries.length <= len) {
+        utils.appendSlivkanInputs(len - $entries.length + 1);
+        $entries = $('.slivkan-entry-control', '#slivkan-entry-tab');
     }
 
-    for (i = 0; i < len; i++) {
-        entry = entries.eq(i);
-        name = slivkans[slivkans.indexOfKey('nu_email', data[i].nu_email)].full_name;
-        entry.find('.slivkan-entry').val(name);
-        if (data[i].points) {
-            entry.find('.committee-points').val(data[i].points);
+    _.forEach(data, function(slivkan, i) {
+        var $entry = $entries.eq(i);
+        var name = _.find(slivkans, { nu_email: slivkan.nu_email }).full_name;
+
+        $entry.find('.slivkan-entry').val(name);
+
+        if (slivkan.points) {
+            $entry.find('.committee-points').val(slivkan.points);
         }
-        validateSlivkanName(entry);
-    }
-
-    for (i; i < entries.length; i++) {
-        validateSlivkanName(entries.eq(i));
-    }
+    });
 };
 
 module.exports = {
@@ -238,10 +239,10 @@ module.exports = {
             utils.appendSlivkanInputs(9);
 
             $('#slivkan-entry-tab')
-                .on('focus', '.slivkan-entry', slivkanTypeahead)
-                .on('typeahead:closed', '.slivkan-entry.tt-query',
-                    { callback: validateSlivkanName },
-                    utils.destroyTypeahead);
+                .on('focus', '.slivkan-entry', slivkanTypeahead);
+                // .on('typeahead:close', '.slivkan-entry',
+                //     { callback: validateSlivkanName },
+                //     utils.destroyTypeahead);
 
             $('[data-edit-committee]').on('click', function() {
                 var committee = $('#edit-committee').val();
@@ -290,7 +291,7 @@ module.exports = {
                 for (i = 0; i < entries.length; i++) {
                     name = entries.eq(i).val();
                     if (name.length > 0) {
-                        nuEmailArray.push(slivkans[slivkans.indexOfKey('full_name', name)].nu_email);
+                        nuEmailArray.push(utils.findSlivkan(slivkans, name).nu_email);
                     }
 
                     if (isCommittee) {
@@ -311,6 +312,7 @@ module.exports = {
                         slivkans: nuEmailArray
                     };
                 }
+
                 $.post(
                     utils.ajaxRoot + '/ajax/submitCommitteeOrSuite.php',
                     formData,

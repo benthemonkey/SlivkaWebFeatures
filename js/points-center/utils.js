@@ -1,7 +1,7 @@
 'use strict';
 
 var _ = {
-    findIndex: require('lodash/array/findIndex'),
+    find: require('lodash/collection/find'),
     template: require('lodash/string/template')
 };
 var Bloodhound = require('typeahead.js/dist/bloodhound');
@@ -34,7 +34,8 @@ module.exports.appendSlivkanInputs = function(n) {
     }
 };
 
-module.exports.slivkanNameExists = function(slivkans, name) {
+// searches slivkans collection for either nu_email or full_name
+module.exports.findSlivkan = function(slivkans, name) {
     var find = {};
 
     if (name.length === 0) {
@@ -42,7 +43,7 @@ module.exports.slivkanNameExists = function(slivkans, name) {
     } else {
         find[name.indexOf(' ') !== -1 ? 'full_name' : 'nu_email'] = name;
 
-        return _.findIndex(slivkans, find) !== -1;
+        return _.find(slivkans, find);
     }
 };
 
@@ -74,9 +75,8 @@ module.exports.typeaheadOpts = function(name, slivkans) {
         displayKey: 'full_name',
         source: tmp.ttAdapter(),
         templates: {
-            suggestion: _.template(['<div class="slivkan-suggestion',
-                '<% if (typeof(dupe) !== "undefined") { print(" slivkan-dupe") } %>">',
-                '<%= full_name %><img src="/points/img/slivkans/<%= photo %>" /></div>'].join(''))
+            suggestion: _.template(['<div<% if (typeof(dupe) != "undefined") { %> class="dupe"<% } %>><%= full_name %>',
+                '<img src="/points/img/slivkans/<%= photo %>" /><div class="clearfix"></div></div>'].join(''))
         }
     };
 };
@@ -85,13 +85,10 @@ module.exports.destroyTypeahead = function(event) {
     var target = $(this);
 
     if (target.hasClass('tt-input')) {
-        // needs a delay because typeahead.js seems to not like destroying on focusout
-        setTimeout(function(_target) {
-            event.data.callback(target.typeahead('destroy').closest('.form-group'));
+        event.data.callback(target.typeahead('destroy').closest('.form-group'));
 
-            if (TAB_PRESSED) {
-                _target.closest('.form-group').next().find('input').focus();
-            }
-        }, 1, target);
+        if (TAB_PRESSED) {
+            target.closest('.form-group').next().find('input').focus();
+        }
     }
 };

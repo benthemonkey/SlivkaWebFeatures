@@ -85,17 +85,9 @@
 		</table>
 	</div>
 </div>
-<div class="row breakdown" style="display:none;">
+<div class="row breakdown">
 	<div class="col-md-4">
-		<table class="table table-bordered table-condensed table-striped" id="otherPointsTable" style="display:none;">
-			<thead>
-				<tr>
-					<th>Other Points Breakdown</th>
-					<th>Pts</th>
-				</tr>
-			</thead>
-			<tbody id="otherPointsTableBody"></tbody>
-		</table>
+		<div id="otherPointsTable"></div>
 		<div class="chart" id="eventsChart"></div>
 		<div class="chart" id="imsChart"></div>
 	</div>
@@ -123,3 +115,38 @@
 	</div>
 </div>
 <?php include('credits.html'); ?>
+
+<script id="eventsTemplate" type="text/template">
+<% if (events.length > 0) {
+	forEach(events, function(event) {
+		%>
+	    <tr><td class="<%= event.committee %>"><%= event.event_name %></td></tr>
+		<%
+	})
+} else {
+	print('<tr><td>None</td></tr>')
+} %>
+</script>
+
+<script id="otherPointsTableTemplate" type="text/template">
+<% if (other_breakdown.length > 0 && other_breakdown[0][0]) { %>
+<table class="table table-bordered table-condensed table-striped">
+	<thead>
+		<tr>
+			<th>Other Points Breakdown</th>
+			<th>Pts</th>
+		</tr>
+	</thead>
+	<tbody>
+	<% forEach(other_breakdown, function(other) {
+		%>
+		<tr>
+			<td><%= other[0] %></td>
+			<td><%= other[1] %></td>
+		</tr>
+		<%
+	}) %>
+	</tbody>
+</table>
+<% } %>
+</script>

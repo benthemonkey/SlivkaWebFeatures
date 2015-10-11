@@ -203,3 +203,17 @@
 		</div>
 	</div>
 </div>
+
+<script id="resultsTemplate" type="text/template">
+	<% forEach(data, function(val, key) { %>
+	<tr class="results-row">
+		<td class="results-label">
+			<%= key %>
+		</td>
+		<td class="results">
+			<% if (val.join) { print(val.join(', ')) } else { print(val) } %>
+		</td>
+	</tr>
+	<% }) %>
+	<tr class="warning"><td>Status</td><td id="results-status">Unsubmitted</td></tr>
+</script>

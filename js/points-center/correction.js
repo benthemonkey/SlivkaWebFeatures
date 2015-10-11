@@ -15,14 +15,14 @@ var resetForm = function() {
 };
 
 var validateFilledBy = function() {
-    return utils.updateValidity($('.filled-by-control'), utils.slivkanNameExists(slivkans, $('#filled-by').val()));
+    return utils.updateValidity($('.filled-by-control'), utils.findSlivkan(slivkans, $('#filled-by').val()));
 };
 
 var submitPointsCorrection = function() {
     var data = {
         event_name: $('#event-name').val(),
         name: $('#filled-by').val(),
-        sender_email: slivkans[slivkans.indexOfKey('full_name', $('#filled-by').val())].nu_email,
+        sender_email: utils.findSlivkan(slivkans, $('#filled-by').val()).nu_email,
         comments: $('#comments').val()
     };
 

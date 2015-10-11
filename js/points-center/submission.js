@@ -2,10 +2,14 @@
 
 var moment = require('moment');
 var _ = {
-    cloneDeep: require('lodash/lang/cloneDeep')
+    findIndex: require('lodash/array/findIndex'),
+    forEach: require('lodash/collection/forEach'),
+    cloneDeep: require('lodash/lang/cloneDeep'),
+    template: require('lodash/string/template')
 };
 var utils = require('./utils');
 var type, slivkans, fellows;
+var typeaheadUniqueIndex = 0;
 var VALID_EVENT_NAME = false;
 
 var appendFellowInputs = function(n) {
@@ -40,7 +44,7 @@ var saveSlivkans = function() {
 };
 
 var validateSlivkanName = function(entry, inBulk) {
-    var ind, committee;
+    var foundSlivkan;
     var valid = true;
     var slivkanEntry = entry.find('.slivkan-entry');
     var name = slivkanEntry.val();
@@ -51,14 +55,15 @@ var validateSlivkanName = function(entry, inBulk) {
         // clear duplicates
         $('#slivkan-entry-tab').find('.slivkan-entry').each(function() {
             var $self = $(this);
+            var _name = $self.val();
 
-            if ($self.val().length > 0) {
-                if (nameArray.indexOf($self.val()) === -1) {
-                    nameArray.push($self.val());
+            if (_name.length > 0) {
+                if (nameArray.indexOf(_name) === -1) {
+                    nameArray.push(_name);
                 } else {
                     $self.val('');
                     $('#duplicate-alert').slideDown();
-                    validateSlivkanName(self.parent(), true);
+                    validateSlivkanName($self.parent(), true);
                 }
             }
         });
@@ -76,14 +81,14 @@ var validateSlivkanName = function(entry, inBulk) {
     }
 
     if (name.length > 0) {
-        ind = slivkans.indexOfKey('full_name', name);
+        foundSlivkan = utils.findSlivkan(slivkans, name);
 
-        valid &= ind !== -1;
+        if (!foundSlivkan) {
+            valid = false;
+        }
 
-        if (type === 'Committee Only') {
-            committee = $('#committee').val();
-
-            valid &= committee === slivkans[ind].committee;
+        if (type === 'Committee Only' && $('#committee').val() !== foundSlivkan.committee) {
+            valid = false;
         }
 
         utils.updateValidity(entry, valid);
@@ -119,7 +124,7 @@ var validateFellowName = function(entry) {
     entry.removeClass('has-warning');
 
     if (name.length > 0) {
-        valid = fellows.indexOfKey('full_name', name) !== -1;
+        valid = _.findIndex({ full_name: name }) !== -1;
         utils.updateValidity(entry, valid);
     } else {
         entry.removeClass('has-success has-error');
@@ -153,7 +158,7 @@ var validateEventName = function() {
         $.getJSON(utils.ajaxRoot + '/ajax/getRecentEvents.php', function(events) {
             var last;
 
-            if (events.length > 0 && events.indexOfKey('event_name', eventName) !== -1) {
+            if (events.length > 0 && _.findIndex(events, { event_name: eventName }) !== -1) {
                 if (type === 'IM') {
                     last = parseInt(eventEl.val().slice(-1), 10);
                     eventEl.val(eventEl.val().slice(0, -1) + (last + 1).toString());
@@ -226,7 +231,6 @@ var validateDescription = function() {
 };
 
 var validateFilledBy = function() {
-    var valid = true;
     var name = $('#filled-by').val();
 
     $('.filled-by-control').removeClass('has-warning');
@@ -238,10 +242,7 @@ var validateFilledBy = function() {
     // store value
     localStorage.spc_sub_filledby = name;
 
-    valid = slivkans.indexOfKey('full_name', name) !== -1;
-    utils.updateValidity($('.filled-by-control'), valid);
-
-    return valid;
+    return utils.updateValidity($('.filled-by-control'), utils.findSlivkan(slivkans, name));
 };
 
 var toggleType = function(event) {
@@ -355,7 +356,7 @@ var addBulkNames = function() {
         name = nameArray[i];
 
         // check if wildcard
-        wildcardInd = slivkans.indexOfKey('wildcard', name);
+        wildcardInd = _.findIndex(slivkans, { wildcard: name });
         if (wildcardInd !== -1) {
             name = slivkans[wildcardInd].full_name;
         }
@@ -446,14 +447,15 @@ var resetForm = function(force) {
 };
 
 var submitPointsForm = function() {
-    var name, nuEmail, val, ind, obj, realSubmit;
+    var $realSubmit = $('#real-submit');
+    var resultsTemplate = _.template($('#resultsTemplate').html(), { imports: { forEach: _.forEach } });
     var data = {
         date: $('#date').val(),
         type: type.toLowerCase().replace(' ', '_'),
         committee: $('#committee').val(),
         event_name: $('#event').val(),
         description: $('#description').val(),
-        filled_by: slivkans[slivkans.indexOfKey('full_name', $('#filled-by').val())].nu_email,
+        filled_by: utils.findSlivkan(slivkans, $('#filled-by').val()).nu_email,
         comments: $('#comments').val(),
         attendees: [],
         committee_members: [],
@@ -461,23 +463,19 @@ var submitPointsForm = function() {
     };
 
     $('#slivkan-entry-tab').find('.slivkan-entry').each(function() {
-        name = $(this).val();
-        if (name.length > 0) {
-            ind = slivkans.indexOfKey('full_name', name);
-            nuEmail = slivkans[ind].nu_email;
+        var slivkan = utils.findSlivkan(slivkans, $(this).val());
 
-            data.attendees.push(nuEmail);
-            if (slivkans[ind].committee === data.committee &&
-                data.committee !== 'Exec' &&
-                type !== 'p2p' &&
-                type !== 'im') {
-                data.committee_members.push(nuEmail);
+        if (slivkan) {
+            data.attendees.push(slivkan.nu_email);
+
+            if (slivkan.committee === data.committee && data.committee !== 'Exec' && type !== 'p2p' && type !== 'im') {
+                data.committee_members.push(slivkan.nu_email);
             }
         }
     });
 
     $('.fellow-entry').each(function() {
-        name = $(this).val();
+        var name = $(this).val();
 
         if (name.length > 0) {
             data.fellows.push(name);
@@ -485,38 +483,16 @@ var submitPointsForm = function() {
     });
 
     // clear receipt:
-    $('#receipt').empty();
-
-    for (obj in data) {
-        if (data.hasOwnProperty(obj)) {
-            if (obj === 'attendees' || obj === 'committee_members' || obj === 'fellows') {
-                val = data[obj].join(', ');
-            } else {
-                val = data[obj];
-            }
-
-            $('<tr class="results-row" />').append(
-                $('<td class="results-label" />').text(obj)
-            ).append(
-                $('<td class="results" />').text(val)
-            ).appendTo('#receipt');
-        }
-    }
-
-    $('<tr class="warning" />').append($('<td>Status</td>'))
-        .append($('<td id="results-status">Unsubmitted</td>'))
-        .appendTo('#receipt');
+    $('#receipt').html(resultsTemplate({ data: data }));
 
     $('#submit-results').modal('show');
 
-    realSubmit = $('#real-submit');
-
-    realSubmit.off('click');
-    realSubmit.on('click', function() {
-        realSubmit.button('loading');
+    $realSubmit.off('click');
+    $realSubmit.on('click', function() {
+        $realSubmit.button('loading');
 
         $.post(utils.ajaxRoot + '/ajax/submitPointsForm.php', data, function(dataIn) {
-            realSubmit.button('reset');
+            $realSubmit.button('reset');
             $('#results-status').parent().removeClass('has-warning');
             if (dataIn.error) {
                 $('#results-status').text('Error in Step ' + dataIn.step)
@@ -601,56 +577,53 @@ var validatePointsForm = function() {
     return valid;
 };
 
-var handlers = {
-    addClassWarning: function() {
-        $(this).closest('.form-group').addClass('has-warning');
-    },
-    slivkanTypeahead: function() {
-        var ind, committee, numInputs;
-        var target = $(this);
-        var slivkansTmp = _.cloneDeep(slivkans);
+var slivkanTypeahead = function() {
+    var ind, committee, numInputs;
+    var target = $(this);
+    var slivkansTmp = _.cloneDeep(slivkans);
 
-        if (localStorage.spc_sub_attendees) {
-            localStorage.spc_sub_attendees.split(', ').forEach(function(el) {
-                ind = slivkansTmp.indexOfKey('full_name', el);
-                if (ind !== -1) {
-                    slivkansTmp[ind].dupe = true;
-                }
-            });
-        }
-
-        if (type === 'Committee Only') {
-            committee = $('#committee').val();
-
-            slivkansTmp = slivkansTmp.filter(function(item) {
-                return item.committee === committee;
-            });
-        }
-
-        if (target.closest('.slivkan-entry-control').addClass('has-warning').is(':last-child')) {
-            numInputs = $('#slivkan-entry-tab').find('.slivkan-entry').length;
-            if (numInputs < 120) {
-                utils.appendSlivkanInputs(1);
+    if (localStorage.spc_sub_attendees) {
+        localStorage.spc_sub_attendees.split(', ').forEach(function(el) {
+            ind = _.findIndex(slivkansTmp, { full_name: el });
+            if (ind !== -1) {
+                slivkansTmp[ind].dupe = true;
             }
-        }
+        });
+    }
 
-        if (!target.hasClass('tt-input')) {
-            target.typeahead(null, utils.typeaheadOpts('slivkans' + Math.random(), slivkansTmp)).focus();
-        }
-    },
-    fellowTypeahead: function() {
-        var numInputs;
-        var target = $(this);
+    if (type === 'Committee Only') {
+        committee = $('#committee').val();
 
-        if (target.closest('.fellow-entry-control').addClass('has-warning').is(':last-child')) {
-            numInputs = $('#fellow-entry-tab').find('.fellow-entry').length;
-            if (numInputs < 20) {
-                appendFellowInputs(1);
-            }
+        slivkansTmp = slivkansTmp.filter(function(item) {
+            return item.committee === committee;
+        });
+    }
+
+    if (target.closest('.slivkan-entry-control').addClass('has-warning').is(':last-child')) {
+        numInputs = $('#slivkan-entry-tab').find('.slivkan-entry').length;
+        if (numInputs < 120) {
+            utils.appendSlivkanInputs(1);
         }
-        if (!target.hasClass('tt-input')) {
-            target.typeahead(null, utils.typeaheadOpts('fellows', fellows)).focus();
+    }
+
+    if (!target.hasClass('tt-input')) {
+        typeaheadUniqueIndex++;
+        target.typeahead(null, utils.typeaheadOpts('slivkans' + typeaheadUniqueIndex, slivkansTmp)).focus();
+    }
+};
+
+var fellowTypeahead = function() {
+    var numInputs;
+    var target = $(this);
+
+    if (target.closest('.fellow-entry-control').addClass('has-warning').is(':last-child')) {
+        numInputs = $('#fellow-entry-tab').find('.fellow-entry').length;
+        if (numInputs < 20) {
+            appendFellowInputs(1);
         }
+    }
+    if (!target.hasClass('tt-input')) {
+        target.typeahead(null, utils.typeaheadOpts('fellows', fellows)).focus();
     }
 };
 
@@ -732,20 +705,20 @@ module.exports = {
             $('#filled-by').typeahead(null, utils.typeaheadOpts('slivkans', slivkans));
 
             $('#slivkan-entry-tab')
-                .on('focus', '.slivkan-entry', handlers.slivkanTypeahead)
-                .on('typeahead:closed', '.slivkan-entry.tt-input',
+                .on('focus', '.slivkan-entry', slivkanTypeahead)
+                .on('typeahead:close', '.slivkan-entry',
                     { callback: validateSlivkanName },
                     utils.destroyTypeahead)
-                .on('typeahead:selected', '.slivkan-entry.tt-input', function() {
+                .on('typeahead:autocomplete', '.slivkan-entry', function() {
                     $(this).closest('.form-group').next().find('input').focus();
                 });
 
             $('#fellow-entry-tab')
-                .on('focus', '.fellow-entry', handlers.fellowTypeahead)
-                .on('typeahead:closed', '.fellow-entry.tt-input',
+                .on('focus', '.fellow-entry', fellowTypeahead)
+                .on('typeahead:close', '.fellow-entry',
                     { callback: validateFellowName },
                     utils.destroyTypeahead)
-                .on('typeahead:selected', '.fellow-entry.tt-input', function() {
+                .on('typeahead:autocomplete', '.fellow-entry', function() {
                     $(this).closest('.form-group').next().find('input').focus();
                 });
         });
@@ -757,10 +730,10 @@ module.exports = {
         }
 
         // event handlers for inputs
-        $('#filled-by')         .on('focus',    handlers.addClassWarning)
+        $('#filled-by')         .on('focus',    function() { $(this).closest('.form-group').addClass('has-warning'); })
                                 .on('focusout', validateFilledBy);
         $('#type')              .on('click',    toggleType);
-        $('#event')             .on('focus',    handlers.addClassWarning)
+        $('#event')             .on('focus',    function() { $(this).closest('.form-group').addClass('has-warning'); })
                                 .on('focusout', validateEventName);
         $('#date')              .on('change',   function() {
             localStorage.spc_sub_date = $(this).val();
@@ -769,15 +742,9 @@ module.exports = {
         $('#im-team')           .on('change',   validateIMTeam);
         $('#committee')         .on('change',   validateCommittee);
         $('#description')       .on('focusout', validateDescription);
-        $('#comments')          .on('focusout', function() {
-            localStorage.spc_sub_comments = $(this).val();
-        });
-        $('#close-sort-alert')  .on('click',  function() {
-            $('#sort-alert').slideUp();
-        });
-        $('#close-dupe-alert')  .on('click',  function() {
-            $('#duplicate-alert').slideUp();
-        });
+        $('#comments')          .on('focusout', function() { localStorage.spc_sub_comments = $(this).val(); });
+        $('#close-sort-alert')  .on('click',    function() { $('#sort-alert').slideUp(); });
+        $('#close-dupe-alert')  .on('click',    function() { $('#duplicate-alert').slideUp(); });
         $('#sort-entries')      .on('click',    sortEntries);
         $('#submit')            .on('click',    validatePointsForm);
         $('#reset')             .on('click',    resetForm);

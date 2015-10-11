@@ -10,22 +10,26 @@ legend{
   margin: 50px 20px 15px;
 }
 
-.slivkan-suggestion{
-  min-height: 30px;
+.tt-suggestion{
+  min-height: 30px!important;
+  height: auto!important;
 }
 
-.slivkan-suggestion img{
+.tt-menu {
+  min-width: 260px!important;
+}
+
+.tt-suggestion img{
   display: inline-block;
-  position: absolute;
-  right: 4px;
   height: 30px;
+  float: right;
           transition-duration: 0.2s;
   -webkit-transition-duration: 0.2s;
      -moz-transition-duration: 0.2s;
        -o-transition-duration: 0.2s;
 }
 
-.slivkan-suggestion img:hover{
+.tt-suggestion img:hover{
   z-index: 100;
   -webkit-transform: translate(0,60px) scale(5);
      -moz-transform: translate(0,60px) scale(5);
@@ -34,7 +38,7 @@ legend{
           transform: translate(0,60px) scale(5);
 }
 
-.slivkan-dupe{
+.tt-suggestion.dupe{
   color: #999999;
   font-style: italic;
 }
@@ -49,10 +53,6 @@ legend{
 
 .dropdown-menu input[type="checkbox"]{
     margin-left: 5px;
-}
-
-.tt-dropdown-menu{
-  min-width: 260px;
 }
 
 /* committee colors

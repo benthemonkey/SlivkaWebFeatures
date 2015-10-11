@@ -79,7 +79,7 @@ rules:
     no-use-before-define: 2
 
     # Stylistic Rules
-    brace-style: [1, "1tbs"]
+    brace-style: [1, "1tbs", {"allowSingleLine": true}]
     camelcase: [1, {"properties": "never"}]
     comma-spacing: 1
     comma-style: [2, "last"]
