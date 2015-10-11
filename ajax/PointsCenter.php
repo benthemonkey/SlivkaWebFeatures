@@ -306,6 +306,17 @@ class PointsCenter
         );
     }
 
+    public function eventNameExists($event_name)
+    {
+        return count(self::fetchAllQuery(
+            "SELECT event_name
+                FROM events
+                WHERE qtr=:qtr AND event_name=:event_name",
+            PDO::FETCH_COLUMN,
+            array(":event_name" => $event_name)
+        )) > 0;
+    }
+
     public function getCommitteeEvents($committee)
     {
         if ($committee == "Facilities") {
@@ -513,11 +524,17 @@ class PointsCenter
             $other_points = 0;
         }
 
-        $other_breakdown = array(
-            array($bonus['other1_name'] | '', $bonus['other1'] | 0),
-            array($bonus['other2_name'] | '', $bonus['other2'] | 0),
-            array($bonus['other3_name'] | '', $bonus['other3'] | 0)
-        );
+        $other_breakdown = array();
+
+        if (!empty($bonus['other1_name'])) {
+            $other_breakdown[] = array($bonus['other1_name'], $bonus['other1']);
+        }
+        if (!empty($bonus['other2_name'])) {
+            $other_breakdown[] = array($bonus['other2_name'], $bonus['other2']);
+        }
+        if (!empty($bonus['other3_name'])) {
+            $other_breakdown[] = array($bonus['other3_name'], $bonus['other3']);
+        }
 
         return array(
             "helper" => $helper_points,

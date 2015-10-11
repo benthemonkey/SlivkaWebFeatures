@@ -85,9 +85,7 @@ var validateSlivkanName = function(entry, inBulk) {
 
         if (!foundSlivkan) {
             valid = false;
-        }
-
-        if (type === 'Committee Only' && $('#committee').val() !== foundSlivkan.committee) {
+        } else if (type === 'Committee Only' && $('#committee').val() !== foundSlivkan.committee) {
             valid = false;
         }
 
@@ -155,10 +153,10 @@ var validateEventName = function() {
     } else if ((eventName.length <= 32 && eventName.length >= 8) || (type === 'P2P' && eventName === 'P2P')) {
         eventName += ' ' + $('#date').val();
 
-        $.getJSON(utils.ajaxRoot + '/ajax/getRecentEvents.php', function(events) {
+        $.getJSON(utils.ajaxRoot + '/ajax/eventNameExists.php', { event_name: eventName }, function(response) {
             var last;
 
-            if (events.length > 0 && _.findIndex(events, { event_name: eventName }) !== -1) {
+            if (response.eventNameExists) {
                 if (type === 'IM') {
                     last = parseInt(eventEl.val().slice(-1), 10);
                     eventEl.val(eventEl.val().slice(0, -1) + (last + 1).toString());
@@ -709,7 +707,7 @@ module.exports = {
                 .on('typeahead:close', '.slivkan-entry',
                     { callback: validateSlivkanName },
                     utils.destroyTypeahead)
-                .on('typeahead:autocomplete', '.slivkan-entry', function() {
+                .on('typeahead:autocomplete typeahead:select', '.slivkan-entry', function() {
                     $(this).closest('.form-group').next().find('input').focus();
                 });
 
@@ -718,7 +716,7 @@ module.exports = {
                 .on('typeahead:close', '.fellow-entry',
                     { callback: validateFellowName },
                     utils.destroyTypeahead)
-                .on('typeahead:autocomplete', '.fellow-entry', function() {
+                .on('typeahead:autocomplete typeahead:select', '.fellow-entry', function() {
                     $(this).closest('.form-group').next().find('input').focus();
                 });
         });

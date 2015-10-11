@@ -86,9 +86,5 @@ module.exports.destroyTypeahead = function(event) {
 
     if (target.hasClass('tt-input')) {
         event.data.callback(target.typeahead('destroy').closest('.form-group'));
-
-        if (TAB_PRESSED) {
-            target.closest('.form-group').next().find('input').focus();
-        }
     }
 };

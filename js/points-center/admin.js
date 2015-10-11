@@ -239,10 +239,10 @@ module.exports = {
             utils.appendSlivkanInputs(9);
 
             $('#slivkan-entry-tab')
-                .on('focus', '.slivkan-entry', slivkanTypeahead);
-                // .on('typeahead:close', '.slivkan-entry',
-                //     { callback: validateSlivkanName },
-                //     utils.destroyTypeahead);
+                .on('focus', '.slivkan-entry', slivkanTypeahead)
+                .on('typeahead:close', '.slivkan-entry',
+                    { callback: validateSlivkanName },
+                    utils.destroyTypeahead);
 
             $('[data-edit-committee]').on('click', function() {
                 var committee = $('#edit-committee').val();
