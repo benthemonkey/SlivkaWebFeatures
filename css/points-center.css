@@ -30,12 +30,7 @@ legend{
 }
 
 .tt-suggestion img:hover{
-  z-index: 100;
-  -webkit-transform: translate(0,60px) scale(5);
-     -moz-transform: translate(0,60px) scale(5);
-      -ms-transform: translate(0,60px) scale(5);
-       -o-transform: translate(0,60px) scale(5);
-          transform: translate(0,60px) scale(5);
+  height: 120px;
 }
 
 .tt-suggestion.dupe{
