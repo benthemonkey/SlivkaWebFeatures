@@ -238,11 +238,18 @@ class PointsCenter
 
     public function getFellows()
     {
-        return self::fetchAllQuery(
+        $fellows = self::fetchAllQuery(
             "SELECT full_name,position,about,photo
             FROM fellows
             WHERE qtr_final IS NULL"
         );
+
+        # add tokens for typeahead.js
+        $n = count($fellows);
+        for ($i=0; $i<$n; $i++) {
+            $fellows[$i]["tokens"] = explode(" ", $fellows[$i]["full_name"]);
+        }
+        return $fellows;
     }
 
     public function updateFellowPhoto($fellow, $photo)

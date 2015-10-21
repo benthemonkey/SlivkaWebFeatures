@@ -73,7 +73,7 @@ var getSlivkanPoints = function() {
     // fix height of breakdown so there is no flash of background
     $breakdown.parent().css('min-height', $breakdown.parent().height());
 
-    if (nuEmail.length > 0) {
+    if (nuEmail && nuEmail.length > 0) {
         localStorage.spc_brk_slivkan = nuEmail;
 
         $.when(

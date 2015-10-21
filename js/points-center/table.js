@@ -52,7 +52,7 @@ module.exports = {
             };
         })();
         var adjustWidth = function() {
-            var width = (tableWrapper.width() - nameColWidth - 6 * totalsColWidth - 2) + 'px';
+            var width = (tableWrapper.width() - nameColWidth - 6 * totalsColWidth) + 'px';
 
             $('th.end').css({
                 'width': width,

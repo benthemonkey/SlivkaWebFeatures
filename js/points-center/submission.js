@@ -122,7 +122,7 @@ var validateFellowName = function(entry) {
     entry.removeClass('has-warning');
 
     if (name.length > 0) {
-        valid = _.findIndex({ full_name: name }) !== -1;
+        valid = _.findIndex(fellows, { full_name: name }) !== -1;
         utils.updateValidity(entry, valid);
     } else {
         entry.removeClass('has-success has-error');

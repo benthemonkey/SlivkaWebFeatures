@@ -225,17 +225,13 @@ tr.odd  td.yellow.sorting_1 { background-color: #FFD500; }
     margin-left: 170px;
   }
 
-  .points-table th.name {
+  .points-table th.name,
+  .points-table td.name {
     position: absolute;
-    margin-left: -170px;
+    margin-left: -171px;
   }
 
   .points-table th.name > div {
       display: block;
-  }
-
-  .points-table td.name {
-    position: absolute;
-    margin-left: -170px;
   }
 }
