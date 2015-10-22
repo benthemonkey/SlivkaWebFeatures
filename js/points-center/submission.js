@@ -8,7 +8,8 @@ var _ = {
     template: require('lodash/string/template')
 };
 var utils = require('./utils');
-var type, slivkans, fellows;
+var slivkans, fellows;
+var type = 'Other';
 var typeaheadUniqueIndex = 0;
 var VALID_EVENT_NAME = false;
 
