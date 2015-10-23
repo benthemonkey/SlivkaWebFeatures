@@ -8,6 +8,12 @@
 
 $gray: #999;
 
+// stupid fix to long-standing bootstrap-sass issue: https://github.com/twbs/bootstrap-sass/issues/919
+.breadcrumb > li + li:before {
+  content: '/\00a0';
+  color: $breadcrumb-color;
+}
+
 legend {
   padding-left: 10px;
 }
