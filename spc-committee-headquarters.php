@@ -55,11 +55,11 @@ function getFullName($slivkans, $nu_email)
 		<div class="col-lg-4 col-md-5 col-sm-6">
 			<div>Colors:</div>
 			<table class="legend text-center" style="width: 100%;">
-				<tr class="odd">
+				<tr>
 					<td class="green">Attendee</td>
 					<td class="blue">Point Taker</td>
 					<td class="yellow">Other Points</td>
-					<td>None</td>
+					<td class="red">None</td>
 				</tr>
 			</table>
 		</div>

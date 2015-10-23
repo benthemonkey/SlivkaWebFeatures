@@ -18,6 +18,22 @@ $black: #000;
   color: $black;
   border-collapse: separate;
   border-spacing: 3px;
+
+  .green {
+    background-color: $green;
+  }
+
+  .blue {
+    background-color: $blue;
+  }
+
+  .yellow {
+    background-color: $yellow;
+  }
+
+  .red {
+    background-color: $red;
+  }
 }
 
 .points-table-controls .legend td {
@@ -244,26 +260,28 @@ $black: #000;
     }
   }
 
-  td.end {
+  tr > td.end {
     background-color: $white;
   }
 
-  .sort-icon,
-  .name span {
-    background: url('data:image/gif;base64,R0lGODlhBwAJAIAAACMtMP///yH5BAEAAAEALAAAAAAHAAkAAAINjGEJq8sOk4Qu0IZmKgA7') no-repeat center;
+  .sorting {
+    .sort-icon,
+    &.name span {
+      background: url('data:image/gif;base64,R0lGODlhBwAJAIAAACMtMP///yH5BAEAAAEALAAAAAAHAAkAAAINjGEJq8sOk4Qu0IZmKgA7') center no-repeat;
+    }
   }
 
   .sorting_asc {
     .sort-icon,
-    span {
-      background-image: url('data:image/gif;base64,R0lGODlhBwAEAIAAACMtMP///yH5BAEAAAEALAAAAAAHAAQAAAIHjGEJq8sOCwA7');
+    &.name span {
+      background: url('data:image/gif;base64,R0lGODlhBwAEAIAAACMtMP///yH5BAEAAAEALAAAAAAHAAQAAAIHjGEJq8sOCwA7') center no-repeat;
     }
   }
 
   .sorting_desc {
     .sort-icon,
-    span {
-      background-image: url('data:image/gif;base64,R0lGODlhBwAEAIAAACMtMP///yH5BAEAAAEALAAAAAAHAAQAAAIIhA+BGWoNWSgAOw==');
+    &.name span {
+      background: url('data:image/gif;base64,R0lGODlhBwAEAIAAACMtMP///yH5BAEAAAEALAAAAAAHAAQAAAIIhA+BGWoNWSgAOw==') center no-repeat;
     }
   }
 }

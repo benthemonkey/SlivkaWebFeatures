@@ -25,12 +25,12 @@ $points_table = $points_center->getPointsTable($showall);
 			?></p>
 		</div>
 		<table class="legend">
-			<tr class="odd">
-				<td style="background-color: white;">Colors: </td>
+			<tr>
+				<td>Colors: </td>
 				<td class="green">Point</td>
 				<td class="blue">Committee</td>
 				<td class="gold">Helper</td>
-				<td>None</td>
+				<td class="red">None</td>
 			</tr>
 		</table>
 	</div>

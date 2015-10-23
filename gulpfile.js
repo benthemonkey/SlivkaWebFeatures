@@ -150,7 +150,7 @@ gulp.task('watch', ['clean', 'javascript-watch', 'stylesheets-watch'], function(
     plugins.livereload.listen();
 
     gulp.watch('js/**/*.js', ['javascript-lint']);
-    gulp.watch('css/*.css', ['stylesheets-watch']);
+    gulp.watch('css/*.scss', ['stylesheets-watch']);
 });
 
 gulp.task('build', ['clean', 'javascript-build', 'stylesheets-build']);
