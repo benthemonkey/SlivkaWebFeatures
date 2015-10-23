@@ -1,66 +1,62 @@
-legend{
+@import '../node_modules/bootstrap-sass/assets/stylesheets/bootstrap';
+@import '../node_modules/bootstrap-sass/assets/stylesheets/bootstrap/theme';
+@import '../node_modules/font-awesome/scss/font-awesome';
+@import 'bootstrap-multiselect';
+@import 'nprogress';
+@import 'typeahead.js-bootstrap';
+@import 'points-table';
+
+$gray: #999;
+
+legend {
   padding-left: 10px;
 }
 
-.navbar{
+.navbar {
   z-index: 99;
 }
 
-.credits{
+.credits {
   margin: 50px 20px 15px;
 }
 
-.tt-suggestion{
-  min-height: 30px!important;
-  height: auto!important;
+.tt-suggestion {
+  min-height: 30px !important;
+  height: auto !important;
 }
 
 .tt-menu {
-  min-width: 260px!important;
+  min-width: 260px !important;
 }
 
-.tt-suggestion img{
+.tt-suggestion img {
   display: inline-block;
   height: 30px;
   float: right;
-          transition-duration: 0.2s;
-  -webkit-transition-duration: 0.2s;
-     -moz-transition-duration: 0.2s;
-       -o-transition-duration: 0.2s;
+  transition-duration: 0.2s;
 }
 
-.tt-suggestion img:hover{
+.tt-suggestion img:hover {
   height: 120px;
 }
 
-.tt-suggestion.dupe{
-  color: #999999;
+.tt-suggestion.dupe {
+  color: $gray;
   font-style: italic;
 }
 
-.form-control{
+.form-control {
   padding: 6px 4px;
 }
 
-/* committee colors
-.Exec         td { background-color: #2f7ed8!important; }
-.Academic     td { background-color: #0d233a!important; color: white; }
-.Facilities   td { background-color: #8bbc21!important; }
-.Faculty      td { background-color: #910000!important; color: white; }
-.IT           td { background-color: #1aadce!important; }
-.Philanthropy td { background-color: #492970!important; color: white; }
-.Publications td { background-color: #f28f43!important; }
-.Social       td { background-color: #77a1e5!important; }
-.CA           td { background-color: #c42525!important; color: white; }
-.Other        td { background-color: #a6c96a!important; }*/
-
-@media (max-width: 768px){
-  .container{
+@media (max-width: 768px) {
+  .container {
     padding-right: 10px;
     padding-left: 10px;
   }
 
-  .form-group, .form-horizontal .form-group{
+  .form-group,
+  .form-horizontal .form-group {
     margin-right: -5px;
     margin-left: -5px;
   }

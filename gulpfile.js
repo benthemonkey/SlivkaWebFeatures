@@ -68,18 +68,11 @@ var browserifyShare = function(opts) {
 var stylesheetsShare = function(opts) {
     var watch = opts.watch || false;
     var minify = opts.minify || false;
-    var stream = gulp.src([
-        'node_modules/bootstrap/dist/css/bootstrap.css',
-        'node_modules/bootstrap/dist/css/bootstrap-theme.css',
-        'node_modules/bootstrap-multiselect/dist/css/bootstrap-multiselect.css',
-        'node_modules/font-awesome/css/font-awesome.css',
-        'node_modules/nprogress/nprogress.css',
-        'css/typeahead.js-bootstrap.css',
-        'css/points-center.css',
-        'css/points-table.css'
-    ])
+    var stream = gulp.src('css/points-center.scss')
         .pipe(plugins.sourcemaps.init())
-        .pipe(plugins.concat('points-center.css'))
+        .pipe(plugins.sass({
+            precision: 9
+        }).on('error', plugins.sass.logError))
         .pipe(plugins.sourcemaps.write('./', {
             includeContent: false,
             sourceRoot: '../'
@@ -102,10 +95,10 @@ var stylesheetsShare = function(opts) {
     return stream;
 };
 
-gulp.task('clean', function() {
+gulp.task('javascript-clean', function() {
     var del = require('del');
 
-    return del(['build']);
+    return del(['build/*.js', 'build/*.js.map']);
 });
 
 gulp.task('javascript-lint', function() {
@@ -127,17 +120,31 @@ gulp.task('javascript-build', ['clean'], function() {
     return browserifyShare({ watch: false, minify: true });
 });
 
+gulp.task('stylesheets-clean', function() {
+    var del = require('del');
+
+    return del(['build/*.css', 'build/*.css.map']);
+});
+
+gulp.task('stylesheets-lint', function() {
+    return gulp.src(['css/points-center.scss', 'css/points-table.scss'])
+        .pipe(plugins.sassLint())
+        .pipe(plugins.sassLint.format());
+});
+
 gulp.task('stylesheets', function() {
     return stylesheetsShare({ watch: false, minify: false });
 });
 
-gulp.task('stylesheets-watch', function() {
+gulp.task('stylesheets-watch', ['stylesheets-lint'], function() {
     return stylesheetsShare({ watch: true, minify: false });
 });
 
-gulp.task('stylesheets-build', ['clean'], function() {
+gulp.task('stylesheets-build', ['stylesheets-clean'], function() {
     return stylesheetsShare({ watch: false, minify: true });
 });
+
+gulp.task('clean', ['javascript-clean', 'stylesheets-clean']);
 
 gulp.task('watch', ['clean', 'javascript-watch', 'stylesheets-watch'], function() {
     plugins.livereload.listen();
