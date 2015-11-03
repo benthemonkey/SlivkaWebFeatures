@@ -150,14 +150,16 @@
 			<div class="help-block col-md-12"><small>Additional inputs appear automatically.</small></div>
 		</div>
 	</div>
-	<div class="well col-md-12">
-		<div class="help-block alert alert-danger col-md-6 pull-left" id="submit-error" style="display: none;"></div>
-		<div class="pull-right">
-			<button type="submit" class="btn btn-primary btn-lg" id="submit">Validate</button>
-			<button type="button" class="btn btn-default btn-lg" id="reset">Reset</button>
+	<div class="row">
+		<div class="well col-md-12">
+			<div class="help-block alert alert-danger col-md-6 pull-left" id="submit-error" style="display: none;"></div>
+			<div class="pull-right">
+				<button type="submit" class="btn btn-primary btn-lg" id="submit">Validate</button>
+				<button type="button" class="btn btn-default btn-lg" id="reset">Reset</button>
+			</div>
+			<div class="clearfix"></div>
+			<?php include('credits.html'); ?>
 		</div>
-		<div class="clearfix"></div>
-		<?php include('credits.html'); ?>
 	</div>
 </form>
 <div class="clearfix"></div>
