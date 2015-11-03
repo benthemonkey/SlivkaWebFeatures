@@ -95,12 +95,12 @@ module.exports = {
 
         $('#nameFilter').on('keyup', function() {
             delay(function() {
-                table.column([0]).search($('#name-filter').val()).draw();
+                table.column([0]).search($('#nameFilter').val()).draw();
             }, 500);
         });
 
         $('#genderFilter').on('change', function() {
-            var option = $('#gender-filter').val();
+            var option = $('#genderFilter').val();
 
             table.column([1]).search(option).draw();
         });
