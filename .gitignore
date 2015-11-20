@@ -11,8 +11,6 @@ ajax/tmp.php
 **.sql
 
 ajax/sendPointsCorrection.php
-pointsCenter.built.js
-css/pointsCenter.built.css
-css/pointsCenter.built.min.css
+build
 bower_components
 node_modules

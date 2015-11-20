@@ -23,13 +23,12 @@ function getFullName($slivkans, $nu_email)
 }
 ?>
 
-<link rel="stylesheet" href="/points/css/pointsTable.css" />
 <style>
-	.committee-points-table td{
+	.committee-points-table td {
 		padding: 2px;
 	}
 
-	th:hover{
+	th:hover {
 		cursor: auto;
 	}
 </style>
@@ -48,37 +47,38 @@ function getFullName($slivkans, $nu_email)
 </div>
 <legend><?php echo $committee ?> Committee Headquarters</legend>
 <?php if ($committee) { ?>
-	<div class="col-lg-2 col-md-3 col-sm-6">
-		<div class="alert alert-info">
-			<p>Click to edit values.</p>
+	<div class="row points-table-controls">
+		<div class="col-lg-2 col-md-3 col-sm-6">
+			<div class="alert alert-info">
+				<p>Click to edit values.</p>
+			</div>
+		</div>
+		<div class="col-lg-4 col-md-5 col-sm-6">
+			<div>Colors:</div>
+			<table class="legend text-center" style="width: 100%;">
+				<tr>
+					<td class="green">Attendee</td>
+					<td class="blue">Point Taker</td>
+					<td class="yellow">Other Points</td>
+					<td class="red">None</td>
+				</tr>
+			</table>
+		</div>
+		<div class="col-md-2 col-xs-6" style="margin-top: 18px;">
+			<a href="#helper-modal" class="btn btn-default btn-block" data-toggle="modal">Give Helper Point</a>
+		</div>
+		<div class="col-md-2 col-xs-6" style="margin-top: 18px;">
+			<a href="#no-show-modal" class="btn btn-default btn-block" data-toggle="modal">Submit No-Show</a>
 		</div>
 	</div>
-	<div class="col-lg-4 col-md-5 col-sm-6">
-		<div>Colors:</div>
-		<table id="legend" class="legend text-center" style="width: 100%;">
-			<tr class="odd">
-				<td class="green">Attendee</td>
-				<td class="blue">Point Taker</td>
-				<td class="yellow">Other Points</td>
-				<td>None</td>
-			</tr>
-		</table>
-	</div>
-	<div class="col-md-2 col-xs-6" style="margin-top: 18px;">
-		<a href="#helper-modal" class="btn btn-default btn-block" data-toggle="modal">Give Helper Point</a>
-	</div>
-	<div class="col-md-2 col-xs-6" style="margin-top: 18px;">
-		<a href="#no-show-modal" class="btn btn-default btn-block" data-toggle="modal">Submit No-Show</a>
-	</div>
-	<div class="clearfix"></div>
-	<div class="table-wrapper">
+	<div class="points-table-wrapper">
 		<table id="table" class="points-table committee-points-table">
 			<thead>
 			<tr>
-				<th class="nameHeader"><div><div></div></div><span>Name</span></th>
+				<th class="name"><div><div></div></div><span>Name</span></th>
 				<?php for ($i=0; $i<count($points_table['events']); $i++) { ?>
-					<th class="eventHeader">
-						<div class="slantedHeader">
+					<th class="event">
+						<div class="slanted">
 							<span><?= substr($points_table['events'][$i], 0, -10) . substr($points_table['events'][$i], -5)?></span>
 						</div>
 						<div class="sort-icon"></div>
@@ -88,15 +88,15 @@ function getFullName($slivkans, $nu_email)
 				$totalsColumns = array("Bonus", "Total");//, "Total (adjusted)");
 
 				for ($i=0; $i<count($totalsColumns); $i++) { ?>
-					<th class="totalsHeader">
-						<div class="slantedHeader">
+					<th class="total">
+						<div class="slanted">
 							<span><?= $totalsColumns[$i] ?></span>
 						</div>
 						<div class="sort-icon"></div>
 					</th>
 				<?php } ?>
-				<th class="endHeader">
-					<div class="slantedHeader"></div>
+				<th class="end">
+					<div class="slanted"></div>
 					<div class="sort-icon"></div>
 				</th>
 			</tr>
@@ -245,25 +245,25 @@ function getFullName($slivkans, $nu_email)
 	<div class="row">
 		<div class="form-group has-success col-sm-4">
 			<label class="control-label" for="pts-input">Points:</label>
-			<input type="number" id="pts-input" value="{{value}}" data-original-value="{{value}}"
+			<input type="number" id="pts-input" value="<%= value %>" data-original-value="<%= value %>"
 				   min="-3.0" max="3.0" step="0.1" class="form-control pts-input">
 		</div>
-		{{#contributions}}
+		<% if (contributions) { %>
 		<div class="form-group col-sm-8">
-			<label class="control-label" for="contributions">Contributions:</label>
-			<select id="contributions" class="multiselect" multiple="multiple" style="height: 34px;">
-				{{#contributions_list}}
-				<option value={{value}} {{#pts}}data-pts="{{pts}}"{{/pts}} {{disabled}} {{#selected}}selected{{/selected}}>
-				{{title}}{{#pts}} ({{pts}}){{/pts}}
-				</option>
-				{{/contributions_list}}
-			</select>
+			<label class="control-label">Contributions:</label>
+			<ul id="contributions" class="list-unstyled">
+				<% forEach(contributions_list, function(c) { %>
+				<li><label><input type="checkbox" value="<%= c.value %>" data-pts="<%= c.pts %>" <% if (c.selected) { print("checked") } %>>
+				<%- c.title %> (<%= c.pts %>)
+				</label></li>
+				<% }) %>
+			</ul>
 		</div>
-		{{/contributions}}
+		<% } %>
 
 		<div class="form-group col-sm-12">
 			<label for="comments" class="control-label">Comments:</label>
-			<textarea id="comments" maxlength="200" rows="5" class="form-control">{{comments}}</textarea>
+			<textarea id="comments" maxlength="200" rows="2" class="form-control"><%- comments %></textarea>
 		</div>
 
 		<div class="col-sm-6">

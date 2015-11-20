@@ -1,5 +1,5 @@
 <div class="row">
-	<div class="col-lg-offset-3 col-lg-6 col-md-offset-2 col-md-8 col">
+	<div class="col-lg-offset-3 col-lg-6 col-md-offset-2 col-md-8">
 		<form autocomplete="off" onsubmit="return false;" class="form-horizontal">
 			<div class="form-group filled-by-control col-lg-12">
 				<label class="col-md-3 control-label" for="filled-by">Your Name:</label>

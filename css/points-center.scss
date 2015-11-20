@@ -1,0 +1,69 @@
+@import '../node_modules/bootstrap-sass/assets/stylesheets/bootstrap';
+@import '../node_modules/bootstrap-sass/assets/stylesheets/bootstrap/theme';
+@import '../node_modules/font-awesome/scss/font-awesome';
+@import 'bootstrap-multiselect';
+@import 'nprogress';
+@import 'typeahead.js-bootstrap';
+@import 'points-table';
+
+$gray: #999;
+
+// stupid fix to long-standing bootstrap-sass issue: https://github.com/twbs/bootstrap-sass/issues/919
+.breadcrumb > li + li:before {
+  content: '/\00a0';
+  color: $breadcrumb-color;
+}
+
+legend {
+  padding-left: 10px;
+}
+
+.navbar {
+  z-index: 99;
+}
+
+.credits {
+  margin: 50px 20px 15px;
+}
+
+.tt-suggestion {
+  min-height: 30px !important;
+  height: auto !important;
+}
+
+.tt-menu {
+  min-width: 260px !important;
+}
+
+.tt-suggestion img {
+  display: inline-block;
+  height: 30px;
+  float: right;
+  transition-duration: 0.2s;
+}
+
+.tt-suggestion img:hover {
+  height: 120px;
+}
+
+.tt-suggestion.dupe {
+  color: $gray;
+  font-style: italic;
+}
+
+.form-control {
+  padding: 6px 4px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .form-group,
+  .form-horizontal .form-group {
+    margin-right: -5px;
+    margin-left: -5px;
+  }
+}

@@ -1,0 +1,110 @@
+root: true
+
+env:
+    browser: true
+    node: true
+
+ecmaFeatures:
+    globalReturn: false
+
+globals:
+    $: false
+
+rules:
+    # Default rules recommended by ESLint (http://eslint.org/docs/rules/):
+    comma-dangle: [2, "never"]
+    no-cond-assign: 2
+    no-console: 2
+    no-constant-condition: 2
+    no-control-regex: 2
+    no-debugger: 2
+    no-dupe-args: 2
+    no-dupe-keys: 2
+    no-duplicate-case: 2
+    no-empty-character-class: 2
+    no-empty: 2
+    no-ex-assign: 2
+    no-extra-boolean-cast: 2
+    no-extra-semi: 2
+    no-func-assign: 2
+    no-inner-declarations: [2, "both"]
+    no-invalid-regexp: 2
+    no-irregular-whitespace: 2
+    no-negated-in-lhs: 2
+    no-obj-calls: 2
+    no-regex-spaces: 2
+    no-sparse-arrays: 2
+    no-unreachable: 2
+    use-isnan: 2
+    valid-typeof: 2
+    no-unexpected-multiline: 2
+
+    # Best Practice Rules:
+    block-scoped-var: 2
+    consistent-return: 2
+    curly: [2, "all"]
+    dot-location: [1, "property"]
+    dot-notation: 1
+    eqeqeq: [2, "allow-null"]
+    guard-for-in: 2
+    no-caller: 2
+    no-eq-null: 2
+    no-eval: 2
+    no-extend-native: 2
+    no-fallthrough: 2 # recommended
+    no-floating-decimal: 1
+    no-implicit-coercion: 1
+    no-implied-eval: 2
+    no-lone-blocks: 1
+    no-loop-func: 1
+    no-multi-str: 1
+    no-native-reassign: 2
+    no-new: 2
+    no-octal: 2 # recommended
+    no-redeclare: [2, {"builtinGlobals": true}] # recommended
+    no-void: 2
+    no-with: 2
+    radix: 2
+    strict: [2, "global"]
+    vars-on-top: 1
+    wrap-iife: [1, "inside"]
+
+    # Variable Declaration Rules
+    no-delete-var: 2
+    no-shadow-restricted-names: 2
+    no-shadow: 1
+    no-undef: 2
+    no-undefined: 2
+    no-unused-vars: [1, {"vars": "local", "args": "after-used"}]
+    no-use-before-define: 2
+
+    # Stylistic Rules
+    brace-style: [1, "1tbs", {"allowSingleLine": true}]
+    camelcase: [1, {"properties": "never"}]
+    comma-spacing: 1
+    comma-style: [2, "last"]
+    consistent-this: [1, "self"]
+    eol-last: 1
+    func-style: [2, "expression"]
+    indent: [1, 4]
+    key-spacing: [1, {"beforeColon": false, "afterColon": true}]
+    linebreak-style: 2
+    max-len: [1, 120]
+    new-cap: [2, {"capIsNewExceptions": ["HmacSHA256"]}]
+    newline-after-var: 1
+    no-array-constructor: 1
+    no-mixed-spaces-and-tabs: 1
+    no-nested-ternary: 1
+    no-new-object: 1
+    no-spaced-func: 2
+    no-trailing-spaces: 1
+    object-curly-spacing: [1, "always"]
+    one-var: [1, {"initialized": "never"}]
+    padded-blocks: [1, "never"]
+    quotes: [1, "single"]
+    semi: [2, "always"]
+    space-after-keywords: [1, "always"]
+    space-before-blocks: [1, "always"]
+    space-before-function-paren: [1, "never"]
+    spaced-comment: [1, "always"]
+    space-infix-ops: 1

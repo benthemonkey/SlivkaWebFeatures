@@ -74,12 +74,8 @@
 			</div>
 
 			<div class="form-group col-md-4 col-sm-6">
-				<label id="date-label" for="date">Date:</label>
+				<label for="date">Date:</label>
 				<select id="date" class="form-control"></select>
-				<!--<input type="text" id="date-val" name="actual-date" style="display: none">
-				<div class="input-group">
-					<input type="text" id="date" name="date" class="form-control text-center" style="position: relative; z-index: 10; color: #000000;" disabled></input>
-				</div>-->
 			</div>
 
 			<div class="clearfix"></div>
@@ -154,14 +150,16 @@
 			<div class="help-block col-md-12"><small>Additional inputs appear automatically.</small></div>
 		</div>
 	</div>
-	<div class="well col-md-12">
-		<div class="help-block alert alert-danger col-md-6 pull-left" id="submit-error" style="display: none;"></div>
-		<div class="pull-right">
-			<button type="submit" class="btn btn-primary btn-lg" id="submit">Validate</button>
-			<button type="button" class="btn btn-default btn-lg" id="reset">Reset</button>
+	<div class="row">
+		<div class="well col-md-12">
+			<div class="help-block alert alert-danger col-md-6 pull-left" id="submit-error" style="display: none;"></div>
+			<div class="pull-right">
+				<button type="submit" class="btn btn-primary btn-lg" id="submit">Validate</button>
+				<button type="button" class="btn btn-default btn-lg" id="reset">Reset</button>
+			</div>
+			<div class="clearfix"></div>
+			<?php include('credits.html'); ?>
 		</div>
-		<div class="clearfix"></div>
-		<?php include('credits.html'); ?>
 	</div>
 </form>
 <div class="clearfix"></div>
@@ -207,3 +205,17 @@
 		</div>
 	</div>
 </div>
+
+<script id="resultsTemplate" type="text/template">
+	<% forEach(data, function(val, key) { %>
+	<tr class="results-row">
+		<td class="results-label">
+			<%= key %>
+		</td>
+		<td class="results">
+			<% if (val.join) { print(val.join(', ')) } else { print(val) } %>
+		</td>
+	</tr>
+	<% }) %>
+	<tr class="warning"><td>Status</td><td id="results-status">Unsubmitted</td></tr>
+</script>

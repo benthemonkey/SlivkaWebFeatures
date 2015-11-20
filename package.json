@@ -1,19 +1,51 @@
 {
-  "name": "pointsCenter",
+  "name": "points-center",
   "version": "0.1.0",
+  "description": "Slivka Points Center",
+  "main": "js/points-center/index.js",
+  "dependencies": {
+    "bootstrap-multiselect": "0.9.13",
+    "bootstrap-sass": "^3.3.5",
+    "datatables": "1.10.9",
+    "font-awesome": "4.4.0",
+    "highcharts-browserify": "0.1.5",
+    "jquery": "1.11.1",
+    "lodash": "3.10.1",
+    "moment": "2.10.6",
+    "nprogress": "0.2.0",
+    "typeahead.js": "0.11.1"
+  },
   "devDependencies": {
-    "grunt": "~0.4.1",
-    "grunt-contrib-jshint": "~0.6.3",
-    "grunt-contrib-nodeunit": "~0.2.0",
-    "grunt-contrib-uglify": "~0.2.2",
-    "grunt-contrib-qunit": "~0.2.2",
-    "grunt-contrib-watch": "~0.5.3",
-    "grunt-contrib-concat": "~0.3.0",
-    "grunt-contrib-cssmin": "~0.6.1",
-    "bower": "~1.2.6",
-    "grunt-bower-requirejs": "~0.7.1",
-    "requirejs": "~2.1.8",
-    "grunt-contrib-requirejs": "~0.4.1",
-    "grunt-contrib-compress": "~0.5.2"
-  }
+    "browserify": "11.2.0",
+    "del": "2.0.2",
+    "gulp": "3.9.0",
+    "gulp-cached": "1.1.0",
+    "gulp-eslint": "1.0.0",
+    "gulp-ignore": "1.2.1",
+    "gulp-livereload": "3.8.1",
+    "gulp-load-plugins": "0.10.0",
+    "gulp-minify-css": "1.2.1",
+    "gulp-rename": "1.2.2",
+    "gulp-sass": "^2.0.4",
+    "gulp-sass-lint": "^1.0.1",
+    "gulp-sourcemaps": "1.5.2",
+    "gulp-uglify": "1.4.1",
+    "vinyl-buffer": "1.0.0",
+    "vinyl-source-stream": "1.1.0",
+    "watchify": "3.4.0"
+  },
+  "scripts": {
+    "watch": "./node_modules/gulp/bin/gulp.js watch",
+    "build": "./node_modules/gulp/bin/gulp.js build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/benthemonkey/SlivkaWebFeatures.git"
+  },
+  "author": "Ben Rothman <bensrothman@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/benthemonkey/SlivkaWebFeatures/issues"
+  },
+  "homepage": "https://github.com/benthemonkey/SlivkaWebFeatures"
 }
