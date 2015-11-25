@@ -1508,7 +1508,7 @@ class PointsCenter
                 die();
             }
 
-            echo "Success! She/He was given a point for the event.";
+            echo "Success! They were given a point for the event.";
             $html_snippet = "You were given a point for " . $result['event_name'] . ".";
         } elseif ($code == 2) {
             echo "Success! A point has NOT been given.";
