@@ -26,27 +26,27 @@ module.exports = {
             var numQtrs = data.qtrs.length;
             var cutoffNum = 39;
             var colDefs = [
-                { sTitle: '#', sClass: 'num', sWidth: '5px' },
-                { sTitle: 'Name', sClass: 'name', sWidth: '140px' }
+                { title: '#', className: 'num', width: '5px' },
+                { title: 'Name', className: 'name', width: '140px' }
             ];
 
             for (i = 0; i < numQtrs; i++) {
                 colDefs.push({
-                    sTitle: qtrToQuarter(data.qtrs[i]),
-                    sWidth: '20px'
+                    title: qtrToQuarter(data.qtrs[i]),
+                    width: '20px'
                 });
             }
 
             colDefs.push(
-                { sTitle: 'Total',
-                    sWidth: '20px' },
-                { sTitle: 'Mult',
-                    sWidth: '20px' },
-                { sTitle: 'Total w/ Mult',
-                    sWidth: '30px' },
-                { bVisible: false });
+                { title: 'Total',
+                    width: '20px' },
+                { title: 'Mult',
+                    width: '20px' },
+                { title: 'Total w/ Mult',
+                    width: '30px' },
+                { visible: false });
 
-            for (i = 0; i < data.length; i++) {
+            for (i = 0; i < data.rankings.length; i++) {
                 row = data.rankings[i];
                 tmp = ['', row.full_name];
 
@@ -72,21 +72,21 @@ module.exports = {
             });
 
             mtable = $('#males_table').dataTable({
-                aaData: males,
-                aoColumns: colDefs,
-                aaSorting: [[numQtrs + 4, 'desc']],
-                bPaginate: false,
-                bAutoWidth: false,
-                sDom: 't'
+                data: males,
+                columns: colDefs,
+                order: [[numQtrs + 4, 'desc']],
+                paging: false,
+                autoWidth: false,
+                dom: 't'
             });
 
             ftable = $('#females_table').dataTable({
-                aaData: females,
-                aoColumns: colDefs,
-                aaSorting: [[numQtrs + 4, 'desc']],
-                bPaginate: false,
-                bAutoWidth: false,
-                sDom: 't'
+                data: females,
+                columns: colDefs,
+                order: [[numQtrs + 4, 'desc']],
+                paging: false,
+                autoWidth: false,
+                dom: 't'
             });
 
             mj = 0;
