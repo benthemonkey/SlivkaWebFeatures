@@ -775,9 +775,9 @@ class PointsCenter
                 ORDER BY first_name, last_name"
         );
 
-        $noShows = self::fetchAllQuery("SELECT nu_email, COUNT(nu_email) AS count FROM noshows", PDO::FETCH_KEY_PAIR);
+        $noShows = self::fetchAllQuery("SELECT nu_email, COUNT(nu_email) AS count FROM noshows GROUP BY nu_email", PDO::FETCH_KEY_PAIR);
 
-        $absences = self::fetchAllQuery("SELECT nu_email, COUNT(nu_email) AS count from absences GROUP BY nu_email", PDO::FETCH_KEY_PAIR);
+        $absences = self::fetchAllQuery("SELECT nu_email, COUNT(nu_email) AS count FROM absences GROUP BY nu_email", PDO::FETCH_KEY_PAIR);
 
         $count = count($slivkans);
         $is_housing = self::$config['is_housing'] == 'true';
