@@ -129,8 +129,8 @@ function getFullName($slivkans, $nu_email)
 					} elseif ($i == $rowcount - 1) {
 						echo '<td class="totals">';
 					} else {
-						echo '<td data-event="'.$points_table['events'][$i].'" data-contributions="'.$td['contributions'].'" ';
-						echo 'data-comments="'.$td['comments'].'" class="pts';
+						echo '<td data-event="'.htmlentities($points_table['events'][$i]).'" data-contributions="'.$td['contributions'].'" ';
+						echo 'data-comments="'.htmlentities($td['comments']).'" class="pts';
 
 						if ($td['filled_by']) {
 							echo ' blue';
