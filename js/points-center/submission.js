@@ -2,10 +2,10 @@
 
 var moment = require('moment');
 var _ = {
-    findIndex: require('lodash/array/findIndex'),
-    forEach: require('lodash/collection/forEach'),
-    cloneDeep: require('lodash/lang/cloneDeep'),
-    template: require('lodash/string/template')
+    findIndex: require('lodash/findIndex'),
+    forEach: require('lodash/forEach'),
+    cloneDeep: require('lodash/cloneDeep'),
+    template: require('lodash/template')
 };
 var utils = require('./utils');
 var slivkans, fellows;

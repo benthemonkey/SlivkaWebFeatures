@@ -1,8 +1,8 @@
 'use strict';
 
 window.$ = window.jQuery = require('jquery');
-require('../../node_modules/bootstrap-sass/assets/javascripts/bootstrap');
-require('../../node_modules/bootstrap-multiselect/dist/js/bootstrap-multiselect');
+require('bootstrap-sass/assets/javascripts/bootstrap');
+require('bootstrap-multiselect/dist/js/bootstrap-multiselect');
 
 $(function() {
     var nprogress = require('nprogress');

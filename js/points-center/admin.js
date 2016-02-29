@@ -1,8 +1,8 @@
 'use strict';
 
 var _ = {
-    find: require('lodash/collection/find'),
-    forEach: require('lodash/collection/forEach')
+    find: require('lodash/find'),
+    forEach: require('lodash/forEach')
 };
 var utils = require('./utils');
 var slivkans, nicknames;

@@ -1,8 +1,8 @@
 'use strict';
 
 var _ = {
-    find: require('lodash/collection/find'),
-    template: require('lodash/string/template')
+    find: require('lodash/find'),
+    template: require('lodash/template')
 };
 var Bloodhound = require('typeahead.js/dist/bloodhound');
 

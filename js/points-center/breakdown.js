@@ -1,8 +1,8 @@
 'use strict';
 
 var _ = {
-    forEach: require('lodash/collection/forEach'),
-    template: require('lodash/string/template')
+    forEach: require('lodash/forEach'),
+    template: require('lodash/template')
 };
 var highcharts = require('highcharts-browserify');
 var ajaxRoot = require('./utils').ajaxRoot;

@@ -81,7 +81,7 @@ var stylesheetsShare = function(opts) {
 
     if (minify) {
         stream = stream.pipe(plugins.ignore('*.map'))
-            .pipe(plugins.minifyCss({ keepSpecialComments: 0 }))
+            .pipe(plugins.cleanCss({ keepSpecialComments: 0 }))
             .pipe(plugins.rename({
                 extname: '.min.css'
             }))

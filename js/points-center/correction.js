@@ -1,7 +1,7 @@
 'use strict';
 
 var _ = {
-    findIndex: require('lodash/array/findIndex')
+    findIndex: require('lodash/findIndex')
 };
 var typeahead = require('typeahead.js');
 var utils = require('./utils');
