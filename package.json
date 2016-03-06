@@ -1,6 +1,7 @@
 {
   "name": "points-center",
   "version": "0.1.0",
+  "private": true,
   "description": "Slivka Points Center",
   "main": "js/points-center/index.js",
   "dependencies": {
@@ -8,7 +9,7 @@
     "bootstrap-sass": "^3.3.5",
     "datatables": "1.10.9",
     "font-awesome": "4.5.0",
-    "highcharts-browserify": "0.1.5",
+    "highcharts": "^4.2.3",
     "jquery": "1.11.1",
     "lodash": "4.5.1",
     "moment": "2.11.2",

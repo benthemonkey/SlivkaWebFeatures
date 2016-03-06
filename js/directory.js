@@ -1,16 +1,9 @@
 /* eslint strict:0 */
 
-jQuery(function() {
+$(function() {
     'use strict';
 
-    var checkForDataTables = function() {
-        if (typeof($().DataTable) === 'undefined') {
-            setTimeout(checkForDataTables, 100);
-        } else {
-            init();
-        }
-    },
-    init = function() {
+    var init = function() {
         $.getJSON('/points/ajax/getDirectory.php', function(data) {
             var i;
             var path = 'http://slivka.northwestern.edu/points/img/slivkans/';
@@ -54,7 +47,15 @@ jQuery(function() {
                 $('#submitdirectorypass').click();
             }
         });
-    }
+    };
+
+    var checkForDataTables = function() {
+        if (typeof($().DataTable) === 'undefined') {
+            setTimeout(checkForDataTables, 100);
+        } else {
+            init();
+        }
+    };
 
     $.getScript('/points/node_modules/datatables/media/js/jquery.dataTables.min.js', checkForDataTables);
 });

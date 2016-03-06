@@ -5,7 +5,7 @@ var _ = {
     forEach: require('lodash/forEach')
 };
 var utils = require('./utils');
-var slivkans, nicknames;
+var slivkans;
 var submitConfigOrQuarterInfo = function(name, value, confirmMessage) {
     if (window.confirm(confirmMessage)) {
         $.post(utils.ajaxRoot + '/ajax/submitConfigOrQuarterInfo.php', { name: name, value: value }, function(status) {

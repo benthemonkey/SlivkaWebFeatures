@@ -1,18 +1,7 @@
 'use strict';
 
-var _ = {
-    findIndex: require('lodash/findIndex')
-};
-var typeahead = require('typeahead.js');
 var utils = require('./utils');
 var slivkans;
-var resetForm = function() {
-    $('#filled-by').val('');
-    $('.filled-by-control').removeClass('has-success has-error');
-    $('#event-name').val('Select One');
-    $('#comments').val('');
-    $('#submit-error').fadeOut();
-};
 
 var validateFilledBy = function() {
     return utils.updateValidity($('.filled-by-control'), utils.findSlivkan(slivkans, $('#filled-by').val()));

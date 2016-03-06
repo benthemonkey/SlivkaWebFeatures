@@ -4,7 +4,7 @@ var _ = {
     forEach: require('lodash/forEach'),
     template: require('lodash/template')
 };
-var highcharts = require('highcharts-browserify');
+var highcharts = require('highcharts');
 var ajaxRoot = require('./utils').ajaxRoot;
 var slivkans, qtrs;
 var eventsTemplate = _.template($('#eventsTemplate').html(), { imports: { forEach: _.forEach } });
@@ -19,8 +19,9 @@ var $eventsChart = $('#eventsChart');
 var $imsChart = $('#imsChart');
 
 var drawChart = function($el, tableData, titleIn, width) {
-    $el.highcharts({
+    highcharts.chart({
         chart: {
+            renderTo: $el[0],
             width: width
         },
         credits: {

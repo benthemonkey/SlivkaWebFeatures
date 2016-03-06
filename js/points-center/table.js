@@ -1,7 +1,5 @@
 'use strict';
 
-var datatables = require('datatables');
-var utils = require('./utils');
 var i, table, events;
 
 var columnFilter = function() {
@@ -30,6 +28,8 @@ var columnFilter = function() {
 
     table.draw();
 };
+
+require('datatables'); // used for its side-effects
 
 module.exports = {
     init: function() {

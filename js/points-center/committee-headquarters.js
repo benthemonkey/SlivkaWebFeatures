@@ -172,7 +172,7 @@ module.exports = {
 
             if (newVal < -3) {
                 ptsInput.val(-3);
-            }else if (newVal > 3) {
+            } else if (newVal > 3) {
                 ptsInput.val(3);
             } else {
                 ptsInput.val(newVal);

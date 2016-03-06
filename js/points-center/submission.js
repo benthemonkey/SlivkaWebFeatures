@@ -633,7 +633,7 @@ module.exports = {
         $(window).on('keydown', function(event) {
             if (event.keyCode === 13) { // prevent [Enter] from causing form submit
                 event.preventDefault();
-                return false;
+                event.stopPropogation();
             }
         });
 

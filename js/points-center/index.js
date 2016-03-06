@@ -3,6 +3,7 @@
 window.$ = window.jQuery = require('jquery');
 require('bootstrap-sass/assets/javascripts/bootstrap');
 require('bootstrap-multiselect/dist/js/bootstrap-multiselect');
+require('typeahead.js');
 
 $(function() {
     var nprogress = require('nprogress');

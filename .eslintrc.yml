@@ -88,6 +88,7 @@ rules:
     func-style: [2, "expression"]
     indent: [1, 4]
     key-spacing: [1, {"beforeColon": false, "afterColon": true}]
+    keyword-spacing: [1, {"before": true, "after": true}]
     linebreak-style: 2
     max-len: [1, 120]
     new-cap: [2, {"capIsNewExceptions": ["HmacSHA256"]}]
@@ -103,7 +104,6 @@ rules:
     padded-blocks: [1, "never"]
     quotes: [1, "single"]
     semi: [2, "always"]
-    space-after-keywords: [1, "always"]
     space-before-blocks: [1, "always"]
     space-before-function-paren: [1, "never"]
     spaced-comment: [1, "always"]

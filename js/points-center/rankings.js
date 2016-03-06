@@ -12,6 +12,7 @@ var qtrToQuarter = function(qtr) {
     case 2:
         return 'Spring 20' + yr;
     case 3:
+    default:
         return 'Fall 20' + yr;
     }
 };

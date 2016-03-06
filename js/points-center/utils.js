@@ -6,19 +6,6 @@ var _ = {
 };
 var Bloodhound = require('typeahead.js/dist/bloodhound');
 
-// Track TAB_PRESSED for destroyTypeahead
-var TAB_PRESSED = false;
-
-$(window).on('keydown',	function(event) {
-    if (event.keyCode === 9 && !event.shiftKey) {
-        TAB_PRESSED = true;
-    }
-}).on('keyup', function(event) {
-    if (event.keyCode === 9) {
-        TAB_PRESSED = false;
-    }
-});
-
 module.exports.ajaxRoot = '/points';
 
 module.exports.appendSlivkanInputs = function(n) {
