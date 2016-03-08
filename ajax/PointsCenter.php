@@ -430,13 +430,24 @@ class PointsCenter
 
     public function getIMPoints()
     {
-        return self::fetchAllQuery(
-            "SELECT nu_email, LEAST(SUM(count),15) AS total
-                FROM imcounts
-                WHERE count>=3 AND qtr=:qtr
-                GROUP BY nu_email",
-            PDO::FETCH_KEY_PAIR
-        );
+        // There is not a minimum or maximum beginning Winter 2016
+        if (self::$qtr >= 1601) {
+            return self::fetchAllQuery(
+                "SELECT nu_email, SUM(count) AS total
+                    FROM imcounts
+                    WHERE qtr=:qtr
+                    GROUP BY nu_email",
+                PDO::FETCH_KEY_PAIR
+            );
+        } else {
+            return self::fetchAllQuery(
+                "SELECT nu_email, LEAST(SUM(count),15) AS total
+                    FROM imcounts
+                    WHERE count>=3 AND qtr=:qtr
+                    GROUP BY nu_email",
+                PDO::FETCH_KEY_PAIR
+            );
+        }
     }
 
     public function getSlivkanPoints($nu_email)
