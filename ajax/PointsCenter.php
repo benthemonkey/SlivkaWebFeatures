@@ -807,7 +807,7 @@ class PointsCenter
 
             // Subtract from multiplier all quarters spent away
             if (array_key_exists($slivkans[$s]['nu_email'], $absences)) {
-                $q_total -= $absences[$slivkans];
+                $q_total -= $absences[$slivkans[$s]['nu_email']];
             }
 
             // give multiplier for current qtr if it isnt housing
