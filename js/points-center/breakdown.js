@@ -108,30 +108,44 @@ var getSlivkanPoints = function() {
 
             if (data.ims.length > 0) {
                 $imsChart.show();
-                _.forEach(data.ims, function(im) {
-                    im.count = parseInt(im.count, 10);
 
-                    imData.push([im.sport, im.count]);
+                // There is not a minimum or maximum beginning Winter 2016
+                if (qtr >= 1601) {
+                    _.forEach(data.ims, function(im) {
+                        im.count = parseInt(im.count, 10);
 
-                    if (im.count >= 3) {
+                        imData.push([im.sport, im.count]);
+
                         imTotal += im.count;
-                    } else {
-                        imExtra += im.count;
+                    });
+
+                    drawChart($imsChart, imData, 'IM Points (' + imTotal + ' Total)', width);
+                } else {
+                    _.forEach(data.ims, function(im) {
+                        im.count = parseInt(im.count, 10);
+
+                        imData.push([im.sport, im.count]);
+
+                        if (im.count >= 3) {
+                            imTotal += im.count;
+                        } else {
+                            imExtra += im.count;
+                        }
+                    });
+
+                    if (imTotal > 15) {
+                        imExtra += imTotal - 15;
+                        imTotal = 15;
                     }
-                });
 
-                if (imTotal > 15) {
-                    imExtra += imTotal - 15;
-                    imTotal = 15;
+                    drawChart(
+                        $imsChart,
+                        imData,
+                        ['IMs (', imTotal, ' Points, ', imExtra,
+                        (imExtra === 1 ? ' Doesn\'t' : ' Don\'t'), ' Count)'].join(''),
+                        width
+                    );
                 }
-
-                drawChart(
-                    $imsChart,
-                    imData,
-                    ['IMs (', imTotal, ' Points, ', imExtra,
-                    (imExtra === 1 ? ' Doesn\'t' : ' Don\'t'), ' Count)'].join(''),
-                    width
-                );
             } else {
                 $imsChart.hide();
             }
