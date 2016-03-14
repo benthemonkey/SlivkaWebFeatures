@@ -1,6 +1,6 @@
 /* eslint strict:0 */
 
-$(function() {
+jQuery(function() {
     'use strict';
 
     var init = function() {
