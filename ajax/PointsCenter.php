@@ -22,7 +22,7 @@ class PointsCenter
 
     private static function initializeConnection()
     {
-        require_once __DIR__ . "/datastoreVars.php";
+        require __DIR__ . "/datastoreVars.php";
         if (is_null(self::$dbConn)) {
             $dsn = $DB_TYPE . ":host=" . $DB_HOST . ";dbname=" . $DB_NAME;
             try {
@@ -195,10 +195,17 @@ class PointsCenter
         return true;
     }
 
-    public function getDirectory()
+    public function getDirectory($password)
     {
+        require __DIR__ . "/datastoreVars.php";
+
+        $extraColumns = "";
+        if (isset($DIRECTORY_PASSWORD) && $password == $DIRECTORY_PASSWORD) {
+            $extraColumns = ",suite,photo";
+        }
+
         return self::fetchAllQuery(
-            "SELECT first_name,last_name,year,major,suite,photo
+            "SELECT first_name,last_name,year,major$extraColumns
                 FROM slivkans
                 LEFT JOIN suites ON slivkans.nu_email=suites.nu_email AND suites.qtr=:qtr
                 WHERE qtr_joined <= :qtr AND (qtr_final IS NULL OR qtr_final >= :qtr)
