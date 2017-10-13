@@ -83,8 +83,8 @@
 			<div class="form-group committee-control col-md-4 col-sm-6">
 				<label class="control-label">Committee:</label>
 				<select id="committee" class="form-control">
-					<option class='not-standing-committee'>Select One</option>
-					<option class='not-standing-committee'>Exec</option>
+					<option class="not-standing-committee">Select One</option>
+					<option class="not-standing-committee">Exec</option>
 					<option>Academic</option>
 					<option>Facilities</option>
 					<option>Faculty</option>
@@ -92,8 +92,8 @@
 					<option>Philanthropy</option>
 					<option>Publications</option>
 					<option>Social</option>
-					<option class='not-standing-committee'>CA</option>
-					<option class='not-standing-committee'>Other</option>
+					<option class="not-standing-committee" value="CA">RA</option>
+					<option class="not-standing-committee">Other</option>
 				</select>
 			</div>
 

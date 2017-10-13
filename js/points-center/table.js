@@ -4,7 +4,7 @@ var i, table, events;
 
 var columnFilter = function() {
     var committees = $('#committeeFilter').find('option:selected').map(function() {
-        return this.innerHTML;
+        return this.value;
     }).get();
     var ims = $('#imFilter').val();
     var n = 0;

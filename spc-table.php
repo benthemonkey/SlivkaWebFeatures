@@ -66,7 +66,7 @@ $points_table = $points_center->getPointsTable($showall);
 				<option selected>Philanthropy</option>
 				<option selected>Publications</option>
 				<option selected>Social</option>
-				<option selected>CA</option>
+				<option selected value="CA">RA</option>
 				<option selected>Other</option>
 			</select>
 			<div class="btn-group placeholder">
